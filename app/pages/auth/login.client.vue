@@ -1,12 +1,13 @@
 <template>
   <div>
-    <div id="g_id_onload" data-auto_prompt="false" data-callback="handleCredentialResponse"
-      data-client_id="42322942739-u3sisoro2ckjkdoiaue0esr2n2b654vp.apps.googleusercontent.com"></div>
+    <div id="g_id_onload" data-auto_prompt="false" data-callback="handleCredentialResponse" :data-client_id="googleId">
+    </div>
     <div class="g_id_signin"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { getPublicVariables } from '#shared/utils/getVariables'
 useHead({
   script: [
     {
@@ -15,6 +16,8 @@ useHead({
     },
   ],
 })
+
+const { googleId } = getPublicVariables()
 
 function decodeJWT(token: any) {
 
