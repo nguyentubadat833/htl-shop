@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@prisma/client'
+  - '@tailwindcss/oxide'
+  - esbuild
+  - sharp
+  - vue-demi
