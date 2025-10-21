@@ -1,6 +1,4 @@
-import { useRuntimeConfig } from "nuxt/app";
-
-export function getPublicVariables() {
+export function usePublicVariables() {
   const runtimeConfig = useRuntimeConfig();
   return {
     googleId: runtimeConfig.public.googleClientId,
