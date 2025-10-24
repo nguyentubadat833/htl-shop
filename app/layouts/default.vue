@@ -1,7 +1,12 @@
 <template>
   <div>
-    default
-    <slot />
+    <UiHeader/>
+    <UMain>
+        <UContainer>
+          <NuxtPage />
+        </UContainer>
+    </UMain>
+    <UiFooter/>
   </div>
 </template>
 
