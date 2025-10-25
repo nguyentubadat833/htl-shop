@@ -1,7 +1,13 @@
 <template>
-  <div>
-    index
-  </div>
+  <UPage>
+    <template #left>
+      left
+    </template>
+
+    <template #right>
+      right
+    </template>
+  </UPage>
 </template>
 
 <script lang="ts" setup>
