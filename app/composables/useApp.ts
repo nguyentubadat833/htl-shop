@@ -4,9 +4,3 @@ export function usePublicVariables() {
     googleId: runtimeConfig.public.googleClientId,
   };
 }
-
-export function useNav(){
-  const menuItems = [
-    
-  ]
-}

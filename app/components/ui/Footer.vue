@@ -22,7 +22,7 @@
 import type { FooterColumn } from '@nuxt/ui'
 
 const footerUI = {
-  root: 'bg-gray-100'
+  root: 'light:bg-gray-100 dark:border-t  dark:border-gray-800'
 }
 
 const columns: FooterColumn[] = [

@@ -2,7 +2,7 @@
   <UPage :ui="pageUI">
     <template #left>
       <UPageAside>
-       <UiMenu/>
+        <UiMenu />
       </UPageAside>
     </template>
 
@@ -12,7 +12,7 @@
         <UCheckbox v-model="choosePlan.pro" label="PRO" />
       </div>
 
-      <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI"/>
+      <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI" />
 
     </div>
     <UPageGrid>
@@ -29,11 +29,23 @@
         </template>
         <template #body>
           <div class="space-y-2 ">
-            <UCarousel v-slot="{ item }" dots :items="card.images" class="mb-10">
-              <NuxtImg :src="item" class="w-full" />
-            </UCarousel>
+            <div class="relative group mb-10">
+              <UCarousel v-slot="{ item }" dots :items="card.images">
+                <NuxtImg :src="item" class="w-full rounded" />
+              </UCarousel>
+              <div
+                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded">
+              </div>
 
-            <div class="font-medium line-clamp-1 text-gray-600 text-sm">{{ card.title }}</div>
+              <div
+                class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                @click="navigateTo('/view/product')">
+                <span class="text-white font-semibold">View Details</span>
+              </div>
+            </div>
+
+            <div class="font-medium line-clamp-1 text-gray-600 text-sm hover:underline hover:cursor-pointer" @click="navigateTo('/view/product')">{{
+              card.title }}</div>
             <div class="flex justify-between">
               <div class="flex items-center gap-1 text-gray-500">
                 <Icon name="ic:outline-payments" size="20" />
@@ -49,7 +61,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { NavigationMenuItem } from '@nuxt/ui'
 
 enum Plan {
   Free = "Free",
@@ -86,11 +97,10 @@ const chooseSortType = ref<SortType>('Popular')
 
 const cards = ref([
   {
-    title: 'Eagle Plushy Kids toy Eagle Plushy Kids toy ',
+    title: 'Eagle Plushy Kids toy',
     images: ['https://b4.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8164/8164078.68fa1eadd13f4.jpeg', 'https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8164/8164081.68fa1eaddc953.jpeg'],
     price: '2$',
-    plan: Plan.Pro
-    // to: '/docs/getting-started/integrations/icons'
+    plan: Plan.Pro,
   },
   {
     title: 'Santa Claus Statue',
