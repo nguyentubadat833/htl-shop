@@ -29,6 +29,7 @@
 </template>
 
 <script lang="ts" setup>
+import type { container } from '#build/ui'
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 type MenuItem = {
@@ -41,6 +42,7 @@ const pageUI = {
 }
 
 const cardUI = {
+  // root: 'shadow-md',
   leading: 'w-full',
   body: 'w-full'
 }
@@ -65,7 +67,7 @@ const items = ref<NavigationMenuItem[][]>([
       label: "3D",
       icon: 'cuida:box-outline',
       open: true,
-      children: nav.value?.threeD.map(item => {
+      children: nav.value?.threeD?.map(item => {
         return {
           label: item.name
         }
@@ -75,7 +77,7 @@ const items = ref<NavigationMenuItem[][]>([
       label: "2D",
       icon: 'cuida:layers-outline',
       open: true,
-      children: nav.value?.twoD.map(item => {
+      children: nav.value?.twoD?.map(item => {
         return {
           label: item.name
         }
