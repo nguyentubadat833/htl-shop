@@ -2,16 +2,25 @@
   <UPage :ui="pageUI">
     <template #left>
       <UPageAside>
-        <UNavigationMenu orientation="vertical" :items="items" class="data-[orientation=vertical]" />
+       <UiMenu/>
       </UPageAside>
     </template>
 
+    <div class="flex justify-between">
+      <div class="flex gap-4">
+        <UCheckbox v-model="choosePlan.free" label="FREE" />
+        <UCheckbox v-model="choosePlan.pro" label="PRO" />
+      </div>
+
+      <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI"/>
+
+    </div>
     <UPageGrid>
       <UPageCard v-for="(card, index) in cards" :key="index" v-bind="card" :ui="cardUI">
         <!-- <template #body>test</template> -->
         <template #leading>
           <div class="flex justify-between w-full">
-            <span class="text-green-600 font-medium">PRO</span>
+            <span class="font-medium" :class="[{ 'text-green-600': card.plan === Plan.Pro }]">{{ card.plan }}</span>
             <div class="text-gray-500 flex items-center gap-1">
               <Icon name="material-symbols:recommend-outline" size="20" />
               16
@@ -19,8 +28,19 @@
           </div>
         </template>
         <template #body>
-          <div class="bg-amber-100">
-            <NuxtImg :src="getURLFromString(card.description)[0]" class="w-full" />
+          <div class="space-y-2 ">
+            <UCarousel v-slot="{ item }" dots :items="card.images" class="mb-10">
+              <NuxtImg :src="item" class="w-full" />
+            </UCarousel>
+
+            <div class="font-medium line-clamp-1 text-gray-600 text-sm">{{ card.title }}</div>
+            <div class="flex justify-between">
+              <div class="flex items-center gap-1 text-gray-500">
+                <Icon name="ic:outline-payments" size="20" />
+                <p class="font-medium"> {{ card.price }}</p>
+              </div>
+              <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" />
+            </div>
           </div>
         </template>
       </UPageCard>
@@ -29,101 +49,101 @@
 </template>
 
 <script lang="ts" setup>
-import type { container } from '#build/ui'
 import type { NavigationMenuItem } from '@nuxt/ui'
 
-type MenuItem = {
-  code: string
-  name: string
+enum Plan {
+  Free = "Free",
+  Pro = "Pro"
 }
 
+type SortType = 'Popular' | 'Newest'
+
 const pageUI = {
-  center: 'py-10',
+  center: 'py-5 space-y-10',
+  left: 'py-2!'
 }
 
 const cardUI = {
-  // root: 'shadow-md',
+  root: 'shadow-md dark:ring-1 light:ring-0 rounded hover:shadow-2xl hover:scale-102',
   leading: 'w-full',
-  body: 'w-full'
+  body: 'w-full',
+  container: 'p-2 sm:p-4'
 }
 
-const { data: nav } = await useAsyncData('menu', () => {
-  return queryCollection('ui')
-    .where('stem', '=', 'nav/menu')
-    .first()
-}, {
-  transform(value) {
-    return {
-      threeD: value?.meta?.["3d"] as MenuItem[],
-      twoD: value?.meta?.["2d"] as MenuItem[]
-    }
-  }
+const chooseSortTypeUI = {
+  base: 'ring-0!'
+}
+
+const sortOptions = <SortType[]>['Newest', 'Popular']
+
+const choosePlan = reactive({
+  free: true,
+  pro: true
 })
 
-const items = ref<NavigationMenuItem[][]>([
-  [
-    { label: "Products", type: "label" },
-    {
-      label: "3D",
-      icon: 'cuida:box-outline',
-      open: true,
-      children: nav.value?.threeD?.map(item => {
-        return {
-          label: item.name
-        }
-      }) ?? [],
-    },
-    {
-      label: "2D",
-      icon: 'cuida:layers-outline',
-      open: true,
-      children: nav.value?.twoD?.map(item => {
-        return {
-          label: item.name
-        }
-      }) ?? [],
-    },
-  ],
-  [
-    {
-      label: 'Contact',
-      icon: 'ic:baseline-contactless',
-      to: '/contact',
-    },
-    {
-      label: 'Help',
-      icon: 'ic:outline-contact-support',
-      disabled: true
-    }
-  ]
-])
+const chooseSortType = ref<SortType>('Popular')
+
 
 const cards = ref([
   {
-    title: 'Eagle Plushy Kids toy',
-    description: 'https://b4.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8164/8164078.68fa1eadd13f4.jpeg',
+    title: 'Eagle Plushy Kids toy Eagle Plushy Kids toy ',
+    images: ['https://b4.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8164/8164078.68fa1eadd13f4.jpeg', 'https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8164/8164081.68fa1eaddc953.jpeg'],
+    price: '2$',
+    plan: Plan.Pro
     // to: '/docs/getting-started/integrations/icons'
   },
   {
     title: 'Santa Claus Statue',
-    description: 'https://b5.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8163/8163253.68f9e607058ca.jpeg',
+    images: ['https://b5.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8163/8163253.68f9e607058ca.jpeg'],
+    price: '3,5$',
+    plan: Plan.Free
     // to: '/docs/getting-started/integrations/fonts'
   },
   {
     title: 'Decorative set with orchid',
-    description: 'https://b6.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8162/8162578.68f9594b077ce.jpeg',
+    images: ['https://b6.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8162/8162578.68f9594b077ce.jpeg'],
+    price: '4,25$',
+    plan: Plan.Pro
     // to: '/docs/getting-started/integrations/color-mode'
   },
   {
-    title: 'Decorative set with orchid',
-    description: 'https://b6.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8162/8162578.68f9594b077ce.jpeg',
-    // to: '/docs/getting-started/integrations/color-mode'
+    title: 'Garage Display Shelf Cars Toys for Children 02',
+    images: ['https://b4.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8154/8154867.68f66e7fbf80c.jpeg', 'https://b4.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8154/8154868.68f66e7fc463f.jpeg'],
+    price: '6$',
+    plan: Plan.Free
   },
+  {
+    title: 'Decorative Set 048',
+    images: ['https://b4.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8163/8163742.68fa05359fdb1.jpeg', 'https://b4.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8163/8163743.68fa0535a4d2a.jpeg'],
+    price: '2$',
+    plan: Plan.Free
+  },
+  {
+    title: 'Water Cooler / Water Purifier',
+    images: ['https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8163/8163289.68f9e96955aab.jpeg', 'https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8163/8163290.68f9e976cf353.jpeg'],
+    price: '4,5$',
+    plan: Plan.Pro
+  },
+  {
+    title: 'Spa and Beauty Salon No. 6',
+    images: ['https://b6.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8162/8162309.68f9307bea61a.jpeg', 'https://b6.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8162/8162313.68f9307c02021.jpeg'],
+    price: '4,5$',
+    plan: Plan.Free
+  },
+  {
+    title: 'Wooden Blinds Set 38',
+    images: ['https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8165/8165054.68fa63ccab23d.jpeg', 'https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8165/8165058.68fa63ccb5ac9.jpeg'],
+    price: '10$',
+    plan: Plan.Pro
+  },
+  {
+    title: '2026 Ford Mustang RTR',
+    images: ['https://b6.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8165/8165808.68faf491c8289.jpeg'],
+    price: '15$',
+    plan: Plan.Pro
+  }
 ])
 
-function getURLFromString(input: string) {
-  return input.split(',')
-}
 </script>
 
 <style></style>
