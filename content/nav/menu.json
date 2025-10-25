@@ -1,0 +1,39 @@
+{
+  "3D": [
+    { "code": "architecture", "name": "Architecture" },
+    { "code": "bathroom", "name": "Bathroom" },
+    { "code": "childroom", "name": "Childroom" },
+    { "code": "decoration", "name": "Decoration" },
+    { "code": "furniture", "name": "Furniture" },
+    { "code": "kitchen", "name": "Kitchen" },
+    { "code": "lighting", "name": "Lighting" },
+    { "code": "materials", "name": "Materials" },
+    { "code": "other-models", "name": "Other Models" },
+    { "code": "plants", "name": "Plants" },
+    { "code": "scripts", "name": "Scripts" },
+    { "code": "technology", "name": "Technology" },
+    { "code": "textures", "name": "Textures" },
+    { "code": "transport", "name": "Transport" }
+  ],
+  "2D": [
+    { "code": "animals", "name": "Animals" },
+    { "code": "cad-collections", "name": "CAD Collections" },
+    { "code": "architectural-details", "name": "Architectural details" },
+    { "code": "industrial-architecture", "name": "Industrial Architecture" },
+    { "code": "bridges", "name": "Bridges" },
+    { "code": "construction-details", "name": "Construction details" },
+    { "code": "fences-gates", "name": "Fences - Gates" },
+    { "code": "graphic-symbols", "name": "Graphic symbols" },
+    { "code": "landscaping", "name": "Landscaping" },
+    { "code": "interiors", "name": "Interiors" },
+    { "code": "maps", "name": "Maps" },
+    { "code": "urban-planing", "name": "Urban planing" },
+    { "code": "public-buildings", "name": "Public Buildings" },
+    { "code": "people", "name": "People" },
+    { "code": "villas", "name": "Villas" },
+    { "code": "trees-and-plants", "name": "Trees and Plants" },
+    { "code": "transport", "name": "Transport" },
+    { "code": "lifts-elevators", "name": "Lifts, Elevators" },
+    { "code": "other-cad-blocks", "name": "Other CAD Blocks" }
+  ]
+}

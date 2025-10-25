@@ -17,6 +17,7 @@
     "prisma:export": "pnpm prisma migrate diff --from-empty  --to-schema-datamodel ./prisma/schema.prisma --script > ./prisma/init2-0.sql"
   },
   "dependencies": {
+    "@nuxt/content": "^3.7.1",
     "@nuxt/image": "1.11.0",
     "@nuxt/ui": "4.0.1",
     "@prisma/nuxt": "0.3.0",
