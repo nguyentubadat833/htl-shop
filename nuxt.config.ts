@@ -7,8 +7,8 @@ export default defineNuxtConfig({
   prisma: {
     runMigration: false,
     installStudio: false,
-    generateClient: false,
-    autoSetupPrisma: false,
+    // generateClient: false,
+    // autoSetupPrisma: false,
   },
   runtimeConfig: {
     public: {

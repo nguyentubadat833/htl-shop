@@ -10,6 +10,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum CartStatus {
+  ACTIVE // đang thêm sản phẩm
+  CHECKED_OUT // đã thanh toán, không dùng nữa
+  ABANDONED // bỏ dở
+}
+
+enum PaymentStatus {
+  PENDING // chờ thanh toán
+  SUCCESS // thanh toán thành công
+  FAILED // thanh toán thất bại
+  REFUNDED // đã hoàn tiền (nếu có)
+}
+
+enum PaymentMethod {
+  STRIPE
+  PAYPAL
+  MOMO
+  VNPAY
+  MANUAL // chuyển khoản thủ công (nếu có)
+}
+
+enum OrderStatus {
+  PENDING // chờ thanh toán
+  PAID // đã thanh toán
+  SENDING // (tùy chọn) đang gửi file
+  DELIVERED // đã gửi file
+  CANCELLED // bị hủy
+}
+
+enum ProductStatus {
+  ACTIVE
+  LOCKED
+}
+
+enum UserStatus {
+  ACTIVE
+  LOCKED
+}
+
 enum AuthProvider {
   INTERNAL
   GOOGLE
@@ -17,30 +56,88 @@ enum AuthProvider {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String?  @unique
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  accounts Account[]
-
-  role String?
-}
-
-model Account {
-  id                String       @id @default(cuid())
-  userId            String
+  id                Int          @id @default(autoincrement())
+  publicId          String       @default(cuid())
   provider          AuthProvider
   providerAccountId String
-  email             String?
-  passwordHash      String?
-  accessToken       String?
-  refreshToken      String?
-  expiresAt         DateTime?
+  status            UserStatus   @default(ACTIVE)
+  role              String?
+  name              String
+  email             String
+  image             String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  products          Product[]
+  orders            Order[]
+  carts             Cart[]
+}
 
-  user User @relation(fields: [userId], references: [id])
+model ObjectStorage {
+  id         BigInt   @id @default(autoincrement())
+  bucket     String
+  objectName String
+  createdAt  DateTime @default(now())
+  product    Product? @relation(fields: [productId], references: [id])
+  productId  Int?
+}
 
-  @@unique([provider, providerAccountId])
+model Product {
+  id              Int             @id @default(autoincrement())
+  publicId        String          @default(cuid())
+  name            String
+  price           Float
+  status          ProductStatus   @default(ACTIVE)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdByUser   User            @relation(fields: [createdByUserId], references: [id])
+  createdByUserId Int
+  orderItems      OrderItem[]
+  carts           Cart[]
+  images          ObjectStorage[]
+}
+
+model OrderItem {
+  id        BigInt   @id @default(autoincrement())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   BigInt
+}
+
+model Order {
+  id            BigInt      @id @default(autoincrement())
+  publicId      String      @default(ulid())
+  items         OrderItem[]
+  orderByUser   User        @relation(fields: [orderByUserId], references: [id])
+  orderByUserId Int
+  orderAt       DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  status        OrderStatus @default(PENDING)
+  amount        Float
+  payments      Payment[]
+}
+
+model Payment {
+  id            String        @id @default(ulid())
+  order         Order         @relation(fields: [orderId], references: [id])
+  orderId       BigInt
+  amount        Float
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+  metadata      Json?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  user      User       @relation(fields: [userId], references: [id])
+  userId    Int
+  items     Product[]
+  status    CartStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
