@@ -6,6 +6,7 @@ import { BUCKET_UPLOAD_DEFAULT, s3Client } from "~~/server/utils/s3";
 export default defineWrappedResponseHandler(async (event) => {
   const { name, price, images } = zodValidateRequestOrThrow(AddProductSchema, await readBody(event));
 
+
   const product = await prisma.product.create({
     data: {
       name,
