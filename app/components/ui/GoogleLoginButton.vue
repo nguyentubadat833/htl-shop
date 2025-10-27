@@ -1,7 +1,7 @@
 <template>
     <div>
-        <UUser v-if="user" :name="user?.name ?? user?.email" :avatar="{
-            src: user?.picture ?? '',
+        <UUser v-if="userAuth" :name="userAuth?.name ?? userAuth?.email" :avatar="{
+            src: userAuth?.picture ?? '',
             icon: 'i-lucide-image'
         }" />
         <UButton v-else label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md"
@@ -13,12 +13,14 @@
 import { VerifyCodeRequestSchema } from '#shared/schemas/auth'
 import type z from 'zod'
 import type { UserAuthClient } from '#shared/types/auth'
+import session from '~/utils/session.ts'
 
 type VerifyCodeRequest = z.infer<typeof VerifyCodeRequestSchema>
 
+const { authSession } = session()
 const { googleId } = usePublicVariables()
 const googleClient = ref<any>(null)
-const user = ref<UserAuthClient | null>(null)
+const userAuth = ref<UserAuthClient | null>(null)
 
 onMounted(() => {
     const script = document.createElement('script')
@@ -27,6 +29,7 @@ onMounted(() => {
     script.defer = true
     script.onload = initGoogle
     document.head.appendChild(script)
+    userAuth.value = authSession().get()
 })
 
 function initGoogle() {
@@ -37,14 +40,15 @@ function initGoogle() {
         callback: async (response: any) => {
             // console.log('Google OAuth Response:', response)
 
-            await $fetch('/api/auth/google/verify', {
+            await $fetch('/api/auth/google/verify-code', {
                 method: 'POST',
                 body: <VerifyCodeRequest>{
                     code: response.code,
                 },
                 onResponse({ response }) {
-                    if (response.ok) {
-                        user.value = response._data
+                    if (response.ok && response._data) {
+                        userAuth.value = response._data
+                        authSession().set(userAuth.value!)
                     }
                 },
             })

@@ -9,7 +9,9 @@
       <div class="lg:flex gap-3 hidden">
         <UColorModeButton />
         <!-- <UButton label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md" /> -->
-        <UiGoogleLoginButton />
+        <ClientOnly>
+          <UiGoogleLoginButton />
+        </ClientOnly>
       </div>
     </template>
     <template #body>

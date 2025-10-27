@@ -34,6 +34,7 @@ export interface S3EventRecord {
 }
 
 export default defineNitroPlugin(async (nitroApp) => {
+  
   const s3Env = useRuntimeConfig().s3;
 
   S3.CLIENT = new Minio.Client({

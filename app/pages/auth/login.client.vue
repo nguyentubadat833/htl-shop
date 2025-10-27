@@ -1,18 +1,20 @@
 <template>
   <div>
-    <div id="g_id_onload" data-auto_prompt="false" 
-    data-login_uri="/api/auth/google/verifyToken"
+    <!-- <div id="g_id_onload" data-auto_prompt="false" 
+    data-login_uri="/api/auth/google/verify-token"
     :data-client_id="googleId" >
+    </div> -->
+    <div id="g_id_onload" data-auto_prompt="false" data-callback="handleCredentialResponse" :data-client_id="googleId">
     </div>
     <div class="g_id_signin"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {GoogleVerifyTokenRequestSchema} from '#shared/schemas/auth'
-import z from 'zod'; 
+// import { GoogleVerifyTokenRequestSchema } from '#shared/schemas/auth'
+import z from 'zod';
 
-type VerifyTokenReq = z.infer<typeof GoogleVerifyTokenRequestSchema>
+// type VerifyTokenReq = z.infer<typeof GoogleVerifyTokenRequestSchema>
 useHead({
   script: [
     {
@@ -22,7 +24,7 @@ useHead({
   ],
 })
 
-const {googleId} = usePublicVariables()
+const { googleId } = usePublicVariables()
 
 // function decodeJWT(token: any) {
 

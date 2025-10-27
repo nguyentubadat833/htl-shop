@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     public: {
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
     },
+    nodeProduction: process.env.NODE_ENV === 'production',
     google: {
       clientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
       clientSecret: process.env.NUXT_GOOGLE_SECRET_KEY,
