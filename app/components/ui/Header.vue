@@ -8,11 +8,12 @@
       <UButton icon="ic:outline-shopping-basket" color="neutral" variant="ghost" class="lg:mr-3 mr-0" />
       <div class="lg:flex hidden">
         <UColorModeButton />
-        <UButton label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md" />
+        <!-- <UButton label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md" /> -->
+        <UiGoogleLoginButton />
       </div>
     </template>
     <template #body>
-      <UiMenu/>
+      <UiMenu />
     </template>
   </UHeader>
 </template>
