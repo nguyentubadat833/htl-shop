@@ -13,6 +13,7 @@
     "prisma:pull": "npx prisma db pull --schema=./prisma/schema.prisma",
     "prisma:migrate": "npx prisma migrate dev --name update --schema=./prisma/schema.prisma",
     "prisma:generate": "npx prisma generate --schema=./prisma/schema.prisma",
+    "prisma:migrate-all": "pnpm prisma:migrate && pnpm prisma:generate",
     "prisma:reset-all": "pnpm prisma:reset && pnpm prisma:migrate && pnpm prisma:generate",
     "prisma:export": "pnpm prisma migrate diff --from-empty  --to-schema-datamodel ./prisma/schema.prisma --script > ./prisma/init2-0.sql"
   },

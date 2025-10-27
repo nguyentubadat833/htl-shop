@@ -41,7 +41,7 @@ enum OrderStatus {
 
 enum ProductStatus {
   ACTIVE
-  LOCKED
+  INACTIVE
 }
 
 enum UserStatus {
@@ -73,17 +73,21 @@ model User {
 }
 
 model ObjectStorage {
-  id         BigInt   @id @default(autoincrement())
+  id         BigInt    @id @default(autoincrement())
+  publicId   String    @unique @default(ulid())
   bucket     String
   objectName String
-  createdAt  DateTime @default(now())
-  product    Product? @relation(fields: [productId], references: [id])
-  productId  Int?
+  createdAt  DateTime  @default(now())
+  uploadedAt DateTime?
+  product    Product   @relation(fields: [productId], references: [id])
+  productId  Int
+
+  @@unique([bucket, objectName])
 }
 
 model Product {
   id              Int             @id @default(autoincrement())
-  publicId        String          @default(cuid())
+  publicId        String          @unique @default(cuid())
   name            String
   price           Float
   status          ProductStatus   @default(ACTIVE)
