@@ -6,7 +6,7 @@
     </template>
     <template #right>
       <UButton icon="ic:outline-shopping-basket" color="neutral" variant="ghost" class="lg:mr-3 mr-0" />
-      <div class="lg:flex hidden">
+      <div class="lg:flex gap-3 hidden">
         <UColorModeButton />
         <!-- <UButton label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md" /> -->
         <UiGoogleLoginButton />

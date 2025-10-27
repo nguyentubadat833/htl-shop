@@ -1,12 +1,24 @@
 <template>
-    <UButton label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md"
-        @click="signInWithGoogle" />
+    <div>
+        <UUser v-if="user" :name="user?.name ?? user?.email" :avatar="{
+            src: user?.picture ?? '',
+            icon: 'i-lucide-image'
+        }" />
+        <UButton v-else label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md"
+            @click="signInWithGoogle" />
+    </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { VerifyCodeRequestSchema } from '#shared/schemas/auth'
+import type z from 'zod'
+import type { UserAuthClient } from '#shared/types/auth'
+
+type VerifyCodeRequest = z.infer<typeof VerifyCodeRequestSchema>
+
 const { googleId } = usePublicVariables()
-let client: any = null
+const googleClient = ref<any>(null)
+const user = ref<UserAuthClient | null>(null)
 
 onMounted(() => {
     const script = document.createElement('script')
@@ -18,17 +30,22 @@ onMounted(() => {
 })
 
 function initGoogle() {
-    client = (window as any).google.accounts.oauth2.initCodeClient({
+    googleClient.value = (window as any).google.accounts.oauth2.initCodeClient({
         client_id: googleId,
         scope: 'openid email profile',
         ux_mode: 'popup',
         callback: async (response: any) => {
-            console.log('Google OAuth Response:', response)
+            // console.log('Google OAuth Response:', response)
 
-            await $fetch('/api/auth/google/verifyToken', {
+            await $fetch('/api/auth/google/verify', {
                 method: 'POST',
-                body: {
-                    token: response.code,
+                body: <VerifyCodeRequest>{
+                    code: response.code,
+                },
+                onResponse({ response }) {
+                    if (response.ok) {
+                        user.value = response._data
+                    }
                 },
             })
         },
@@ -36,10 +53,10 @@ function initGoogle() {
 }
 
 function signInWithGoogle() {
-    if (!client) {
+    if (!googleClient.value) {
         console.warn('Google chưa sẵn sàng')
         return
     }
-    client.requestCode() // mở popup
+    googleClient.value.requestCode()
 }
 </script>

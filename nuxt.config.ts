@@ -14,6 +14,11 @@ export default defineNuxtConfig({
     public: {
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
     },
+    google: {
+      clientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
+      clientSecret: process.env.NUXT_GOOGLE_SECRET_KEY,
+      redirectURI: process.env.NUXT_GOOGLE_REDIRECT_URI,
+    },
     s3: {
       host: process.env.NUXT_S3_HOST,
       port: process.env.NUXT_S3_PORT,
