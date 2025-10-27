@@ -29,6 +29,7 @@ onMounted(() => {
     script.defer = true
     script.onload = initGoogle
     document.head.appendChild(script)
+    
     userAuth.value = authSession().get()
 })
 
