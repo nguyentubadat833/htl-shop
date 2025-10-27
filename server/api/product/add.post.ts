@@ -8,16 +8,9 @@ export default defineWrappedResponseHandler(async (event) => {
 
   const product = await ProductService.create(name, price, UserAuthContext.getUserAuthOrThrow.id);
 
-  let rs: CreateProductResponse = {
+  return <CreateProductResponse>{
     publicId: product.publicId,
     name: product.name,
     price: product.price,
-    uploadLinks: [],
   };
-
-  if (images.length > 0) {
-    rs.uploadLinks = await new ProductService(product).addImages(images);
-  }
-
-  return rs;
 });

@@ -81,6 +81,7 @@ model ObjectStorage {
   uploadedAt DateTime?
   product    Product   @relation(fields: [productId], references: [id])
   productId  Int
+  thumbnail  Boolean   @default(false)
 
   @@unique([bucket, objectName])
 }

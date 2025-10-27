@@ -1,6 +1,7 @@
 import prisma from "~~/lib/prisma";
 import { ObjectStorage, Product, ProductStatus } from "@prisma/client";
 import { ProductItemResponse } from "~~/shared/types/product";
+import { S3 } from "./s3";
 
 export class ProductService {
   product!: Product;
@@ -17,13 +18,55 @@ export class ProductService {
     return this;
   }
 
-  static list(): Promise<ProductItemResponse[]> {
-    return prisma.product.findMany({
+  static async getThumbnail(thumbnail_publicId: string) {
+    const { bucket, objectName, thumbnail } = await prisma.objectStorage.findFirstOrThrow({
+      where: {
+        publicId: thumbnail_publicId,
+      },
+      select: {
+        bucket: true,
+        objectName: true,
+        thumbnail: true,
+      },
+    });
+
+    if (!thumbnail) {
+      throw new Error("Not a thumbnail image");
+    }
+
+    const statObject = await S3.CLIENT.statObject(bucket, objectName);
+    if (!statObject) {
+      throw new Error("Image not found in storage");
+    }
+
+    const contentType = statObject.metaData["content-type"] || statObject.metaData["Content-Type"] || "application/octet-stream";
+
+    return { bucket, objectName, contentType };
+  }
+
+  static async list(): Promise<ProductItemResponse[]> {
+    const products = await prisma.product.findMany({
       select: {
         publicId: true,
         name: true,
         price: true,
+        images: {
+          where: {
+            thumbnail: true,
+          },
+          select: {
+            publicId: true,
+          },
+        },
       },
+    });
+    return products.map((product) => {
+      return {
+        publicId: product.publicId,
+        name: product.name,
+        price: product.price,
+        thumbnail_publicIds: product.images.map((image) => image.publicId),
+      };
     });
   }
 
@@ -62,18 +105,17 @@ export class ProductService {
     await this.deleteObjectStorages(objectStorages);
   }
 
-  async addImages(imageNames: string[]) {
-    const objectNames = imageNames.map((name) => `${Date.now()}_${name}`);
-    await prisma.objectStorage.createMany({
-      data: objectNames.map((name) => {
-        return {
-          productId: this.product.id,
-          bucket: S3.BUCKET_UPLOAD_DEFAULT,
-          objectName: name,
-        };
-      }),
+  async addImage(imageName: string, thumbnail: boolean = false): Promise<string> {
+    const objectName = `${Date.now()}_${imageName}`;
+    await prisma.objectStorage.create({
+      data: {
+        productId: this.product.id,
+        bucket: S3.BUCKET_UPLOAD_DEFAULT,
+        objectName: objectName,
+        thumbnail: thumbnail,
+      },
     });
-    return await Promise.all(objectNames.map((name) => S3.CLIENT.presignedPutObject(S3.BUCKET_UPLOAD_DEFAULT, name)));
+    return await S3.CLIENT.presignedPutObject(S3.BUCKET_UPLOAD_DEFAULT, objectName);
   }
 
   private async deleteObjectStorages(objectStorages: ObjectStorage[]) {

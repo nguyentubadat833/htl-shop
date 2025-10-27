@@ -1,14 +1,16 @@
 import z from "zod";
-
 export const AddProductSchema = z.object({
   name: z.string(),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   images: z.array(z.string()).default([]),
 });
 
-export const AddImagesSchema = z.object({
+export const AddImageSchema = z.object({
   productPublicId: z.string(),
-  images: z.array(z.string()).min(1, "Phải có ít nhất một hình ảnh để thêm"),
+  image: z.object({
+    filename: z.string(),
+    thumbnail: z.boolean().default(false),
+  }),
 });
 
 export const UpdateProductSchema = z.object({
