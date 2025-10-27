@@ -8,3 +8,9 @@ export interface CreateProductResponse {
 export interface AddImagesResponse {
   uploadLinks: string[];
 }
+
+export interface ProductItemResponse {
+  publicId: string;
+  name: string;
+  price: number;
+}

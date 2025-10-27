@@ -104,6 +104,7 @@ model OrderItem {
   id        BigInt   @id @default(autoincrement())
   product   Product  @relation(fields: [productId], references: [id])
   productId Int
+  price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   order     Order    @relation(fields: [orderId], references: [id])
@@ -112,7 +113,7 @@ model OrderItem {
 
 model Order {
   id            BigInt      @id @default(autoincrement())
-  publicId      String      @default(ulid())
+  publicId      String      @unique @default(ulid())
   items         OrderItem[]
   orderByUser   User        @relation(fields: [orderByUserId], references: [id])
   orderByUserId Int

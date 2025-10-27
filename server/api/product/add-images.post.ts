@@ -6,6 +6,6 @@ export default defineWrappedResponseHandler(async (event) => {
   const req = zodValidateRequestOrThrow(AddImagesSchema, await readBody(event));
 
   return <AddImagesResponse>{
-    uploadLinks: await new ProductService().withPublicId(req.productPublicId).addImages(req.images),
+    uploadLinks: await (await new ProductService().withPublicId(req.productPublicId)).addImages(req.images),
   };
 });

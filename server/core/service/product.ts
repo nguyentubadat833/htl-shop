@@ -1,5 +1,6 @@
 import prisma from "~~/lib/prisma";
 import { ObjectStorage, Product, ProductStatus } from "@prisma/client";
+import { ProductItemResponse } from "~~/shared/types/product";
 
 export class ProductService {
   product!: Product;
@@ -14,6 +15,16 @@ export class ProductService {
       where: { publicId: productPublicId },
     });
     return this;
+  }
+
+  static list(): Promise<ProductItemResponse[]> {
+    return prisma.product.findMany({
+      select: {
+        publicId: true,
+        name: true,
+        price: true,
+      },
+    });
   }
 
   static async create(name: string, price: number, createdByUserId: number) {
@@ -91,5 +102,9 @@ export class ProductService {
     });
 
     await this.deleteObjectStorages(objectStorages);
+  }
+
+  get finalPrice() {
+    return this.product.price;
   }
 }
