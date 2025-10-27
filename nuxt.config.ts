@@ -7,12 +7,20 @@ export default defineNuxtConfig({
   prisma: {
     runMigration: false,
     installStudio: false,
-    // generateClient: false,
-    // autoSetupPrisma: false,
+    generateClient: false,
+    autoSetupPrisma: false,
   },
   runtimeConfig: {
     public: {
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
+    },
+    s3: {
+      host: process.env.NUXT_S3_HOST,
+      port: process.env.NUXT_S3_PORT,
+      accessKey: process.env.NUXT_S3_ACCESS_KEY,
+      secretKey: process.env.NUXT_S3_SECRET_KEY,
+      bucketDefault: process.env.NUXT_S3_BUCKET_DEFAULT,
+      useSSL: process.env.NUXT_S3_USE_SSL === "true",
     },
   },
   content: {
