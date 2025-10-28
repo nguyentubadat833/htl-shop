@@ -1,12 +1,19 @@
 <template>
-  <div>
-    <UUser v-if="userAuth" :name="userAuth?.name ?? userAuth?.email" :avatar="{
+  <ClientOnly>
+
+    <UPopover v-if="userAuth" :ui="popoverUI">
+      <UUser :avatar="{
             src: userAuth?.picture ?? '',
             icon: 'i-lucide-image'
-        }" />
+        }" :ui="userUI" />
+
+      <template #content>
+        <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
+      </template>
+    </UPopover>
     <UButton v-else label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md"
              @click="signInWithGoogle" />
-  </div>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
@@ -14,30 +21,65 @@ import { VerifyCodeRequestSchema } from "#shared/schemas/auth";
 import type z from "zod";
 import { type UserAuthClient, VarCookie } from "#shared/types/auth";
 import session from "~/utils/session.ts";
+import type { NavigationMenuItem } from "@nuxt/ui";
 
 type VerifyCodeRequest = z.infer<typeof VerifyCodeRequestSchema>
-
+const userUI = {
+  name: "lg:block hidden"
+};
+const popoverUI = {
+  content: "p-2"
+};
 const { authSession } = session();
 const { googleId } = usePublicVariables();
 const googleClient = ref<any>(null);
 const userAuth = ref<UserAuthClient | null>(null);
 
+const items = computed<NavigationMenuItem[][]>(() => [
+  [
+    {
+      label: userAuth.value?.name ?? "",
+      icon: "ic:outline-account-circle",
+      to: "/profile"
+    },
+    {
+      label: "Shopping",
+      icon: "ic:outline-shopping-basket",
+      to: "/cart"
+    }
+  ],
+  [
+    {
+      label: "Logout",
+      icon: "ic:outline-log-out",
+      onSelect(e) {
+        $fetch("/api/auth/google/logout", {
+          method: "DELETE"
+        }).finally(() => {
+          authSession().remove();
+          userAuth.value = null;
+        });
+      }
+    }
+  ]
+]);
+
 onBeforeMount(() => {
   userAuth.value = authSession().get();
   if (!userAuth.value) {
     const googleIdTokenCookie = useCookie(VarCookie.G_LOGIN);
-    $fetch('/api/auth/google/verify-id-token', {
+    $fetch("/api/auth/google/verify-id-token", {
       method: "POST",
       credentials: "include",
-      onResponse({response}){
+      onResponse({ response }) {
         if (response.ok && response._data) {
           userAuth.value = response._data;
           authSession().set(userAuth.value!);
         }
       }
-    })
+    });
   }
-})
+});
 onMounted(() => {
   const script = document.createElement("script");
   script.src = "https://accounts.google.com/gsi/client";
