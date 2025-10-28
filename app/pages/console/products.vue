@@ -3,11 +3,10 @@
 </script>
 
 <template>
-<div>
-  products
-</div>
+  <div>
+    products
+
+  </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

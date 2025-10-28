@@ -3,23 +3,23 @@
 
     <UPopover v-if="userAuth" :ui="popoverUI">
       <UUser :avatar="{
-            src: userAuth?.picture ?? '',
-            icon: 'i-lucide-image'
-        }" :ui="userUI" />
+        src: userAuth?.picture ?? '',
+        icon: 'i-lucide-image'
+      }" :ui="userUI" />
 
       <template #content>
         <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
       </template>
     </UPopover>
     <UButton v-else label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md"
-             @click="signInWithGoogle" />
+      @click="signInWithGoogle" />
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
 import { VerifyCodeRequestSchema } from "#shared/schemas/auth";
 import type z from "zod";
-import { type UserAuthClient, VarCookie } from "#shared/types/auth";
+import { type UserAuthClient, UserRole, VarCookie } from "#shared/types/auth";
 import session from "~/utils/session.ts";
 import type { NavigationMenuItem } from "@nuxt/ui";
 
@@ -65,8 +65,14 @@ const items = computed<NavigationMenuItem[][]>(() => {
     ]
   ]
 
-  if (userAuth.value?.role === "ADMIN"){
-
+  if (userAuth.value?.role === UserRole.ADMIN.toString()) {
+    rs.unshift([
+      {
+        label: 'Console',
+        icon: 'ic:baseline-admin-panel-settings',
+        to: '/console'
+      }
+    ])
   }
 
   return rs
@@ -75,7 +81,6 @@ const items = computed<NavigationMenuItem[][]>(() => {
 onBeforeMount(() => {
   userAuth.value = authSession().get();
   if (!userAuth.value) {
-    const googleIdTokenCookie = useCookie(VarCookie.G_LOGIN);
     $fetch("/api/auth/google/verify-id-token", {
       method: "POST",
       credentials: "include",

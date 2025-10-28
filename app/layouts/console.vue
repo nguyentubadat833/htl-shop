@@ -12,11 +12,6 @@ const navItems = ref<NavigationMenuItem[][]>([
       icon: 'ic:sharp-view-comfy-alt',
       to: '/console'
     },
-    {
-      label: 'Guest mode',
-      icon: 'ic:sharp-remove-red-eye',
-      to: '/'
-    },
   ],
   [
     {
@@ -53,29 +48,34 @@ const navItems = ref<NavigationMenuItem[][]>([
       label: 'Logout',
       icon: 'ic:outline-logout'
     }
+  ],
+  [
+    {
+      label: 'Guest mode',
+      icon: 'ic:sharp-remove-red-eye',
+      to: '/'
+    },
   ]
 ])
 </script>
 
 <template>
-<div>
-  <UMain>
-    <UContainer>
-      <UPage :ui="pageUI">
-        <template #left>
-          <UPageAside>
-            <UNavigationMenu orientation="vertical" :items="navItems" class="data-[orientation=vertical]" />
-          </UPageAside>
-        </template>
-        <div class="w-full h-full p-4">
-          <NuxtPage/>
-        </div>
-      </UPage>
-    </UContainer>
-  </UMain>
-</div>
+  <div>
+    <UMain>
+      <UContainer>
+        <UPage :ui="pageUI">
+          <template #left>
+            <UPageAside>
+              <UNavigationMenu orientation="vertical" :items="navItems" class="data-[orientation=vertical]" />
+            </UPageAside>
+          </template>
+          <div class="w-full h-full p-4">
+            <NuxtPage />
+          </div>
+        </UPage>
+      </UContainer>
+    </UMain>
+  </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -4,7 +4,7 @@ export enum  VarCookie {
 }
 
 export enum UserRole {
-  ADMIN
+  ADMIN = "ADMIN"
 }
 
 export interface UserAuthClient {

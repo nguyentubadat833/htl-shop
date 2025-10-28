@@ -1,6 +1,5 @@
 import prisma from "~~/lib/prisma";
 import { GoogleService } from "../core/service/auth";
-import { UserAuth } from "~~/server/utils/context-working";
 
 export default defineEventHandler(async (event) => {
   function removeCookies() {
