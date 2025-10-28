@@ -49,6 +49,10 @@ enum UserStatus {
   LOCKED
 }
 
+enum UserRole {
+  ADMIN
+}
+
 enum AuthProvider {
   INTERNAL
   GOOGLE
@@ -61,7 +65,7 @@ model User {
   provider          AuthProvider
   providerAccountId String
   status            UserStatus   @default(ACTIVE)
-  role              String?
+  role              UserRole?
   name              String
   email             String
   image             String?
@@ -70,6 +74,8 @@ model User {
   products          Product[]
   orders            Order[]
   carts             Cart[]
+
+  @@unique([provider, providerAccountId])
 }
 
 model ObjectStorage {
