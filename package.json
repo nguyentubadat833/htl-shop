@@ -3,6 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "clean:ui": "rimraf .nuxt",
     "clean": "rimraf .nuxt node_modules",
     "build": "nuxt build",
     "dev": "nuxt dev",

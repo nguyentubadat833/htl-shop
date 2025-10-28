@@ -2,12 +2,10 @@ import { GoogleService } from "~~/server/core/service/auth";
 import { UserAuthClient } from "~~/shared/types/auth";
 
 export default defineEventHandler(async (event) => {
-
   const body = await readBody(event);
   
-  const idToken = body['credential'] || getCookie(event, 'id_token');
-
-  if (!idToken || idToken === null || typeof idToken !== "string") {
+  const idToken = body?.['credential'] || getCookie(event, VarCookie.G_ID_TOKEN);
+  if (!idToken || typeof idToken !== "string") {
     throw createError({
       statusCode: 401,
     });
