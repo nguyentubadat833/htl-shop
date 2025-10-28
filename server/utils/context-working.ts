@@ -1,33 +1,46 @@
-import type { EventHandler, EventHandlerRequest } from "h3";
+import { UserRole } from "@prisma/client";
+import type { EventHandlerRequest, H3Event } from "h3";
 
-type UserAuth = {
+export type UserAuth = {
   id: number;
   publicId: string;
   email: string;
-  name: string;
+  role?: UserRole;
 };
 
 export class UserAuthContext {
-  constructor() {}
+  constructor(public event: H3Event<EventHandlerRequest>) {}
 
-  static get h3Event() {
-    return useEvent();
+  set userAuth(user: UserAuth) {
+    this.event.context.userAuth = user;
   }
 
-  static set setUserAuth(user: UserAuth) {
-    this.h3Event.context.userAuth = user;
+  get userAuth(): UserAuth | null {
+    return this.event.context?.userAuth ?? null
   }
 
-  static get userAuth(): UserAuth {
-    return this.h3Event.context.userAuth;
-  }
-
-  static get getUserAuthOrThrow() {
+  getUserAuthOrThrow() {
     if (!this.userAuth) {
       throw createError({
         statusCode: 401,
       });
     }
     return this.userAuth;
+  }
+
+  getUserIdOrThrow() {
+    return this.getUserAuthOrThrow().id
+  }
+
+  hasAdminRole() {
+    return this.getUserAuthOrThrow().role === UserRole.ADMIN
+  }
+
+  hasAdminOrThrow() {
+    if(!this.hasAdminRole()){
+      throw createError({
+        statusCode: 403,
+      })
+    }
   }
 }

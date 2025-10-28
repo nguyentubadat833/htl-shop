@@ -11,5 +11,5 @@ export interface UserAuthClient {
   name?: string;
   email: string;
   picture?: string;
-  role?: UserRole
+  role?: string
 }

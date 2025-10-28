@@ -1,4 +1,3 @@
-import { VarCookie } from "#shared/types/auth";
 import { AuthProvider } from "@prisma/client";
 import prisma from "~~/lib/prisma";
 

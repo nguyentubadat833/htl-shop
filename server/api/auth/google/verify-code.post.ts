@@ -17,12 +17,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const userService = new UserService();
-  userService.registerUserProvider("GOOGLE", payload.sub, payload.email, payload.name || "", payload.picture || undefined);
+  const user = await userService.registerUserProvider("GOOGLE", payload.sub, payload.email, payload.name || "", payload.picture || undefined);
 
   const response: UserAuthClient = {
     email: payload.email,
     name: payload?.name,
     picture: payload?.picture,
+    role: user?.role?.toString() ?? undefined
   };
 
   const tokenExpiry = tokens.expiry_date ? (tokens.expiry_date - Date.now()) / 1000 : undefined;

@@ -35,34 +35,42 @@ const { googleId } = usePublicVariables();
 const googleClient = ref<any>(null);
 const userAuth = ref<UserAuthClient | null>(null);
 
-const items = computed<NavigationMenuItem[][]>(() => [
-  [
-    {
-      label: userAuth.value?.name ?? "",
-      icon: "ic:outline-account-circle",
-      to: "/profile"
-    },
-    {
-      label: "Shopping",
-      icon: "ic:outline-shopping-basket",
-      to: "/cart"
-    }
-  ],
-  [
-    {
-      label: "Logout",
-      icon: "ic:outline-log-out",
-      onSelect(e) {
-        $fetch("/api/auth/google/logout", {
-          method: "DELETE"
-        }).finally(() => {
-          authSession().remove();
-          userAuth.value = null;
-        });
+const items = computed<NavigationMenuItem[][]>(() => {
+  const rs = [
+    [
+      {
+        label: userAuth.value?.name ?? "",
+        icon: "ic:outline-account-circle",
+        to: "/profile"
+      },
+      {
+        label: "Shopping",
+        icon: "ic:outline-shopping-basket",
+        to: "/cart"
       }
-    }
+    ],
+    [
+      {
+        label: "Logout",
+        icon: "ic:outline-log-out",
+        onSelect() {
+          $fetch("/api/auth/google/logout", {
+            method: "DELETE"
+          }).finally(() => {
+            authSession().remove();
+            userAuth.value = null;
+          });
+        }
+      }
+    ]
   ]
-]);
+
+  if (userAuth.value?.role === "ADMIN"){
+
+  }
+
+  return rs
+});
 
 onBeforeMount(() => {
   userAuth.value = authSession().get();
