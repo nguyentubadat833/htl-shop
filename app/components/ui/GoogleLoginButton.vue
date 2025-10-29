@@ -65,6 +65,7 @@ const items = computed<NavigationMenuItem[][]>(() => {
     ]
   ]
 
+  console.log(userAuth.value)
   if (userAuth.value?.role === UserRole.ADMIN.toString()) {
     rs.unshift([
       {
