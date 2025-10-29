@@ -4,8 +4,7 @@ import { AddImageResponse } from "~~/shared/types/product";
 import { UserAuthContext } from "~~/server/utils/context-working";
 
 export default defineWrappedResponseHandler(async (event) => {
-  const userAuthContext = new UserAuthContext(event)
-  userAuthContext.hasAdminOrThrow()
+  UserAuthContext.hasAdminOrThrowInline(event);
 
   const req = zodValidateRequestOrThrow(AddImageSchema, await readBody(event));
   return <AddImageResponse>{

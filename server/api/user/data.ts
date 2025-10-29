@@ -2,6 +2,7 @@ import prisma from "~~/lib/prisma";
 import { UserItem } from "#shared/types/user";
 
 export default defineWrappedResponseHandler(async (event) => {
+  UserAuthContext.hasAdminOrThrowInline(event);
   const users: UserItem[] = await prisma.user.findMany({
     select: {
       publicId: true,
@@ -10,8 +11,8 @@ export default defineWrappedResponseHandler(async (event) => {
       name: true,
       status: true,
       image: true,
-      createdAt: true
-    }
-  })
-  return users
-})
+      createdAt: true,
+    },
+  });
+  return users;
+});

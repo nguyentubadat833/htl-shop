@@ -94,7 +94,7 @@ export class ProductService {
   }
 
   async softDelete() {
-    await this.update(undefined, undefined, ProductStatus.INACTIVE);
+    await this.update(undefined, undefined, ProductStatus.SOFT_DELETE);
 
     const objectStorages = await prisma.objectStorage.findMany({
       where: {

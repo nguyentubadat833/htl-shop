@@ -42,6 +42,7 @@ enum OrderStatus {
 enum ProductStatus {
   ACTIVE
   INACTIVE
+  SOFT_DELETE
 }
 
 enum UserStatus {
