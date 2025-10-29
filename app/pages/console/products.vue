@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { AddProductSchema, UpdateProductSchema } from '#shared/schemas/product'
+import { AddImageSchema, AddProductSchema, UpdateProductSchema } from '#shared/schemas/product'
 import type { TableColumn } from '@nuxt/ui';
 import type z from 'zod';
 
 type Product = ProductItemResponse | Partial<ProductItemResponse>
 type UploadState = {
-  index: number
+  publicId: string
   percent: number
   status: 'progress' | 'success' | 'error'
 }
@@ -14,6 +14,7 @@ const fileUploadUI = {
   files: 'max-h-96 overflow-y-auto'
 }
 
+const { createPresinedUploadTask } = useFile()
 const currency = ref('USD')
 const { $userApi } = useNuxtApp()
 const toast = useToast()
@@ -67,12 +68,12 @@ watchEffect(() => {
   console.log(selectFiles.value)
 })
 
-function getImgUrlFromFile(file: File) {
-  return URL.createObjectURL(file)
+function getUploadState(publicId: string) {
+  return computed(() => uploadStates.value.find(e => e.publicId === publicId))
 }
 
-function getUploadStateWithIndex(index: number) {
-  return uploadStates.value.find(e => e.index === index)
+function getImgUrlFromFile(file: File) {
+  return URL.createObjectURL(file)
 }
 
 function addProduct() {
@@ -125,6 +126,45 @@ function saveProduct(index: number) {
       }
     }).finally(() => {
       productIndexProgress.value = undefined
+    })
+  }
+}
+
+async function uploadImages(index: number) {
+  const product = products.value[index]
+  if (product && product.publicId) {
+    selectFiles.value?.forEach((file, index) => {
+      const uploadState = reactive<UploadState>({
+        publicId: product.publicId!,
+        percent: 0,
+        status: "progress"
+      })
+      uploadStates.value.push(uploadState)
+      $userApi('/api/product/add-image', {
+        method: "POST",
+        body: <z.infer<typeof AddImageSchema>>{
+          product_publicId: product.publicId,
+          image: {
+            filename: file.name
+          }
+        },
+        onResponse({ response }) {
+          if (response.ok) {
+            const data = response._data
+            createPresinedUploadTask(file, data.uploadLink, (percent) => {
+              uploadState.percent = percent
+              if (percent === 100) {
+                uploadState.status = 'success'
+              }
+            })
+              .catch(e => {
+                uploadState.status = 'error'
+              })
+          } else {
+            uploadState.status = 'error'
+          }
+        }
+      })
     })
   }
 }
@@ -183,11 +223,12 @@ function saveProduct(index: number) {
                           @click="open()" />
                       </template>
                       <template #file="{ file, index }">
-                        <div class="flex items-center gap-2">
-                          <div class="flex items-center h-10 w-10 p-1 rounded-full border border-gray-200">
+                        <div class="flex items-center gap-2 w-full">
+                          <div
+                            class="flex items-center h-10 w-10 p-1 rounded-full overflow-hidden border lgiht:border-gray-200 dark:border-gray-800">
                             <img :src="getImgUrlFromFile(file)" />
                           </div>
-                          <div class="text-[0.7rem] flex flex-col gap-1 h-10">
+                          <div class="text-[0.7rem] flex flex-col gap-1 h-10 w-full">
                             <div class="flex justify-between gap-2">
                               <span>{{ file.name }}</span>
                               <!-- <Icon name="material-symbols:cancel-outline" size="15" class="hover:cursor-pointer"
@@ -197,12 +238,12 @@ function saveProduct(index: number) {
                                   }
                                 " /> -->
                             </div>
-                            <div v-if="uploadStates.some(e => e.index === index)">
-                              <UProgress v-if="getUploadStateWithIndex(index)?.status === 'progress'"
-                                :model-value="getUploadStateWithIndex(index)!.percent" />
-                              <UProgress v-else-if="getUploadStateWithIndex(index)?.status === 'error'"
+                            <div v-if="uploadStates.some(e => e.publicId === row.original.publicId)">
+                              <UProgress v-if="getUploadState(row.original.publicId!).value?.status === 'progress'"
+                                :model-value="uploadStates[index]!.percent" />
+                              <UProgress v-else-if="getUploadState(row.original.publicId!).value?.status === 'error'"
                                 :model-value="100" color="error" />
-                              <UProgress v-else-if="getUploadStateWithIndex(index)?.status === 'success'"
+                              <UProgress v-else-if="getUploadState(row.original.publicId!).value?.status === 'success'"
                                 :model-value="100" />
                             </div>
                           </div>
@@ -212,7 +253,7 @@ function saveProduct(index: number) {
                         <div class="flex w-full gap-3">
                           <UButton v-if="files?.length" label="Remove all files" color="neutral"
                             @click="removeFile()" />
-                          <UButton icon="ic:sharp-cloud-upload" label="Upload" block />
+                          <UButton icon="ic:sharp-cloud-upload" label="Upload" block @click="uploadImages(row.index)" />
                         </div>
                       </template>
                     </UFileUpload>

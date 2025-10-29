@@ -6,7 +6,7 @@ export const AddProductSchema = z.object({
 });
 
 export const AddImageSchema = z.object({
-  productPublicId: z.string(),
+  product_publicId: z.string(),
   image: z.object({
     filename: z.string(),
     thumbnail: z.boolean().default(false),

@@ -6,6 +6,7 @@ export default function () {
       xhr.open("PUT", uri, true);
 
       xhr.upload.onprogress = (event) => {
+        // console.log('progress', event.loaded, event.total, event.lengthComputable);
         if (event.lengthComputable && onProgress) {
           const percent = Math.round((event.loaded / event.total) * 100);
           onProgress(percent);
@@ -28,6 +29,7 @@ export default function () {
       xhr.send(file);
     });
   }
+
   return {
     createPresinedUploadTask,
   };
