@@ -6,7 +6,7 @@ export function zodValidateRequestOrThrow<T>(schema: ZodType<T>, data: unknown, 
 
   if (!result.success) {
     console.error(result.error);
-    throw new ServerError(result.error.message, 'validate')
+    throw new ServerError(result.error.issues[0].message, 400, "validate");
   }
 
   return result.data;

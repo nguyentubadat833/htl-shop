@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
     deleteCookie(event, VarCookie.G_ID_TOKEN);
   }
   const isLogin = getCookie(event, VarCookie.G_LOGIN) === "true";
-
   if (isLogin) {
     const idToken = getCookie(event, VarCookie.G_ID_TOKEN);
     if (!idToken) {
@@ -38,6 +37,7 @@ export default defineEventHandler(async (event) => {
             email: user.email,
             role: user.role ?? undefined,
           };
+          console.log(authContext.userAuth);
         } else {
           removeCookies();
         }

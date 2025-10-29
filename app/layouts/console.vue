@@ -2,6 +2,7 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const pageUI = {
+  root: 'p-2',
   left: 'py-2!',
   // center: 'bg-orange-500',
 }
@@ -62,18 +63,16 @@ const navItems = ref<NavigationMenuItem[][]>([
 <template>
   <ClientOnly>
     <UMain>
-      <UContainer>
-        <UPage :ui="pageUI">
-          <template #left>
-            <UPageAside>
-              <UNavigationMenu orientation="vertical" :items="navItems" class="data-[orientation=vertical]" />
-            </UPageAside>
-          </template>
-          <div class="w-full h-full p-4">
-            <NuxtPage />
-          </div>
-        </UPage>
-      </UContainer>
+      <UPage :ui="pageUI">
+        <template #left>
+          <UPageAside>
+            <UNavigationMenu orientation="vertical" :items="navItems" class="data-[orientation=vertical]" />
+          </UPageAside>
+        </template>
+        <div class="w-full h-full">
+          <NuxtPage />
+        </div>
+      </UPage>
     </UMain>
   </ClientOnly>
 </template>

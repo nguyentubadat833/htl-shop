@@ -44,32 +44,6 @@ export class ProductService {
     return { bucket, objectName, contentType };
   }
 
-  static async list(): Promise<ProductItemResponse[]> {
-    const products = await prisma.product.findMany({
-      select: {
-        publicId: true,
-        name: true,
-        price: true,
-        images: {
-          where: {
-            thumbnail: true,
-          },
-          select: {
-            publicId: true,
-          },
-        },
-      },
-    });
-    return products.map((product) => {
-      return {
-        publicId: product.publicId,
-        name: product.name,
-        price: product.price,
-        thumbnail_publicIds: product.images.map((image) => image.publicId),
-      };
-    });
-  }
-
   static async create(name: string, price: number, createdByUserId: number) {
     return await prisma.product.create({
       data: {
