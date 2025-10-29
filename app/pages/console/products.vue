@@ -98,6 +98,8 @@ function saveProduct(index: number) {
       },
       onResponse({ response }) {
         if (response.ok) {
+          productIndexProgress.value = undefined
+          productIndexSelected.value = undefined
           refresh()
           toast.add({
             title: "Success"
@@ -105,7 +107,7 @@ function saveProduct(index: number) {
         }
       }
     }).finally(() => {
-      productIndexProgress.value = undefined
+
     })
   } else {
     $userApi('/api/product/update', {
@@ -118,14 +120,14 @@ function saveProduct(index: number) {
       },
       onResponse({ response }) {
         if (response.ok) {
+          productIndexProgress.value = undefined
+          productIndexSelected.value = undefined
           refresh()
           toast.add({
             title: "Success"
           })
         }
       }
-    }).finally(() => {
-      productIndexProgress.value = undefined
     })
   }
 }
