@@ -60,7 +60,7 @@ const navItems = ref<NavigationMenuItem[][]>([
 </script>
 
 <template>
-  <div>
+  <ClientOnly>
     <UMain>
       <UContainer>
         <UPage :ui="pageUI">
@@ -75,7 +75,7 @@ const navItems = ref<NavigationMenuItem[][]>([
         </UPage>
       </UContainer>
     </UMain>
-  </div>
+  </ClientOnly>
 </template>
 
 <style scoped></style>

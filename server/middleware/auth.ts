@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
           },
         });
         if (user) {
-          const authContext = new UserAuthContext(event)
+          const authContext = new UserAuthContext(event);
           authContext.userAuth = {
             id: user.id,
             publicId: user.publicId,

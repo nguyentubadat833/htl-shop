@@ -49,8 +49,8 @@ const columns: TableColumn<User>[] = [
         <UBadge v-if="row.original.status === 'ACTIVE'" :label="row.original.status" />
         <UBadge v-else color="neutral" :label="row.original.status" />
       </template>
-      <template #createdAt-cell="{row}">
-        <NuxtTime :datetime="row.original.createdAt"/>
+      <template #createdAt-cell="{ row }">
+        <NuxtTime :datetime="row.original.createdAt" />
       </template>
     </UTable>
   </div>

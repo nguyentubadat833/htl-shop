@@ -34,4 +34,19 @@ export default defineNuxtConfig({
       sqliteConnector: "native",
     },
   },
+
+  routeRules: {
+    "/console/**": {
+      ssr: false,
+    },
+    "/auth/**": {
+      ssr: false,
+    },
+    "/profile": {
+      ssr: false,
+    },
+    "/cart": {
+      ssr: false,
+    },
+  },
 });
