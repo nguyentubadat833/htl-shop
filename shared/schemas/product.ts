@@ -23,3 +23,13 @@ export const UpdateProductSchema = z.object({
 export const DeleteProductSchema = z.object({
   publicId: z.string(),
 });
+
+export const GetImageSchema = z.object({
+  publicId: z.string(),
+  custom: z
+    .object({
+      resize: z.coerce.number(),
+      quality: z.coerce.number(),
+    })
+    .optional(),
+});

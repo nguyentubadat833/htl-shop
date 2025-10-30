@@ -7,7 +7,6 @@ export default defineWrappedResponseHandler(async (event) => {
   const userAuthContext = UserAuthContext.hasAdminOrThrowInline(event);
 
   const { name, price } = zodValidateRequestOrThrow(AddProductSchema, await readBody(event));
-
   const product = await ProductService.create(name, price, userAuthContext.getUserIdOrThrow());
 
   return <CreateProductResponse>{

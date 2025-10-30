@@ -37,13 +37,17 @@ export default defineEventHandler(async (event) => {
             email: user.email,
             role: user.role ?? undefined,
           };
-          console.log(authContext.userAuth);
         } else {
           removeCookies();
         }
       } else {
         removeCookies();
       }
+    }
+  } else {
+    const path = event.path;
+    if (path.startsWith("/console")) {
+      await sendRedirect(event, "/", 302);
     }
   }
 });

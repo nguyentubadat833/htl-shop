@@ -1,7 +1,7 @@
 import prisma from "~~/lib/prisma";
 import { ObjectStorage, Product, ProductStatus } from "@prisma/client";
-import { ProductItemResponse } from "~~/shared/types/product";
 import { S3 } from "./s3";
+import { UserRole } from "@prisma/client";
 
 export class ProductService {
   product!: Product;
@@ -18,10 +18,10 @@ export class ProductService {
     return this;
   }
 
-  static async getThumbnail(thumbnail_publicId: string) {
+  static async getImage(publicId: string, validateThumbnail: boolean) {
     const { bucket, objectName, thumbnail } = await prisma.objectStorage.findFirstOrThrow({
       where: {
-        publicId: thumbnail_publicId,
+        publicId: publicId,
       },
       select: {
         bucket: true,
@@ -30,13 +30,17 @@ export class ProductService {
       },
     });
 
-    if (!thumbnail) {
-      throw new Error("Not a thumbnail image");
+    if (validateThumbnail && !thumbnail) {
+      throw new ServerError(HttpStatus[404], 404, "validate");
     }
+
+    // if (!thumbnail && (!userRole || userRole !== "ADMIN")) {
+    //   throw new ServerError(HttpStatus[404], 404, "permission");
+    // }
 
     const statObject = await S3.CLIENT.statObject(bucket, objectName);
     if (!statObject) {
-      throw new Error("Image not found in storage");
+      throw new ServerError("Image not found in storage", 404, "storage");
     }
 
     const contentType = statObject.metaData["content-type"] || statObject.metaData["Content-Type"] || "application/octet-stream";

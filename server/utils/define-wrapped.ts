@@ -6,7 +6,7 @@ export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(h
     try {
       const response = await handler(event);
       // return { response };
-      return response
+      return response;
     } catch (err) {
       if (err instanceof ServerError) {
         throw createError({

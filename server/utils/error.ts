@@ -1,4 +1,4 @@
-export type ErrorType = "validate" | "prisma" | "logic" | "auth";
+export type ErrorType = "validate" | "prisma" | "logic" | "auth" | "permission" | "storage";
 
 export const HttpStatus = {
   // 1xx – Informational

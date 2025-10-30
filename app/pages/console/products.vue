@@ -1,13 +1,28 @@
 <script setup lang="ts">
-import { AddImageSchema, AddProductSchema, UpdateProductSchema } from '#shared/schemas/product'
+import { AddImageSchema, AddProductSchema, GetImageSchema, UpdateProductSchema } from '#shared/schemas/product'
 import type { TableColumn } from '@nuxt/ui';
 import type z from 'zod';
 
 type Product = ProductItemResponse | Partial<ProductItemResponse>
-type UploadState = {
+
+type UploadStack = {
   publicId: string
-  percent: number
-  status: 'progress' | 'success' | 'error'
+  selectedFiles: File[]
+  elements: {
+    file: File
+    thumbnail: boolean
+    percent: number
+    status: 'pending' | 'progress' | 'success' | 'error'
+  }[],
+}
+
+type CarouselState = {
+  thumbnailLinks: string[]
+  productImageLinks: string[]
+}
+
+const slideoverUI = {
+  content: 'right-0 inset-y-0 w-full max-w-3xl'
 }
 
 const fileUploadUI = {
@@ -18,12 +33,21 @@ const { createPresinedUploadTask } = useFile()
 const currency = ref('USD')
 const { $userApi } = useNuxtApp()
 const toast = useToast()
-const selectFiles = ref<File[]>()
-const uploadStates = ref<UploadState[]>([])
+
+const openImageSlideover = ref(false)
+const selectedFiles = ref<File[]>([])
+const uploadStacks = ref<UploadStack[]>([])
+const uploadStackSelected = ref<UploadStack>()
+const uploadStackProgress = computed<boolean>(() => uploadStackSelected.value ? uploadStackSelected.value.elements.some(el => el.status === 'progress') : false)
 
 const products = ref<Product[]>([{}])
 const productIndexSelected = ref<number>()
 const productIndexProgress = ref<number>()
+
+const carouselState = reactive<CarouselState>({
+  thumbnailLinks: [],
+  productImageLinks: []
+})
 
 const { pending, refresh } = useAsyncData(async () => await $userApi('/api/product/list', {
   onResponse({ response }) {
@@ -64,16 +88,85 @@ const columns: TableColumn<Product>[] = [
   }
 ]
 
-watchEffect(() => {
-  console.log(selectFiles.value)
-})
-
-function getUploadState(publicId: string) {
-  return computed(() => uploadStates.value.find(e => e.publicId === publicId))
+function afterSlideoverLeave() {
+  openImageSlideover.value = false
+  carouselState.productImageLinks = []
+  carouselState.thumbnailLinks = []
 }
 
-function getImgUrlFromFile(file: File) {
-  return URL.createObjectURL(file)
+function changeSelectFiles(files: File[] | null | undefined) {
+  if (files && uploadStackSelected.value) {
+    uploadStackSelected.value.selectedFiles = files
+    uploadStackSelected.value.elements = files.map(file => {
+      return {
+        file: file,
+        thumbnail: false,
+        percent: 0,
+        status: 'pending',
+      }
+    })
+  }
+}
+
+function toogleImageSlideover(product_publicId: string) {
+  openImageSlideover.value = true
+  if (openImageSlideover.value) {
+    const product = products.value.find(p => p.publicId === product_publicId)
+    if (!product) {
+      return
+    }
+
+    const { thumbnails, productImages } = product.images!.reduce(
+      (acc, el) => {
+        if (el.thumbnail) acc.thumbnails.push(el.publicId)
+        else acc.productImages.push(el.publicId)
+        return acc
+      },
+      { thumbnails: [], productImages: [] } as {
+        thumbnails: string[]
+        productImages: string[]
+      }
+    )
+
+    if (thumbnails.length > 0) {
+      carouselState.thumbnailLinks = thumbnails.filter(Boolean).map(publicId => {
+        const params = new URLSearchParams({
+          publicId: publicId
+        });
+        return `/storage/thumbnail?${params.toString()}`
+      })
+    }
+
+    if (productImages.length > 0) {
+      carouselState.productImageLinks = productImages.filter(Boolean).map(publicId => {
+        const params = new URLSearchParams({
+          publicId: publicId
+        });
+        return `/api/product/get-image?${params.toString()}`
+      })
+    }
+
+    const existUploadStack = uploadStacks.value.find(e => e.publicId === product_publicId)
+    if (existUploadStack) {
+      uploadStackSelected.value = existUploadStack
+      selectedFiles.value = uploadStackSelected.value.selectedFiles
+    } else {
+      const stack = reactive({
+        publicId: product_publicId,
+        selectedFiles: [],
+        elements: []
+      })
+      uploadStacks.value.push(stack)
+      uploadStackSelected.value = stack
+      selectedFiles.value = []
+    }
+  }
+}
+
+function selectedThumbnailCheckbox(value: boolean | "indeterminate", elementIndex: number) {
+  if (typeof value === 'boolean') {
+    uploadStackSelected.value!.elements[elementIndex]!.thumbnail = value
+  }
 }
 
 function addProduct() {
@@ -132,43 +225,36 @@ function saveProduct(index: number) {
   }
 }
 
-async function uploadImages(index: number) {
-  const product = products.value[index]
-  if (product && product.publicId) {
-    selectFiles.value?.forEach((file, index) => {
-      const uploadState = reactive<UploadState>({
-        publicId: product.publicId!,
-        percent: 0,
-        status: "progress"
-      })
-      uploadStates.value.push(uploadState)
-      $userApi('/api/product/add-image', {
-        method: "POST",
-        body: <z.infer<typeof AddImageSchema>>{
-          product_publicId: product.publicId,
-          image: {
-            filename: file.name
-          }
-        },
-        onResponse({ response }) {
-          if (response.ok) {
-            const data = response._data
-            createPresinedUploadTask(file, data.uploadLink, (percent) => {
-              uploadState.percent = percent
-              if (percent === 100) {
-                uploadState.status = 'success'
-              }
-            })
-              .catch(e => {
-                uploadState.status = 'error'
-              })
-          } else {
-            uploadState.status = 'error'
-          }
+async function uploadImages() {
+  uploadStackSelected.value?.elements.forEach(el => {
+    el.status === 'progress'
+    $userApi('/api/product/add-image', {
+      method: "POST",
+      body: <z.infer<typeof AddImageSchema>>{
+        product_publicId: uploadStackSelected.value?.publicId,
+        image: {
+          filename: el.file.name,
+          thumbnail: el.thumbnail
         }
-      })
+      },
+      onResponse({ response }) {
+        if (response.ok) {
+          const data = response._data
+          createPresinedUploadTask(el.file, data.uploadLink, (percent) => {
+            el.percent = percent
+            if (percent === 100) {
+              el.status = 'success'
+            }
+          })
+            .catch(e => {
+              el.status = 'error'
+            })
+        }
+      }
+    }).catch(() => {
+      el.status = 'error'
     })
-  }
+  })
 }
 
 </script>
@@ -208,63 +294,8 @@ async function uploadImages(index: number) {
       </template>
       <template #images-cell="{ row }">
         <div v-if="row.index">
-          <USlideover>
-            <UButton icon="ic:baseline-more-horiz" color="neutral" variant="subtle" />
-            <template #content>
-              <div class="space-y-4 p-4">
-                <div class="space-y-2">
-                  <div class="flex justify-between items-center">
-                    <span class="font-medium">Images</span>
-                  </div>
-                  <USeparator />
-                  <div class="max-h-72">
-                    <UFileUpload v-model="selectFiles" icon="i-lucide-image" label="Drop your images here" layout="list"
-                      accept="image/*" multiple :interactive="false" class="w-full min-h-48" :ui="fileUploadUI">
-                      <template #actions="{ open }">
-                        <UButton label="Select images" icon="i-lucide-upload" color="neutral" variant="outline"
-                          @click="open()" />
-                      </template>
-                      <template #file="{ file, index }">
-                        <div class="flex items-center gap-2 w-full">
-                          <div
-                            class="flex items-center h-10 w-10 p-1 rounded-full overflow-hidden border lgiht:border-gray-200 dark:border-gray-800">
-                            <img :src="getImgUrlFromFile(file)" />
-                          </div>
-                          <div class="text-[0.7rem] flex flex-col gap-1 h-10 w-full">
-                            <div class="flex justify-between gap-2">
-                              <span>{{ file.name }}</span>
-                              <!-- <Icon name="material-symbols:cancel-outline" size="15" class="hover:cursor-pointer"
-                                @click="
-                                  () => {
-                                    selectFiles?.splice(index, 1)
-                                  }
-                                " /> -->
-                            </div>
-                            <div v-if="uploadStates.some(e => e.publicId === row.original.publicId)">
-                              <UProgress v-if="getUploadState(row.original.publicId!).value?.status === 'progress'"
-                                :model-value="uploadStates[index]!.percent" />
-                              <UProgress v-else-if="getUploadState(row.original.publicId!).value?.status === 'error'"
-                                :model-value="100" color="error" />
-                              <UProgress v-else-if="getUploadState(row.original.publicId!).value?.status === 'success'"
-                                :model-value="100" />
-                            </div>
-                          </div>
-                        </div>
-                      </template>
-                      <template #files-bottom="{ removeFile, files }">
-                        <div class="flex w-full gap-3">
-                          <UButton v-if="files?.length" label="Remove all files" color="neutral"
-                            @click="removeFile()" />
-                          <UButton icon="ic:sharp-cloud-upload" label="Upload" block @click="uploadImages(row.index)" />
-                        </div>
-                      </template>
-                    </UFileUpload>
-                  </div>
-
-                </div>
-              </div>
-            </template>
-          </USlideover>
+          <UButton icon="ic:baseline-more-horiz" color="neutral" variant="subtle"
+            @click="toogleImageSlideover(row.original.publicId!)" />
         </div>
       </template>
       <template #price-cell="{ row }">
@@ -280,6 +311,81 @@ async function uploadImages(index: number) {
         </div>
       </template>
     </UTable>
+    <USlideover v-model:open="openImageSlideover" :overlay="false" :ui="slideoverUI" @after:leave="afterSlideoverLeave">
+      <template #content>
+        <div class="p-4 flex flex-col gap-4 overflow-y-auto">
+          <div class="space-y-6">
+            <div>
+              <UFileUpload v-model="selectedFiles" icon="i-lucide-image" label="Drop your images here" layout="list"
+                accept="image/*" multiple :interactive="false" class="w-full" :ui="fileUploadUI"
+                @update:model-value="(files) => changeSelectFiles(files)">
+                <template #actions="{ open }">
+                  <UButton label="Select images" icon="i-lucide-upload" color="neutral" variant="outline"
+                    @click="open()" />
+                </template>
+
+                <template #files="{ files }">
+                  <div v-for="({ file, status }, index) in uploadStackSelected?.elements"
+                    class="flex justify-between gap-2 p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div class="p-2 w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      <Icon name="heroicons:document" />
+                    </div>
+                    <div class="w-full text-[0.7rem] flex flex-col gap-1">
+                      <div class="flex justify-between gap-2">
+                        <span>{{ file.name }}</span>
+                        <Icon name="material-symbols:cancel-outline" size="15" class="hover:cursor-pointer" @click="
+                          () => {
+                            uploadStackSelected?.elements.splice(index, 1);
+                            files?.splice(index, 1);
+                          }
+                        " />
+                      </div>
+                      <UProgress v-if="status === 'progress'"
+                        :model-value="uploadStackSelected?.elements[index]?.percent" />
+                      <UProgress v-else-if="status === 'error'" :model-value="100" color="error" />
+                      <UProgress v-else-if="status === 'success'" :model-value="100" />
+                      <UCheckbox label="Thumbnail"
+                        @update:model-value="(value) => selectedThumbnailCheckbox(value, index)" />
+                      <!-- <span v-else-if="status === 'pending'">{{ size }}</span> -->
+                    </div>
+                  </div>
+                </template>
+                <template #files-bottom="{ removeFile, files }">
+                  <div class="flex w-full gap-3">
+                    <UButton v-if="files?.length" label="Remove all files" color="neutral" @click="removeFile()" />
+                    <UButton :loading="uploadStackProgress" icon="ic:sharp-cloud-upload" label="Upload" block
+                      @click="uploadImages()" />
+                  </div>
+                </template>
+              </UFileUpload>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between items-center">
+              <span class="font-medium">Thumbnails</span>
+            </div>
+            <USeparator />
+            <UCarousel v-slot="{ item }" :items="carouselState.thumbnailLinks" :ui="{ item: 'basis-1/4' }" class="mt-5">
+              <div class="h-28 rounded-lg flex items-center overflow-hidden">
+                <img :src="item" class=" rounded-lg w-full"></img>
+              </div>
+            </UCarousel>
+          </div>
+          <div>
+            <div class="flex justify-between items-center">
+              <span class="font-medium">Images</span>
+            </div>
+            <USeparator />
+            <div class="columns-3 space-y-4 mt-5">
+              <div v-for="src in carouselState.productImageLinks"
+                class="flex items-center rounded-lg overflow-hidden p-3">
+                <img :src="src" class="rounded-lg hover:scale-105 shadow" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </USlideover>
   </div>
 </template>
 

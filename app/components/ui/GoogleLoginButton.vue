@@ -11,8 +11,8 @@
         <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
       </template>
     </UPopover>
-    <UButton v-else label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md"
-      @click="signInWithGoogle" />
+    <UButton :loading="isLoading" v-else label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in"
+      size="md" @click="signInWithGoogle" />
   </ClientOnly>
 </template>
 
@@ -34,6 +34,7 @@ const { authSession } = session();
 const { googleId } = usePublicVariables();
 const googleClient = ref<any>(null);
 const userAuth = ref<UserAuthClient | null>(null);
+const isLoading = ref(false)
 
 const items = computed<NavigationMenuItem[][]>(() => {
   const rs = [
@@ -65,7 +66,6 @@ const items = computed<NavigationMenuItem[][]>(() => {
     ]
   ]
 
-  console.log(userAuth.value)
   if (userAuth.value?.role === UserRole.ADMIN.toString()) {
     rs.unshift([
       {
@@ -80,19 +80,25 @@ const items = computed<NavigationMenuItem[][]>(() => {
 });
 
 onBeforeMount(() => {
-  userAuth.value = authSession().get();
-  if (!userAuth.value) {
-    $fetch("/api/auth/google/verify-id-token", {
-      method: "POST",
-      credentials: "include",
-      onResponse({ response }) {
-        if (response.ok && response._data) {
-          userAuth.value = response._data;
-          authSession().set(userAuth.value!);
+  const isLogin = useCookie(VarCookie.G_LOGIN)
+  if (isLogin.value) {
+    userAuth.value = authSession().get();
+    if (!userAuth.value) {
+      $fetch("/api/auth/google/verify-id-token", {
+        method: "POST",
+        credentials: "include",
+        onResponse({ response }) {
+          if (response.ok && response._data) {
+            userAuth.value = response._data;
+            authSession().set(userAuth.value!);
+          }
         }
-      }
-    });
+      });
+    }
+  } else {
+    authSession().remove()
   }
+
 });
 onMounted(() => {
   const script = document.createElement("script");
@@ -111,18 +117,21 @@ function initGoogle() {
     callback: async (response: any) => {
       // console.log('Google OAuth Response:', response)
 
+      isLoading.value = true
       await $fetch("/api/auth/google/verify-code", {
         method: "POST",
         body: <VerifyCodeRequest>{
           code: response.code
         },
-        onResponse({ response }) {
+        async onResponse({ response }) {
           if (response.ok && response._data) {
             userAuth.value = response._data;
             authSession().set(userAuth.value!);
+            await nextTick()
+            isLoading.value = false
           }
         }
-      });
+      }).catch(() => isLoading.value = false)
     }
   });
 }
