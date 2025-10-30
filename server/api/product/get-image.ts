@@ -12,15 +12,6 @@ export default defineWrappedResponseHandler(async (event) => {
   const { objectName, bucket, contentType } = await ProductService.getImage(publicId, false);
   const stream = await S3.CLIENT.getObject(bucket, objectName);
 
-  // let outputStream: any;
-
-  // if (custom) {
-  //   const transformer = sharp().resize(custom.resize).jpeg({ quality: custom.quality });
-  //   outputStream = Readable.toWeb(stream.pipe(transformer));
-  // } else {
-  //   outputStream = Readable.toWeb(stream);
-  // }
-
   const transformer = sharp()
     .resize(custom?.resize ?? 400)
     .jpeg({ quality: custom?.quality ?? 50 });

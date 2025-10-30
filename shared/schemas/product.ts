@@ -20,10 +20,6 @@ export const UpdateProductSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
 });
 
-export const DeleteProductSchema = z.object({
-  publicId: z.string(),
-});
-
 export const GetImageSchema = z.object({
   publicId: z.string(),
   custom: z
@@ -32,4 +28,16 @@ export const GetImageSchema = z.object({
       quality: z.coerce.number(),
     })
     .optional(),
+});
+
+export const DeleteProductSchema = z.object({
+  publicId: z.string(),
+});
+
+export const RemoveThumbnailSchema = z.object({
+  publicId: z.string(),
+});
+
+export const DeleteImageSchema = z.object({
+  publicId: z.string(),
 });

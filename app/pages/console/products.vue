@@ -366,8 +366,8 @@ async function uploadImages() {
             </div>
             <USeparator />
             <UCarousel v-slot="{ item }" :items="carouselState.thumbnailLinks" :ui="{ item: 'basis-1/4' }" class="mt-5">
-              <div class="h-28 rounded-lg flex items-center overflow-hidden">
-                <img :src="item" class=" rounded-lg w-full"></img>
+              <div class="h-28 flex items-center justify-center overflow-hidden">
+                <img :src="item" class="h-full shadow" />
               </div>
             </UCarousel>
           </div>
