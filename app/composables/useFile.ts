@@ -1,5 +1,5 @@
 export default function () {
-  function createPresinedUploadTask(file: File, uri: string, onProgress?: (percent: number) => void) {
+  function createPresignedUploadTask(file: File, uri: string, onProgress?: (percent: number) => void) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
@@ -31,6 +31,6 @@ export default function () {
   }
 
   return {
-    createPresinedUploadTask,
+    createPresignedUploadTask,
   };
 }

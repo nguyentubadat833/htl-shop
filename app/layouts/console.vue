@@ -3,8 +3,8 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 
 const pageUI = {
   root: 'p-2',
-  left: 'py-2!',
-  // center: 'bg-orange-500',
+  left: 'py-2! lg:col-span-1',
+  center: 'lg:col-span-9',
 }
 const navItems = ref<NavigationMenuItem[][]>([
   [
@@ -70,7 +70,7 @@ const navItems = ref<NavigationMenuItem[][]>([
           </UPageAside>
         </template>
         <div class="w-full h-full">
-          <NuxtPage />
+          <NuxtPage class=""/>
         </div>
       </UPage>
     </UMain>
