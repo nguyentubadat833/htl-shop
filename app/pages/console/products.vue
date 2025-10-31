@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AddImageSchema, AddProductSchema, GetImageSchema, UpdateProductSchema } from '#shared/schemas/product'
+import { AddProductSchema, UpdateProductSchema, UploadFileRequestSchema } from '#shared/schemas/product'
 import type { TableColumn } from '@nuxt/ui';
 import type z from 'zod';
 
@@ -116,33 +116,30 @@ function toogleImageSlideover(product_publicId: string) {
       return
     }
 
-    const { thumbnails, productImages } = product.images!.reduce(
+    const { imageFiles, designFiles } = product.files!.reduce(
       (acc, el) => {
-        if (el.thumbnail) acc.thumbnails.push(el.publicId)
-        else acc.productImages.push(el.publicId)
+        if (el.type === 'IMAGE') acc.imageFiles.push(el.publicId)
+        else acc.designFiles.push(el.publicId)
         return acc
       },
-      { thumbnails: [], productImages: [] } as {
-        thumbnails: string[]
-        productImages: string[]
+      { imageFiles: [], designFiles: [] } as {
+        imageFiles: string[]
+        designFiles: string[]
       }
     )
 
-    if (thumbnails.length > 0) {
-      carouselState.thumbnailLinks = thumbnails.filter(Boolean).map(publicId => {
+    if (imageFiles.length > 0) {
+      carouselState.thumbnailLinks = imageFiles.filter(Boolean).map(publicId => {
         const params = new URLSearchParams({
           publicId: publicId
         });
-        return `/storage/thumbnail?${params.toString()}`
+        return `/storage/image?${params.toString()}`
       })
     }
 
-    if (productImages.length > 0) {
-      carouselState.productImageLinks = productImages.filter(Boolean).map(publicId => {
-        const params = new URLSearchParams({
-          publicId: publicId
-        });
-        return `/api/product/get-image?${params.toString()}`
+    if (designFiles.length > 0) {
+      carouselState.productImageLinks = designFiles.filter(Boolean).map(publicId => {
+        return `/api/product/file/design/${publicId}`
       })
     }
 
@@ -225,35 +222,35 @@ function saveProduct(index: number) {
   }
 }
 
-async function uploadImages() {
+async function uploadFiles() {
   uploadStackSelected.value?.elements.forEach(el => {
     el.status === 'progress'
-    $userApi('/api/product/add-image', {
-      method: "POST",
-      body: <z.infer<typeof AddImageSchema>>{
-        product_publicId: uploadStackSelected.value?.publicId,
-        image: {
-          filename: el.file.name,
-          thumbnail: el.thumbnail
-        }
-      },
-      onResponse({ response }) {
-        if (response.ok) {
-          const data = response._data
-          createPresinedUploadTask(el.file, data.uploadLink, (percent) => {
-            el.percent = percent
-            if (percent === 100) {
-              el.status = 'success'
-            }
-          })
-            .catch(e => {
-              el.status = 'error'
-            })
-        }
-      }
-    }).catch(() => {
-      el.status = 'error'
-    })
+    //   $userApi('/api/product/file/upload', {
+    //     method: "POST",
+    //     body: <z.infer<typeof UploadFileRequestSchema>>{
+    //       product_publicId: uploadStackSelected.value?.publicId,
+    //       file: {
+    //         filename: el.file.name,
+    //         thumbnail: el.thumbnail
+    //       }
+    //     },
+    //     onResponse({ response }) {
+    //       if (response.ok) {
+    //         const data = response._data
+    //         createPresinedUploadTask(el.file, data.uploadLink, (percent) => {
+    //           el.percent = percent
+    //           if (percent === 100) {
+    //             el.status = 'success'
+    //           }
+    //         })
+    //           .catch(e => {
+    //             el.status = 'error'
+    //           })
+    //       }
+    //     }
+    //   }).catch(() => {
+    //     el.status = 'error'
+    //   })
   })
 }
 
@@ -353,8 +350,7 @@ async function uploadImages() {
                 <template #files-bottom="{ removeFile, files }">
                   <div class="flex w-full gap-3">
                     <UButton v-if="files?.length" label="Remove all files" color="neutral" @click="removeFile()" />
-                    <UButton :loading="uploadStackProgress" icon="ic:sharp-cloud-upload" label="Upload" block
-                      @click="uploadImages()" />
+                    <UButton :loading="uploadStackProgress" icon="ic:sharp-cloud-upload" label="Upload" block />
                   </div>
                 </template>
               </UFileUpload>

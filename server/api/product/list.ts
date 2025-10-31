@@ -15,10 +15,10 @@ export default defineWrappedResponseHandler(async (event) => {
       status: true,
       createdAt: true,
       updatedAt: true,
-      images: {
+      files: {
         select: {
           publicId: true,
-          thumbnail: true,
+          type: true,
         },
       },
     },

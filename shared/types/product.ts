@@ -1,3 +1,5 @@
+export type FileType = "IMAGE" | "DESIGN";
+
 export interface CreateProductResponse {
   publicId: string;
   name: string;
@@ -8,13 +10,6 @@ export interface AddImageResponse {
   uploadLink: string;
 }
 
-// export interface ProductItemResponse {
-//   publicId: string;
-//   name: string;
-//   price: number;
-//   thumbnail_publicIds: string[];
-// }
-
 export interface ProductItemResponse {
   publicId: string;
   name: string;
@@ -22,8 +17,8 @@ export interface ProductItemResponse {
   status: string;
   createdAt: Date;
   updatedAt: Date;
-  images: {
+  files: {
     publicId: string;
-    thumbnail: boolean;
+    type: FileType;
   }[];
 }
