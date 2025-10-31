@@ -105,13 +105,17 @@ const columns: TableColumn<Product>[] = [
             ]
           },
           onClick: () => {
-            productState.current = initProductCurrent(row.original)
-            productState.current.attachments.imageLinks = row.original.files?.filter(file => file.type === 'IMAGE').map(fi => {
-              const params = new URLSearchParams({
-                publicId: fi.publicId
-              })
-              return `/storage/image?${params.toString()}`
-            }) ?? []
+            if (productState.current) {
+              productState.current = undefined
+            } else {
+              productState.current = initProductCurrent(row.original)
+              productState.current.attachments.imageLinks = row.original.files?.filter(file => file.type === 'IMAGE').map(fi => {
+                const params = new URLSearchParams({
+                  publicId: fi.publicId
+                })
+                return `/storage/image?${params.toString()}`
+              }) ?? []
+            }
             row.toggleExpanded()
           }
         })
@@ -171,7 +175,9 @@ function changeSelectDesignFile(file: File | null | undefined) {
       percent: 0,
       status: 'pending'
     }
-  }
+
+    uploadFiles('DESIGN')
+  } 
 }
 
 function addProduct() {
@@ -280,6 +286,10 @@ async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
     }
   }
 }
+
+function clickById(id: string){
+  document.getElementById(id)?.click()
+}
 </script>
 
 <template>
@@ -318,20 +328,21 @@ async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
       </template>
       <template #designFile-cell="{ row }">
         <div v-if="row.index && row.original.publicId" class="flex items-center gap-3">
-          <Icon name="ic:sharp-file-present" size="33" />
-          <UFileUpload v-if="productState.current" variant="button" @update:model-value="changeSelectDesignFile" />
+          <Icon name="ic:sharp-file-present" size="33" @click="clickById('btnUploadDesign')"/>
+          <!-- <p v-else>{{ productState.current?.upload?.designFile.percent }} %</p> -->
+          <UFileUpload  variant="button" @update:model-value="changeSelectDesignFile" />
         </div>
       </template>
       <template #expanded="{ row }">
         <div v-if="row.index" class="flex justify-center gap-4">
-          <div class="w-96 space-y-4">
-            <UFileUpload variant="button" multiple @update:model-value="changeSelectImages" class="h-36"/>
-            <!-- <div>
+          <div class="w-96 h-36 space-y-4">
+            <UFileUpload variant="button" multiple @update:model-value="changeSelectImages" />
+            <div>
               <UButton label="Upload" icon="ic:outline-file-upload" block @click="uploadFiles('IMAGE')" />
-            </div> -->
+            </div>
           </div>
           <div v-for="imageLink in productState.current?.attachments.imageLinks ?? []">
-            <img :src="imageLink" class="h-36 overflow-hidden"/>
+            <img :src="imageLink" class="h-36 overflow-hidden" />
           </div>
           <!-- <UButton icon="ic:baseline-more-horiz" color="neutral" variant="subtle"
             @click="toggleImageSlideover(row.original.publicId!)" /> -->
