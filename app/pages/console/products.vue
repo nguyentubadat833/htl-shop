@@ -2,6 +2,7 @@
 import { AddProductSchema, UpdateProductSchema, UploadFileRequestSchema } from '#shared/schemas/product'
 import type { TableColumn, TableRow } from '@nuxt/ui';
 import type z from 'zod';
+import { file } from 'zod';
 
 type Product = ProductItemResponse | Partial<ProductItemResponse>
 type FileUpload = {
@@ -28,6 +29,9 @@ type ProductState = {
 }
 
 const UButton = resolveComponent('UButton')
+const uploadImagesUI = {
+  file: 'max-h-20'
+}
 
 const initProductCurrent = (product: Product): ProductCurrent => {
   return {
@@ -50,8 +54,6 @@ const currency = ref('USD')
 const { $userApi } = useNuxtApp()
 const toast = useToast()
 
-const openUploadSlideover = ref(false)
-const expanded = ref({})
 const productState = reactive<ProductState>({
   data: [],
   current: undefined
@@ -68,16 +70,12 @@ const { pending, refresh } = useAsyncData(async () => await $userApi('/api/produ
 
 const columns: TableColumn<Product>[] = [
   {
-    id: 'no',
-    header: "No",
-  },
-  {
     accessorKey: 'createdAt',
     header: "Created At"
   },
   {
-    accessorKey: 'status',
-    header: "Status"
+    id: 'images',
+    header: 'Images'
   },
   {
     accessorKey: "name",
@@ -88,46 +86,12 @@ const columns: TableColumn<Product>[] = [
     header: "Price"
   },
   {
-    id: 'expand',
-    header: "Images",
-    cell: ({ row }) => {
-      if (row.index) {
-        return h(UButton, {
-          color: 'neutral',
-          variant: 'ghost',
-          icon: 'i-lucide-chevron-down',
-          square: true,
-          'aria-label': 'Expand',
-          ui: {
-            leadingIcon: [
-              'transition-transform',
-              row.getIsExpanded() ? 'duration-200 rotate-180' : ''
-            ]
-          },
-          onClick: () => {
-            if (productState.current) {
-              productState.current = undefined
-            } else {
-              productState.current = initProductCurrent(row.original)
-              productState.current.attachments.imageLinks = row.original.files?.filter(file => file.type === 'IMAGE').map(fi => {
-                const params = new URLSearchParams({
-                  publicId: fi.publicId
-                })
-                return `/storage/image?${params.toString()}`
-              }) ?? []
-            }
-            row.toggleExpanded()
-          }
-        })
-      } else {
-        return h('span')
-      }
-    }
-
+    id: 'file',
+    header: "File"
   },
   {
-    id: 'designFile',
-    header: "Design file"
+    accessorKey: 'status',
+    header: "Status"
   },
   {
     id: 'action'
@@ -136,6 +100,20 @@ const columns: TableColumn<Product>[] = [
 
 function watchActiveRowInput(row?: TableRow<Product>) {
   return computed(() => row?.original?.publicId === productState.current?.data.publicId)
+}
+
+function rowImageLinks(row: TableRow<Product>) {
+  if (!row.original) {
+    return
+  }
+
+  return row.original.files?.filter(file => file.type === 'IMAGE')
+    .map(file => {
+      const params = new URLSearchParams({
+        publicId: file.publicId
+      })
+      return `/storage/image?${params.toString()}`
+    })
 }
 
 function changeSelectImages(files: File[] | null | undefined) {
@@ -159,10 +137,8 @@ function changeSelectImages(files: File[] | null | undefined) {
   }
 }
 
-function changeSelectDesignFile(file: File | null | undefined) {
-  if (!productState.current) {
-    return
-  }
+function changeSelectDesignFile(file: File | null | undefined, product: Product) {
+  productState.current = initProductCurrent(product)
 
   if (file) {
     const uploadState = toRef(productState.current, 'upload')
@@ -177,7 +153,7 @@ function changeSelectDesignFile(file: File | null | undefined) {
     }
 
     uploadFiles('DESIGN')
-  } 
+  }
 }
 
 function addProduct() {
@@ -287,19 +263,15 @@ async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
   }
 }
 
-function clickById(id: string){
+function clickById(id: string) {
   document.getElementById(id)?.click()
 }
 </script>
 
 <template>
   <div class="space-y-3">
-    <UTable v-model:expanded="expanded" :loading="pending" :data="productState.data" :columns="columns"
+    <UTable :loading="pending" :data="productState.data" :columns="columns"
       :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }">
-      <template #no-cell="{ row }">
-        <UButton v-if="!row.index" label="Add" icon="ic:baseline-plus" color="neutral" variant="soft"
-          @click="addProduct()" />
-      </template>
       <template #createdAt-cell="{ row }">
         <NuxtTime v-if="row.original.publicId" :datetime="row.original.createdAt!" />
       </template>
@@ -310,6 +282,9 @@ function clickById(id: string){
             color="neutral" />
           <UButton v-if="watchActiveRowInput(row).value" :loading="productState.current?.isProcessing"
             icon="ic:baseline-save" @click="saveProduct()" />
+        </div>
+        <div v-else>
+          <UButton v-if="!row.index" icon="ic:baseline-plus" color="neutral" variant="soft" @click="addProduct()" />
         </div>
       </template>
       <template #status-cell="{ row }">
@@ -326,26 +301,43 @@ function clickById(id: string){
           <p v-else>{{ row.original.name }}</p>
         </div>
       </template>
-      <template #designFile-cell="{ row }">
-        <div v-if="row.index && row.original.publicId" class="flex items-center gap-3">
-          <Icon name="ic:sharp-file-present" size="33" @click="clickById('btnUploadDesign')"/>
-          <!-- <p v-else>{{ productState.current?.upload?.designFile.percent }} %</p> -->
-          <UFileUpload  variant="button" @update:model-value="changeSelectDesignFile" />
-        </div>
-      </template>
-      <template #expanded="{ row }">
-        <div v-if="row.index" class="flex justify-center gap-4">
-          <div class="w-96 h-36 space-y-4">
-            <UFileUpload variant="button" multiple @update:model-value="changeSelectImages" />
-            <div>
-              <UButton label="Upload" icon="ic:outline-file-upload" block @click="uploadFiles('IMAGE')" />
+      <template #images-cell="{ row }">
+        <UPopover v-if="row.index && row.original.publicId">
+          <div class="flex gap-2 items-center">
+            <UButton icon="ic:baseline-add-photo-alternate" color="neutral" variant="subtle"
+            @click="productState.current = initProductCurrent(row.original)" />
+            <p v-if="!row.original.files?.some(file => file.type === 'IMAGE')" class="text-[0.7rem] text-gray-500">No images available</p>
+          </div>
+          <template #content>
+            <div class="p-4 space-y-4">
+              <UCarousel v-slot="{ item }" loop wheel-gestures :items="rowImageLinks(row)" :ui="{ item: 'basis-1/3' }">
+                <div class="relative group inline-block">
+                  <img :src="item" class="rounded-lg h-28 object-cover mb-8" />
+
+                  <UButton label="Remove" icon="ic:baseline-delete-sweep" block size="sm" color="neutral"
+                    variant="ghost"
+                    class="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                </div>
+              </UCarousel>
+              <div class="space-y-4">
+                <UFileUpload :id="useId()" variant="button" multiple @update:model-value="changeSelectImages"
+                  :ui="uploadImagesUI" />
+                <UButton icon="ic:outline-file-upload" label="Upload" block @click="uploadFiles('IMAGE')" />
+              </div>
             </div>
-          </div>
-          <div v-for="imageLink in productState.current?.attachments.imageLinks ?? []">
-            <img :src="imageLink" class="h-36 overflow-hidden" />
-          </div>
-          <!-- <UButton icon="ic:baseline-more-horiz" color="neutral" variant="subtle"
-            @click="toggleImageSlideover(row.original.publicId!)" /> -->
+          </template>
+        </UPopover>
+      </template>
+      <template #file-cell="{ row }">
+        <div class="flex items-center">
+          <UButton v-if="row.index && row.original.publicId" icon="ic:outline-upload-file" color="neutral" variant="ghost" @click="clickById(`btnUDF${row.original.publicId}`)"/>
+          <UButton v-if="row.original.files?.find(file => file.type === 'DESIGN')"
+            icon="ic:baseline-download-for-offline" color="info" variant="ghost" />
+          <UButton v-if="row.original.files?.find(file => file.type === 'DESIGN')" icon="ic:baseline-delete-forever"
+            color="error" variant="ghost" />
+          <UFileUpload :id="`btnUDF${row.original.publicId}`" variant="button" @update:model-value="(file) => changeSelectDesignFile(file, row.original)"
+            :ui="uploadImagesUI" class="hidden"/>
+            <p v-if="!row.original.files?.find(file => file.type === 'DESIGN')" class="text-[0.7rem] text-gray-500">No file available</p>
         </div>
       </template>
       <template #price-cell="{ row }">

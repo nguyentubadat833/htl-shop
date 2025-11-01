@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   prisma: {
     runMigration: false,
-    // installStudio: false,
+    installStudio: false,
     generateClient: false,
     autoSetupPrisma: false,
   },
