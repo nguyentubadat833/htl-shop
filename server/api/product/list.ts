@@ -8,6 +8,9 @@ export default defineWrappedResponseHandler(async (event) => {
         in: ["ACTIVE", "INACTIVE"],
       },
     },
+    orderBy: {
+      createdAt: "desc",
+    },
     select: {
       publicId: true,
       name: true,
