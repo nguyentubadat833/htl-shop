@@ -1,4 +1,4 @@
-import z, { size } from "zod";
+import z from "zod";
 
 const ProductBaseSchema = z.object({
   publicId: z.string(),
