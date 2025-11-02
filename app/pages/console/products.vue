@@ -366,7 +366,6 @@ onMounted(() => {
       gridState.current = undefined
     }
   })
-
   onUnmounted(stop)
 })
 
@@ -402,7 +401,7 @@ onMounted(() => {
         <p v-else>{{ row.original.data.name }}</p>
       </template>
       <template #images-cell="{ row }">
-        <UModal v-if="watchActiveRowInput(row)">
+        <UModal v-if="watchActiveRowInput(row) && row.original.data.publicId">
           <div class="flex gap-2 items-center">
             <UButton icon="ic:baseline-add-photo-alternate" color="neutral" variant="subtle"
               @click="initGridItemCurrent(row.original)" />
