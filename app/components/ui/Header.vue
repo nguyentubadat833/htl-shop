@@ -1,7 +1,7 @@
 <template>
   <UHeader :ui="ui" mode="slideover">
     <template #left>
-      <NuxtImg src="/logo.png" class="h-10 lg:block hidden" />
+      <img src="/logo.png" class="h-10 lg:block hidden" />
       <UiGoogleLoginButton class="lg:hidden" />
       <UInput icon="i-lucide-search" variant="outline" placeholder="Search..." :ui="btnSearchUI" />
     </template>

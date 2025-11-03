@@ -39,12 +39,12 @@
 
               <div
                 class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
-                @click="navigateTo('/view/product')">
+                @click="navigateTo(`/model/${card.alias}`)">
                 <span class="text-white font-semibold">View Details</span>
               </div>
             </div>
 
-            <div class="font-medium line-clamp-1 text-gray-600 text-sm hover:underline hover:cursor-pointer" @click="navigateTo('/view/product')">{{
+            <div class="font-medium line-clamp-1 text-gray-600 text-sm hover:underline hover:cursor-pointer" @click="navigateTo(`/model/${card.alias}`)">{{
               card.name }}</div>
             <div class="flex justify-between">
               <div class="flex items-center gap-1 text-gray-500">

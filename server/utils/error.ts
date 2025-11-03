@@ -55,7 +55,7 @@ export class ServerError extends Error {
   constructor(
     message: string,
     public code: HttpStatusCode,
-    public errorType: ErrorType,
+    public errorType?: ErrorType,
   ) {
     super(message);
   }
