@@ -1,9 +1,7 @@
 import prisma from "~~/lib/prisma";
 import { FileType, ObjectStorage, Product, ProductStatus } from "@prisma/client";
 import { S3 } from "./s3";
-import { UserRole } from "@prisma/client";
-import { size } from "zod";
-
+import slug from 'slug'
 export class ProductService {
   product!: Product;
 
@@ -25,21 +23,58 @@ export class ProductService {
   }
 
   static async create(name: string, price: number, createdByUserId: number) {
+    const alias = slug(name)
+    const findWithAlias = await prisma.product.findUnique({
+      where: {
+        alias: alias
+      },
+      select: {
+        id: true
+      }
+    })
+
+    if (findWithAlias) {
+      throw new ServerError('Product name must be unique', 409, 'logic')
+    }
+
     return await prisma.product.create({
       data: {
         name,
+        alias,
         price,
         createdByUserId: createdByUserId,
       },
     });
   }
 
-  update(name?: string, price?: number, status?: ProductStatus) {
+  async update(name?: string, price?: number, status?: ProductStatus) {
+    const setAlias = async (input?: string) => {
+      if (!input) return undefined
+
+      const alias = slug(input)
+      const findWithAlias = await prisma.product.findFirst({
+        where: {
+          AND: {
+            alias: slug(input),
+            id: {
+              not: this.product.id
+            }
+          }
+        }
+      })
+
+      if (findWithAlias) {
+        throw new ServerError('Product name must be unique', 409, 'logic')
+      }
+
+      return alias
+    }
     return prisma.product.update({
       where: {
         id: this.product.id,
       },
       data: {
+        alias: await setAlias(name),
         name: name,
         price: price,
         status: status,
@@ -110,7 +145,7 @@ export class ProductService {
 }
 
 class Helper {
-  constructor() {}
+  constructor() { }
 
   static async deleteObjectStorages(objectStorages: ObjectStorage[]) {
     await prisma.objectStorage.deleteMany({

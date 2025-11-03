@@ -22,3 +22,18 @@ export interface ProductItemResponse {
     type: FileType;
   }[];
 }
+
+export enum ProductPlan {
+  Free = "Free",
+  Pro = "Pro"
+}
+
+export interface ProductSEOItemResponse{
+  plan: ProductPlan,
+  publicId: string;
+  alias: string
+  name: string;
+  price: number;
+  createdAt: Date;
+  imageLinks: string[]
+}

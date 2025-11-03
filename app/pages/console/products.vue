@@ -3,8 +3,6 @@ import { AddProductSchema, DeleteFileRequestSchema, DeleteProductSchema, UpdateP
 import type { TableColumn, TableRow } from '@nuxt/ui';
 import type z from 'zod';
 
-
-
 type FileUpload = {
   file: File
   percent: number
@@ -241,6 +239,7 @@ function watchActiveRowInput(row?: TableRow<IGridItem>) {
 }
 
 function changeSelectImages(files: File[] | null | undefined) {
+  console.log(gridState.current)
   if (!gridState.current) {
     return
   }
@@ -282,6 +281,7 @@ function changeSelectDesignFile(file: File | null | undefined, item: IGridItem) 
 
 async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
   if (gridState.current?.upload) {
+    console.log(gridState.current.upload)
     let fileUploads: FileUpload[] = []
     if (type === 'IMAGE') {
       fileUploads = [...toRef(gridState.current.upload, 'images').value]
@@ -359,15 +359,15 @@ function handleClickOutside(id: string, callback: () => void) {
   return () => document.removeEventListener('click', listener)
 }
 
-onMounted(() => {
-  const stop = handleClickOutside('gridData', () => {
-    if (gridState.current) {
-      gridState.current.isEdit = false
-      gridState.current = undefined
-    }
-  })
-  onUnmounted(stop)
-})
+// onMounted(() => {
+//   const stop = handleClickOutside('gridData', () => {
+//     if (gridState.current) {
+//       gridState.current.isEdit = false
+//       gridState.current = undefined
+//     }
+//   })
+//   onUnmounted(stop)
+// })
 
 </script>
 
@@ -383,9 +383,9 @@ onMounted(() => {
           <UButton icon="ic:outline-edit" @click="activeEdit(row.original)" color="neutral" />
           <UButton v-if="watchActiveRowInput(row)" :loading="gridState.current?.isProcessing" color="info"
             icon="ic:baseline-save" @click="row.original.save()" />
-          <UButton v-if="watchActiveRowInput(row) && row.original.data.publicId"
+          <UButton v-if="row.original.data.publicId"
             :loading="gridState.current?.isProcessing" color="error" icon="ic:baseline-delete-forever"
-            @click="row.original.save()" />
+            @click="row.original.delete()" />
         </div>
       </template>
       <template #status-cell="{ row }">
@@ -401,7 +401,7 @@ onMounted(() => {
         <p v-else>{{ row.original.data.name }}</p>
       </template>
       <template #images-cell="{ row }">
-        <UModal v-if="watchActiveRowInput(row) && row.original.data.publicId">
+        <UModal v-if="row.original.data.publicId">
           <div class="flex gap-2 items-center">
             <UButton icon="ic:baseline-add-photo-alternate" color="neutral" variant="subtle"
               @click="initGridItemCurrent(row.original)" />
@@ -413,7 +413,7 @@ onMounted(() => {
               <UCarousel v-slot="{ item }" loop wheel-gestures :items="gridState.current?.images ?? []"
                 :ui="{ item: 'basis-1/3' }" class="w-96">
                 <div class="relative group grid place-items-center">
-                  <img :src="item.link" class="rounded-lg h-28 object-cover mb-8" />
+                  <img :src="item.link" class="rounded-lg object-cover mb-8" />
 
                   <UButton label="Remove" icon="ic:baseline-delete-sweep" block size="sm" color="neutral"
                     variant="ghost"

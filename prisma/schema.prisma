@@ -102,6 +102,7 @@ model ObjectStorage {
 model Product {
   id              Int             @id @default(autoincrement())
   publicId        String          @unique @default(cuid())
+  alias           String          @unique
   name            String
   price           Float
   status          ProductStatus   @default(ACTIVE)
