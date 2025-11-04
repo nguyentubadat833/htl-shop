@@ -6,6 +6,15 @@ import { ProductService } from "./product";
 export class CartService {
   constructor(private readonly userId: number) {}
 
+  async list(){
+    return await prisma.cart.findMany({
+      where: {
+        userId: this.userId
+      },
+      orderBy: { id: 'desc' },
+    })
+  }
+
   async addProduct(product_publicId: string) {
     const productService = await new ProductService().withPublicId(product_publicId)
     return await prisma.cart.create({
