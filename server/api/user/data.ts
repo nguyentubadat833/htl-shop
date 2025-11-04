@@ -1,8 +1,7 @@
 import prisma from "~~/lib/prisma";
 import { UserItem } from "#shared/types/user";
 
-export default defineWrappedResponseHandler(async (event) => {
-  UserAuthContext.hasAdminOrThrowInline(event);
+export default defineWrappedRequiredAdminHandler(async (event) => {
   const users: UserItem[] = await prisma.user.findMany({
     select: {
       publicId: true,

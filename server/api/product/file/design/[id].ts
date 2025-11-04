@@ -6,9 +6,7 @@ const ParamsSchema = z.object({
   id: z.string(),
 });
 
-export default defineWrappedResponseHandler(async (event) => {
-  UserAuthContext.hasAdminOrThrowInline(event);
-
+export default defineWrappedRequiredAdminHandler(async (event) => {
   const params = getRouterParams(event);
   const { id: publicId } = zodValidateRequestOrThrow(ParamsSchema, params);
 

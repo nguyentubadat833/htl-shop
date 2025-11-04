@@ -44,6 +44,11 @@ export class UserAuthContext {
     }
   }
 
+  static hasAuthOrThrowInline(event: H3Event<EventHandlerRequest>) {
+     const userAuthContext = new UserAuthContext(event);
+     return userAuthContext.getUserAuthOrThrow()
+  }
+ 
   static hasAdminOrThrowInline(event: H3Event<EventHandlerRequest>) {
     const userAuthContext = new UserAuthContext(event);
     userAuthContext.hasAdminOrThrow();

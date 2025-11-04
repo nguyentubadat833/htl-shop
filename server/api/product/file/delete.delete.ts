@@ -2,8 +2,7 @@ import prisma from "~~/lib/prisma";
 import { S3 } from "~~/server/core/service/s3";
 import { DeleteFileRequestSchema } from "~~/shared/schemas/product";
 
-export default defineWrappedResponseHandler(async (event) => {
-  UserAuthContext.hasAdminOrThrowInline(event);
+export default defineWrappedRequiredAdminHandler(async (event) => {
   const { publicId } = zodValidateRequestOrThrow(DeleteFileRequestSchema, await readBody(event));
 
   const result = await prisma.objectStorage.delete({
