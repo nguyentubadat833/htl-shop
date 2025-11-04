@@ -15,6 +15,13 @@ export class ProductService {
     return this.product.price;
   }
 
+  async withId(id: number) {
+    this.product = await prisma.product.findUniqueOrThrow({
+      where: { id: id },
+    });
+    return this;
+  }
+
   async withPublicId(productPublicId: string) {
     this.product = await prisma.product.findUniqueOrThrow({
       where: { publicId: productPublicId },

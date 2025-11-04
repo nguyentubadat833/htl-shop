@@ -48,7 +48,6 @@ export const defineWrappedRequiredAdminHandler = <T extends EventHandlerRequest,
     try {
       UserAuthContext.hasAdminOrThrowInline(event)
       const response = await handler(event);
-      // return { response };
       return response;
     } catch (err) {
       if (err instanceof ServerError) {

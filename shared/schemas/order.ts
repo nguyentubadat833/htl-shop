@@ -1,4 +1,4 @@
-import z, { string } from "zod";
+import z from "zod";
 
 const OrderBaseSchema = z.object({
   publicId: z.string(),
