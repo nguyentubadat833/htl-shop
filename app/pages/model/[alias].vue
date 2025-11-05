@@ -41,7 +41,7 @@
           </div>
           <div>
             <UButton label="Add to cart" icon="ic:outline-add-shopping-cart" color="secondary" variant="soft"
-              :ui="btnAddToCartUI" block class="hover:cursor-pointer" @click="console.log('test')" />
+              :ui="btnAddToCartUI" block class="hover:cursor-pointer" @click="() => {info?.id && addProduct(info.id)}" />
           </div>
         </div>
         <div class="space-y-2">
@@ -63,11 +63,13 @@ const btnAddToCartUI = {
   base: 'rounded-3xl h-10'
 }
 
+const {addProduct} = useCart()
 const route = useRoute()
 
 const { data: info } = await useFetch(`/data/product/${route.params.alias}`, {
   transform(value) {
     return {
+      id: value.publicId,
       name: value.name,
       price: value.price + ' $',
       plan: value.plan,

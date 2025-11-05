@@ -1,10 +1,13 @@
 <script setup lang="ts">
+const {list} = useCart()
 
+const data = await list()
 </script>
+
 
 <template>
 <div>
-  cart
+{{ data }}
 </div>
 </template>
 

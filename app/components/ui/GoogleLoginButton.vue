@@ -1,6 +1,5 @@
 <template>
   <ClientOnly>
-
     <UPopover v-if="userAuth" :ui="popoverUI">
       <UUser :avatar="{
         src: userAuth?.picture ?? '',
@@ -11,8 +10,8 @@
         <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
       </template>
     </UPopover>
-    <UButton :loading="isLoading" v-else label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in"
-      size="md" @click="signInWithGoogle" />
+    <UButton id="googleSigninButton" :loading="isLoading" v-else label="Sign in" color="neutral" variant="ghost"
+      icon="ic:baseline-log-in" size="md" @click="signInWithGoogle" />
   </ClientOnly>
 </template>
 
@@ -30,6 +29,7 @@ const userUI = {
 const popoverUI = {
   content: "p-2"
 };
+const { count: cartCount, quality: cartQuality } = useCart()
 const { authSession } = session();
 const { googleId } = usePublicVariables();
 const googleClient = ref<any>(null);
@@ -60,6 +60,7 @@ const items = computed<NavigationMenuItem[][]>(() => {
           }).finally(() => {
             authSession().remove();
             userAuth.value = null;
+            cartQuality.value = undefined
           });
         }
       }
@@ -128,6 +129,7 @@ function initGoogle() {
             userAuth.value = response._data;
             authSession().set(userAuth.value!);
             await nextTick()
+            cartCount()
             isLoading.value = false
           }
         }

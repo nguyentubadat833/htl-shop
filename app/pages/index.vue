@@ -16,11 +16,12 @@
 
     </div>
     <UPageGrid>
-      <UPageCard v-for="(card, index) in prodcuts" :key="index" v-bind="card" :ui="cardUI">
+      <UPageCard v-for="(card, index) in products" :key="index" v-bind="card" :ui="cardUI">
         <!-- <template #body>test</template> -->
         <template #leading>
           <div class="flex justify-between w-full">
-            <span class="font-medium" :class="[{ 'text-green-600': card.plan === ProductPlan.Pro }]">{{ card.plan }}</span>
+            <span class="font-medium" :class="[{ 'text-green-600': card.plan === ProductPlan.Pro }]">{{ card.plan
+              }}</span>
             <div class="text-gray-500 flex items-center gap-1">
               <Icon name="material-symbols:recommend-outline" size="20" />
               16
@@ -44,14 +45,15 @@
               </div>
             </div>
 
-            <div class="font-medium line-clamp-1 text-gray-600 text-sm hover:underline hover:cursor-pointer" @click="navigateTo(`/model/${card.alias}`)">{{
-              card.name }}</div>
+            <div class="font-medium line-clamp-1 text-gray-600 text-sm hover:underline hover:cursor-pointer"
+              @click="navigateTo(`/model/${card.alias}`)">{{
+                card.name }}</div>
             <div class="flex justify-between">
               <div class="flex items-center gap-1 text-gray-500">
                 <Icon name="ic:outline-payments" size="20" />
                 <p class="font-medium"> {{ card.price }}</p>
               </div>
-              <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" />
+              <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="addProduct(card.publicId)" />
             </div>
           </div>
         </template>
@@ -82,16 +84,15 @@ const chooseSortTypeUI = {
   base: 'ring-0!'
 }
 
+const { addProduct } = useCart()
+const chooseSortType = ref<SortType>('Popular')
 const sortOptions = <SortType[]>['Newest', 'Popular']
-
 const choosePlan = reactive({
   free: true,
   pro: true
 })
 
-const chooseSortType = ref<SortType>('Popular')
-
-const {data: prodcuts} = useAsyncData(async () => await $fetch('/data/products'))
+const products = await $fetch('/data/products')
 
 // const cards = ref([
 //   {

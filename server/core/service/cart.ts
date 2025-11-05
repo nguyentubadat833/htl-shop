@@ -6,6 +6,14 @@ import { ProductService } from "./product";
 export class CartService {
   constructor(private readonly userId: number) {}
 
+  async count(){
+    return await prisma.cart.count({
+      where: {
+        userId: this.userId
+      }
+    })
+  }
+
   async list(){
     return await prisma.cart.findMany({
       where: {
