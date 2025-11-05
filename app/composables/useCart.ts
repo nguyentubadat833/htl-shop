@@ -21,7 +21,7 @@ export default function () {
     }
   }
 
-  async function list() {
+  async function list(): Promise<ProductSEOItemResponse[]> {
     return await $userApi('/api/shopping/cart/data/list')
   }
 

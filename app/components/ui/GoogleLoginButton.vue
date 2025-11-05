@@ -61,6 +61,7 @@ const items = computed<NavigationMenuItem[][]>(() => {
             authSession().remove();
             userAuth.value = null;
             cartQuality.value = undefined
+            navigateTo('/')
           });
         }
       }
