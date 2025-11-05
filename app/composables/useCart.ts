@@ -64,11 +64,11 @@ export default function () {
       body: <z.infer<typeof CheckoutInCartSchema>>{
         product_publicIds: ids,
       },
-      // onResponse({ response }) {
-      //   if (response.ok) {
-      //     appToast.success();
-      //   }
-      // },
+      onResponse({ response }) {
+        if (response.ok) {
+          navigateTo(`/payment?orderId=${response._data}`)
+        }
+      },
     });
     return orderId
   }
