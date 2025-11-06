@@ -44,10 +44,17 @@ const items = computed<NavigationMenuItem[][]>(() => {
         icon: "ic:outline-account-circle",
         to: "/profile"
       },
+    ],
+    [
       {
-        label: "Shopping",
+        label: "My cart",
         icon: "ic:outline-shopping-basket",
         to: "/cart"
+      },
+      {
+        label: "History",
+        icon: "ic:round-history",
+        to: "/history"
       }
     ],
     [

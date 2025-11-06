@@ -1,6 +1,6 @@
 <template>
   <ClientOnly @click="click()">
-    <UChip v-if="quality" :text="quality" size="3xl" color="warning" inset>
+    <UChip v-if="quality" :text="quality" size="3xl" color="warning" inset class="hover:scale-110">
       <UButton icon="ic:outline-shopping-basket" color="neutral" variant="ghost"/>
     </UChip>
     <UButton v-else icon="ic:outline-shopping-basket" color="neutral" variant="ghost" />

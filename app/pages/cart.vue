@@ -34,7 +34,7 @@ function chooseItem(value: boolean | "indeterminate", item: ProductSEOItemRespon
               <div class="flex flex-col justify-between p-1 ">
                 <p class="font-bold">{{ item.name }}</p>
                 <p class="text-[0.8rem] font-medium text-green-600">{{ item.plan.toUpperCase() }}</p>
-                <p class="font-semibold text-orange-600 text-lg"> {{ covertMoney(item.price) }}</p>
+                <p class="font-semibold text-orange-500 text-lg"> {{ covertMoney(item.price) }}</p>
               </div>
             </div>
           </div>
@@ -42,7 +42,7 @@ function chooseItem(value: boolean | "indeterminate", item: ProductSEOItemRespon
       </UPageCard>
     </UPageList>
     <USeparator />
-    <div class="flex justify-between items-center">
+    <div v-if="selectedItem.length" class="flex justify-between items-center">
       <span class="text-lg font-bold">Total amount:</span>
       <div class="flex items-center justify-end gap-5">
         <span class="text-lg">{{ covertMoney(amount) }}</span>

@@ -8,8 +8,7 @@
     <template #right>
       <UiCartButton class="lg:mr-3 mr-0"/>
       <div class="lg:flex gap-3 hidden">
-        <UColorModeButton />
-        <!-- <UButton label="Sign in" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md" /> -->
+        <UColorModeButton class="hover:scale-110"/>
         <UiGoogleLoginButton />
       </div>
     </template>
