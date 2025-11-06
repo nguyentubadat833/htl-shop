@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     }
   }
 
-  if(to.path.includes('/cart')){
+  if(to.path.startsWith('/cart') || to.path.startsWith('/payment')){
     if(!authSession().get()){
       return navigateTo('/')
     }

@@ -1,5 +1,5 @@
-export function covertMoney(value: number, locale = 'us'){
+export function convertMoney(value: number, locale = 'us'){
     if(locale === 'us'){
-        return `${value} $`
+        return `$${value}`
     }
 }

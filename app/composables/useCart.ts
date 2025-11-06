@@ -1,6 +1,7 @@
 import type z from "zod";
 import session from "~/utils/session.ts";
 import type { AddProductToCartSchema, CheckoutInCartSchema, RemoveProductsInCartSchema } from "~~/shared/schemas/cart";
+import type { CartItemResponse } from "~~/shared/types/cart";
 
 const quality = ref()
 
@@ -21,8 +22,8 @@ export default function () {
     }
   }
 
-  async function list(): Promise<ProductSEOItemResponse[]> {
-    return await $userApi('/api/shopping/cart/data/list')
+  async function list() {
+    return await $userApi('/api/shopping/cart/data/list') satisfies CartItemResponse[]
   }
 
   function addProduct(id: string) {
@@ -62,7 +63,7 @@ export default function () {
     const { orderId } = await $userApi("/api/shopping/cart/checkout", {
       method: "POST",
       body: <z.infer<typeof CheckoutInCartSchema>>{
-        product_publicIds: ids,
+        cardIds: ids,
       },
       onResponse({ response }) {
         if (response.ok) {

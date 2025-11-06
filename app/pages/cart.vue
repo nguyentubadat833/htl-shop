@@ -1,27 +1,38 @@
 <script setup lang="ts">
 
-const { list } = useCart()
-const selectedItem = ref<ProductSEOItemResponse[]>([])
+const { list, checkout: cartCheckout } = useCart()
+const router = useRouter()
+
+const selectedItem = ref<CartItemResponse[]>([])
 const amount = ref(<number>0)
 
 const data = await list()
 
-function chooseItem(value: boolean | "indeterminate", item: ProductSEOItemResponse) {
+function chooseItem(value: boolean | "indeterminate", item: CartItemResponse) {
   if (value === true) {
     selectedItem.value.push(item)
-    amount.value += item.price
+    amount.value += item.product.price
   } else {
-    selectedItem.value = selectedItem.value.filter(i => i.publicId !== item.publicId)
-    amount.value -= item.price
+    selectedItem.value = selectedItem.value.filter(i => i.cartId !== item.cartId)
+    amount.value -= item.product.price
   }
+}
+
+async function checkout(){
+  const ids = selectedItem.value.map(item => item.cartId)
+  const orderId = await cartCheckout(ids)
+  router.push({
+    path: 'payment',
+    query: {
+      orderId: orderId
+    },
+  })
 }
 </script>
 
 
 <template>
   <div class="space-y-5">
-    <UButton label="Back to home" icon="ic:outline-arrow-back" color="neutral" variant="link" class="cursor-pointer"
-      @click="navigateTo('/')" />
     <UPageList divide>
       <UPageCard v-for="(item, index) in data" :key="index" variant="ghost">
         <template #body>
@@ -29,24 +40,24 @@ function chooseItem(value: boolean | "indeterminate", item: ProductSEOItemRespon
             <UCheckbox size="xl" @update:model-value="(value) => chooseItem(value, item)" />
             <div class="flex gap-4">
               <div class="overflow-hidden border light:border-gray-200 dark:border-gray-700 rounded-lg max-w-22">
-                <img :src="item.imageLinks[0]" class="h-22 mx-auto" />
+                <img :src="item.product.imageLinks[0]" class="h-22 mx-auto" />
               </div>
               <div class="flex flex-col justify-between p-1 ">
-                <p class="font-bold">{{ item.name }}</p>
-                <p class="text-[0.8rem] font-medium text-green-600">{{ item.plan.toUpperCase() }}</p>
-                <p class="font-semibold text-orange-500 text-lg"> {{ covertMoney(item.price) }}</p>
+                <p class="font-bold">{{ item.product.name }}</p>
+                <p class="text-[0.8rem] font-medium text-green-600">{{ item.product.plan.toUpperCase() }}</p>
+                <p class="font-semibold text-orange-500 text-lg"> {{ convertMoney(item.product.price) }}</p>
               </div>
             </div>
           </div>
         </template>
       </UPageCard>
     </UPageList>
-    <USeparator />
+    <USeparator v-if="selectedItem.length"  />
     <div v-if="selectedItem.length" class="flex justify-between items-center">
       <span class="text-lg font-bold">Total amount:</span>
       <div class="flex items-center justify-end gap-5">
-        <span class="text-lg">{{ covertMoney(amount) }}</span>
-        <UButton label="Checkout" color="warning" />
+        <span class="text-lg">{{ convertMoney(amount) }}</span>
+        <UButton label="Checkout" color="warning" @click="checkout()"/>
       </div>
     </div>
   </div>

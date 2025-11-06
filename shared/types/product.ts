@@ -28,9 +28,9 @@ export enum ProductPlan {
   Pro = "Pro"
 }
 
-export interface ProductSEOItemResponse{
-  plan: ProductPlan,
+export interface ProductSEOItemResponse {
   publicId: string;
+  plan: ProductPlan,
   alias: string
   name: string;
   price: number;

@@ -2,6 +2,7 @@ import { Cart } from "@prisma/client";
 import prisma from "~~/lib/prisma";
 import { OrderService } from "./order";
 import { ProductService } from "./product";
+import { CartItemResponse } from "~~/shared/types/cart";
 
 export class CartService {
   constructor(private readonly userId: number) { }
@@ -9,7 +10,8 @@ export class CartService {
   async count() {
     return await prisma.cart.count({
       where: {
-        userId: this.userId
+        userId: this.userId,
+        orderId: null
       }
     })
   }
@@ -17,9 +19,11 @@ export class CartService {
   async list() {
     return await prisma.cart.findMany({
       where: {
-        userId: this.userId
+        userId: this.userId,
+        orderId: null
       },
       select: {
+        id: true,
         product: {
           include: {
             files: {
@@ -36,34 +40,43 @@ export class CartService {
       },
       orderBy: { id: 'desc' },
     }).then(data => data.map(item => {
-      return <ProductSEOItemResponse>{
-        plan: ProductPlan.Pro,
-        publicId: item.product.publicId,
-        alias: item.product.alias,
-        name: item.product.name,
-        price: item.product.price,
-        createdAt: item.product.createdAt,
-        imageLinks: item.product.files.map(file => file.publicId).map(id => `/storage/image?publicId=${id}`)
-      }
+      return {
+        cartId: item.id,
+        product: {
+          plan: ProductPlan.Pro,
+          alias: item.product.alias,
+          name: item.product.name,
+          price: item.product.price,
+          createdAt: item.product.createdAt,
+          imageLinks: item.product.files.map(file => file.publicId).map(id => `/storage/image?publicId=${id}`)
+        }
+      } satisfies CartItemResponse
     }))
   }
 
   async addProduct(product_publicId: string) {
-    const productService = await new ProductService().withPublicId(product_publicId)
-    return await prisma.cart.upsert({
+    const { product, finalPrice } = await new ProductService().withPublicId(product_publicId)
+    const exists = await prisma.cart.findFirst({
       where: {
-        userId_productId: {
-          userId: this.userId,
-          productId: productService.product.id,
-        }
-      },
-      create: {
         userId: this.userId,
-        productId: productService.product.id,
-        price: productService.finalPrice
+        productId: product.id,
+        orderId: null
       },
-      update: {}
+      select: {
+        id: true
+      }
     });
+    if (exists) {
+      return
+    } else {
+      await prisma.cart.create({
+        data: {
+          userId: this.userId,
+          productId: product.id,
+          price: finalPrice
+        }
+      })
+    }
   }
 
   async removeProducts(product_publicIds: string[]) {
@@ -77,17 +90,7 @@ export class CartService {
     });
   }
 
-  async checkout(product_pubicIds: string[]) {
-    const order = await OrderService.create(this.userId, product_pubicIds);
-    await prisma.cart.deleteMany({
-      where: {
-        product: {
-          publicId: {
-            in: product_pubicIds
-          }
-        }
-      }
-    })
-    return order
+  async checkout(cardIds: string[]) {
+    return await OrderService.create(this.userId, cardIds);
   }
 }

@@ -110,26 +110,25 @@ model Product {
   updatedAt       DateTime        @updatedAt
   createdByUser   User            @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
-  orderItems      OrderItem[]
   carts           Cart[]
   files           ObjectStorage[]
 }
 
-model OrderItem {
-  id        BigInt   @id @default(autoincrement())
-  product   Product  @relation(fields: [productId], references: [id])
-  productId Int
-  price     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  order     Order    @relation(fields: [orderId], references: [id])
-  orderId   BigInt
-}
+// model OrderItem {
+//   id        BigInt   @id @default(autoincrement())
+//   product   Product  @relation(fields: [productId], references: [id])
+//   productId Int
+//   price     Float
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   order     Order    @relation(fields: [orderId], references: [id])
+//   orderId   BigInt
+// }
 
 model Order {
   id            BigInt      @id @default(autoincrement())
   publicId      String      @unique @default(ulid())
-  items         OrderItem[]
+  items         Cart[]
   orderByUser   User        @relation(fields: [orderByUserId], references: [id])
   orderByUserId Int
   orderAt       DateTime    @default(now())
@@ -160,6 +159,6 @@ model Cart {
   productId Int
   price     Float
   createdAt DateTime @default(now())
-
-  @@unique([userId, productId])
+  order     Order?   @relation(fields: [orderId], references: [id])
+  orderId   BigInt?
 }

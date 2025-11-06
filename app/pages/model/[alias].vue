@@ -1,7 +1,5 @@
 <template>
   <div class="space-y-5">
-    <UButton label="Back to home" icon="ic:outline-arrow-back" color="neutral" variant="link" class="cursor-pointer"
-      @click="navigateTo('/')" />
     <div class="lg:grid grid-cols-[7fr_3fr] space-y-5">
       <div class="flex-1 w-full lg:px-20">
         <UCarousel ref="carousel" v-slot="{ item }" arrows :items="info?.images" :prev="{ onClick: onClickPrev }"
@@ -25,7 +23,7 @@
       </div>
       <div class="space-y-10">
         <div class="pb-2">
-          <span class="text-gray-600 font-bold text-3xl">{{ info?.name }}</span>
+          <span class="text-gray-600 font-bold text-xl">{{ info?.name }}</span>
         </div>
 
         <div class="space-y-5">

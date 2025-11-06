@@ -25,7 +25,7 @@ const { data: nav } = await useAsyncData('menu', () => {
 
 const items = ref<NavigationMenuItem[][]>([
   [
-    { label: "Products", type: "label" },
+    { label: "Models", type: "label" },
     {
       label: "3D",
       icon: 'cuida:box-outline',
@@ -50,7 +50,7 @@ const items = ref<NavigationMenuItem[][]>([
   [
     {
       label: 'Contact',
-      icon: 'ic:baseline-contactless',
+      icon: 'ic:outline-email',
     },
     {
       label: 'Help',

@@ -49,9 +49,9 @@
               @click="navigateTo(`/model/${card.alias}`)">{{
                 card.name }}</div>
             <div class="flex justify-between">
-              <div class="flex items-center gap-1 text-gray-500">
+              <div class="flex items-center gap-2 text-gray-500">
                 <Icon name="ic:outline-payments" size="20" />
-                <p class="font-medium"> {{ card.price }}</p>
+                <p class="font-medium"> {{ convertMoney(card.price) }}</p>
               </div>
               <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="addProduct(card.publicId)" />
             </div>
@@ -70,7 +70,7 @@ type SortType = 'Popular' | 'Newest'
 
 const pageUI = {
   center: 'py-5 space-y-10',
-  left: 'py-2!'
+  left: 'px-4! py-1!'
 }
 
 const cardUI = {

@@ -1,6 +1,6 @@
 import prisma from "~~/lib/prisma";
-import { ProductService } from "./product";
 import { Order } from "@prisma/client";
+import { OrderWithProductsResponse } from "#shared/types/order";
 
 export class OrderService {
   order!: Order;
@@ -17,24 +17,72 @@ export class OrderService {
     return this;
   }
 
-  static async create(orderByUserId: number, product_publicIds: string[]) {
-    const products = await Promise.all(
-      product_publicIds.map(async (id) => {
-        const prdService = await new ProductService().withPublicId(id);
-        return { id: prdService.product.id, price: prdService.finalPrice };
-      }),
-    );
+  static async getWithProducts(orderPublicId: string): Promise<OrderWithProductsResponse> {
+    const data =  await prisma.order.findUniqueOrThrow({
+      where: { publicId: orderPublicId },
+      select: {
+        publicId: true,
+        status: true,
+        amount: true,
+        items: {
+          select: {
+            product: {
+              select: {
+                alias: true,
+                name: true,
+                price: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if(!data){
+      throw new ServerError(HttpStatus[404], 404)
+    }
+
+    const {publicId, status, amount, items} = data
+    return {
+      publicId,
+      status,
+      amount,
+      products: items.map(item => {
+        return {
+          name: item.product.name,
+          price: item.product.price
+        }
+      })
+    }
+  }
+
+  static async create(orderByUserId: number, cardIds: string[]) {
+    // const products = await Promise.all(
+    //   product_publicIds.map(async (id) => {
+    //     const prdService = await new ProductService().withPublicId(id);
+    //     return { id: prdService.product.id, price: prdService.finalPrice };
+    //   }),
+    // );
+    const items = await prisma.cart.findMany({
+      where: {
+        id: {
+          in: cardIds
+        },
+        userId: orderByUserId
+      }
+    })
 
     return await prisma.order.create({
       data: {
         orderByUserId: orderByUserId,
-        amount: products.reduce((sum, prd) => sum + prd.price, 0),
+        amount: items.reduce((sum, prd) => sum + prd.price, 0),
         items: {
-          createMany: {
-            data: products.map((prd) => ({ productId: prd.id, price: prd.price })),
-          },
-        },
+          connect: items.map(c => ({ id: c.id }))
+        }
       },
+      include: {
+        items: true
+      }
     });
   }
 
