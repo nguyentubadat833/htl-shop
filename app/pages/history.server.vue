@@ -1,10 +1,17 @@
 <template>
   <div class="space-y-5">
-     <UPricingPlan v-for="order in data"
+    <!-- <UPricingPlan v-for="order in data"
       :price="convertMoney(order.amount)" :features="order.items.map(item => item.product.name)" :button="{
       label: order.status
-    }" orientation="horizontal" tagline="Pay once, own it forever" />
-
+    }" orientation="horizontal" tagline="Pay once, own it forever" /> -->
+    <UPricingPlan v-for="order in data" description="For bootstrappers and indie hackers." :price="convertMoney(order.amount)"
+      :features="order.items.map(i => i.product.name)" >
+    <template #title>
+      <UBadge v-if="order.status === 'PAID'" size="lg">{{ order.status }}</UBadge>
+      <UBadge v-else-if="order.status === 'CANCELLED'" color="error" variant="outline" size="lg">{{ order.status }}</UBadge>
+      <UBadge v-else color="neutral" variant="outline" size="lg">PENDING</UBadge>
+    </template>  
+    </UPricingPlan>
   </div>
 </template>
 
@@ -30,8 +37,9 @@ const data = await prisma.order.findMany({
   }
 })
 
+function descriptionWithStatus(status: string){
+  
+}
 </script>
 
-<style>
-
-</style>
+<style></style>
