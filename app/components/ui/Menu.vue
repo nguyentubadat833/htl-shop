@@ -47,17 +47,6 @@ const items = ref<NavigationMenuItem[][]>([
       }) ?? [],
     },
   ],
-  [
-    {
-      label: 'Contact',
-      icon: 'ic:outline-email',
-    },
-    {
-      label: 'Help',
-      icon: 'ic:outline-contact-support',
-      disabled: true
-    }
-  ]
 ])
 
 </script>

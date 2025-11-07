@@ -2,7 +2,7 @@
   <div class="space-y-5">
     <UPricingPlan title="Payment" description="Complete your payment to receive your order as soon as possible."
       :price="convertMoney(amount)" :features="products.map(prd => prd.name)" :button="{
-      label: 'Buy now'
+      label: 'Payment now'
     }" orientation="horizontal" tagline="Pay once, own it forever" />
 
   </div>
