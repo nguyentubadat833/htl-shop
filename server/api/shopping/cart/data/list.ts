@@ -3,5 +3,5 @@ import { CartItemResponse } from "~~/shared/types/cart"
 
 export default defineWrappedRequiredAuthHandler(async (event) => {
   const cartService = new CartService(new UserAuthContext(event).getUserIdOrThrow())
-  return await cartService.list() satisfies CartItemResponse[]
+  return await cartService.list()
 })

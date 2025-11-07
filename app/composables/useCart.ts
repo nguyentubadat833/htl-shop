@@ -23,7 +23,7 @@ export default function () {
   }
 
   async function list() {
-    return await $userApi('/api/shopping/cart/data/list') satisfies CartItemResponse[]
+    return await $userApi('/api/shopping/cart/data/list')
   }
 
   function addProduct(id: string) {

@@ -7,7 +7,7 @@ export interface CartItemResponse {
     name: string;
     alias: string
     price: number;
-    createdAt: Date;
+    createdAt: string;
     imageLinks: string[]
   }
 }

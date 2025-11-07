@@ -16,7 +16,7 @@ export class CartService {
     })
   }
 
-  async list() {
+  async list(): Promise<CartItemResponse[]> {
     return await prisma.cart.findMany({
       where: {
         userId: this.userId,
@@ -47,10 +47,10 @@ export class CartService {
           alias: item.product.alias,
           name: item.product.name,
           price: item.product.price,
-          createdAt: item.product.createdAt,
+          createdAt: item.product.createdAt.toString(),
           imageLinks: item.product.files.map(file => file.publicId).map(id => `/storage/image?publicId=${id}`)
         }
-      } satisfies CartItemResponse
+      }
     }))
   }
 

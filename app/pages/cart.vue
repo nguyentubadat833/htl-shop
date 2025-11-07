@@ -39,12 +39,12 @@ async function checkout(){
           <div class="flex items-center gap-4">
             <UCheckbox size="xl" @update:model-value="(value) => chooseItem(value, item)" />
             <div class="flex gap-4">
-              <div class="overflow-hidden border light:border-gray-200 dark:border-gray-700 rounded-lg max-w-22">
-                <img :src="item.product.imageLinks[0]" class="h-22 mx-auto" />
+              <div class="overflow-hidden border light:border-gray-200 dark:border-gray-700 rounded-lg min-h-20 max-h-20 min-w-20 max-w-20">
+                <img :src="item.product.imageLinks[0]" class="mx-auto" />
               </div>
               <div class="flex flex-col justify-between p-1 ">
-                <p class="font-bold">{{ item.product.name }}</p>
-                <p class="text-[0.8rem] font-medium text-green-600">{{ item.product.plan.toUpperCase() }}</p>
+                <p class="font-bold lg:text-base text-[0.8rem] line-clamp-1">{{ item.product.name }}</p>
+                <p class="lg:text-[0.8rem] text-[0.7rem] font-medium text-green-600">{{ item.product.plan.toUpperCase() }}</p>
                 <p class="font-semibold text-orange-500 text-lg"> {{ convertMoney(item.product.price) }}</p>
               </div>
             </div>
