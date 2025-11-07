@@ -65,6 +65,13 @@ enum AuthProvider {
   FACEBOOK
 }
 
+model DefineOption {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(cuid())
+  key      String
+  value    String
+}
+
 model User {
   id                Int          @id @default(autoincrement())
   publicId          String       @default(cuid())
@@ -110,20 +117,10 @@ model Product {
   updatedAt       DateTime        @updatedAt
   createdByUser   User            @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
+  info            Json?
   carts           Cart[]
   files           ObjectStorage[]
 }
-
-// model OrderItem {
-//   id        BigInt   @id @default(autoincrement())
-//   product   Product  @relation(fields: [productId], references: [id])
-//   productId Int
-//   price     Float
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   order     Order    @relation(fields: [orderId], references: [id])
-//   orderId   BigInt
-// }
 
 model Order {
   id            BigInt      @id @default(autoincrement())

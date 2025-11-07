@@ -11,7 +11,7 @@
     <UModal v-model:open="openQRModal">
       <template #content>
         <img
-          :src="`https://img.vietqr.io/image/970436-0051000529983-print.png?amount=${finalAmount}&account_name=Nguyen%20Tu%20Ba%20Dat&addInfo=TT%20DH_${id}`" />
+          :src="`https://img.vietqr.io/image/970422-0971168578-print.png?amount=${finalAmount}&accountName=Le%20Huu%20Thien&addInfo=TT%20DH%20${id}`" />
       </template>
     </UModal>
   </div>

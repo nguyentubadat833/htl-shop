@@ -21,7 +21,7 @@
         <template #leading>
           <div class="flex justify-between w-full">
             <span class="font-medium" :class="[{ 'text-green-600': card.plan === ProductPlan.Pro }]">{{ card.plan
-              }}</span>
+            }}</span>
             <div class="text-gray-500 flex items-center gap-1">
               <Icon name="material-symbols:recommend-outline" size="20" />
               16
@@ -32,7 +32,9 @@
           <div class="space-y-2 ">
             <div class="relative group mb-10">
               <UCarousel v-slot="{ item }" dots :items="card.imageLinks">
-                <img :src="item" class="w-full rounded" />
+                <div class="flex flex-col items-center justify-center h-48">
+                  <img :src="item" class="rounded" />
+                </div>
               </UCarousel>
               <div
                 class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded">
@@ -53,7 +55,8 @@
                 <Icon name="ic:outline-payments" size="20" />
                 <p class="font-medium"> {{ convertMoney(card.price) }}</p>
               </div>
-              <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="addProduct(card.publicId)" />
+              <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer"
+                @click="addProduct(card.publicId)" />
             </div>
           </div>
         </template>
