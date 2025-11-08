@@ -2,7 +2,18 @@ import z from "zod";
 
 const ProductBaseSchema = z.object({
   publicId: z.string(),
-});
+})
+
+export const ProductInfoSchema = z.object({
+  platform: z.string().default(''),
+  render: z.string().default(''),
+  size: z.string().default(''),
+  colors: z.string().default(''),
+  style: z.string().default(''),
+  materials: z.string().default(''),
+  formfactor: z.string().default(''),
+  description: z.string().default('')
+})
 
 const FileBaseSchema = z.object({
   publicId: z.string(),
@@ -11,12 +22,14 @@ const FileBaseSchema = z.object({
 export const AddProductSchema = z.object({
   name: z.string(),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
+  info: ProductInfoSchema
 });
 
 export const UpdateProductSchema = ProductBaseSchema.extend({
   name: z.string().optional(),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+  info: ProductInfoSchema
 });
 
 export const DeleteProductSchema = ProductBaseSchema.extend({});

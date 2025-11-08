@@ -6,8 +6,8 @@ import { ProductService } from "~~/server/core/service/product";
 export default defineWrappedRequiredAdminHandler(async (event) => {
   const userAuthContext = new UserAuthContext(event)
 
-  const { name, price } = zodValidateRequestOrThrow(AddProductSchema, await readBody(event));
-  const product = await ProductService.create(name, price, userAuthContext.getUserIdOrThrow());
+  const { name, price, info } = zodValidateRequestOrThrow(AddProductSchema, await readBody(event));
+  const product = await ProductService.create(name, price, info, userAuthContext.getUserIdOrThrow());
 
   return <CreateProductResponse>{
     publicId: product.publicId,

@@ -1,7 +1,8 @@
 import prisma from "~~/lib/prisma";
-import { FileType, ObjectStorage, Product, ProductStatus } from "@prisma/client";
+import { FileType, ObjectStorage, Prisma, Product, ProductStatus } from "@prisma/client";
 import { S3 } from "./s3";
 import slug from 'slug'
+import { ProductInfo } from "#shared/types/product";
 export class ProductService {
   product!: Product;
 
@@ -29,7 +30,7 @@ export class ProductService {
     return this;
   }
 
-  static async create(name: string, price: number, createdByUserId: number) {
+  static async create(name: string, price: number, info: ProductInfo, createdByUserId: number) {
     const alias = slug(name)
     const findWithAlias = await prisma.product.findUnique({
       where: {
@@ -49,12 +50,13 @@ export class ProductService {
         name,
         alias,
         price,
+        info: info as Prisma.JsonObject,
         createdByUserId: createdByUserId,
       },
     });
   }
 
-  async update(name?: string, price?: number, status?: ProductStatus) {
+  async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus) {
     const setAlias = async (input?: string) => {
       if (!input) return undefined
 
@@ -84,13 +86,14 @@ export class ProductService {
         alias: await setAlias(name),
         name: name,
         price: price,
+        info: info,
         status: status,
       },
     });
   }
 
   async softDelete() {
-    await this.update(undefined, undefined, ProductStatus.SOFT_DELETE);
+    await this.update(undefined, undefined, undefined, ProductStatus.SOFT_DELETE);
 
     const objectStorages = await prisma.objectStorage.findMany({
       where: {

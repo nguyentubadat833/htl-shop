@@ -117,7 +117,7 @@ model Product {
   updatedAt       DateTime        @updatedAt
   createdByUser   User            @relation(fields: [createdByUserId], references: [id])
   createdByUserId Int
-  info            Json?
+  info            Json
   carts           Cart[]
   files           ObjectStorage[]
 }

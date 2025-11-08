@@ -13,6 +13,7 @@ type UploadState = {
   designFile: FileUpload | null
 }
 
+type OptionKey = 'platform' | 'render' | 'colors' | 'style' | 'materials' | 'formfactor'
 type GridItemData = Partial<ProductItemResponse>
 
 interface IGridItem {
@@ -112,7 +113,8 @@ class GridItem implements IGridItem {
         method: 'POST',
         body: <z.infer<typeof AddProductSchema>>{
           name: this.data.name,
-          price: this.data.price
+          price: this.data.price,
+          info: this.data.info
         },
         onResponse: ({ response }) => {
           response.ok && GridItem.successCallback()
@@ -127,7 +129,8 @@ class GridItem implements IGridItem {
           publicId: this.data.publicId,
           name: this.data.name,
           price: this.data.price,
-          status: this.data.status
+          status: this.data.status,
+           info: this.data.info
         },
         onResponse: ({ response }) => {
           response.ok && GridItem.successCallback()
@@ -170,10 +173,52 @@ const { createPresignedUploadTask } = useFile()
 const currency = ref('USD')
 const { $userApi } = useNuxtApp()
 const toast = new useAppToast()
+const expanded = ref({})
 
 const gridState = reactive<GridState>({
   data: [],
   current: undefined
+})
+
+const getOptionByKey = async (key: OptionKey): Promise<string[]> => {
+  return await $fetch(`/api/option/${key}`)
+}
+
+
+const addOptionState = reactive<Partial<{
+  key: OptionKey,
+  value: string
+}>>({
+  key: undefined,
+  value: undefined
+})
+
+const addOption = async () => {
+  if (!addOptionState.key || !addOptionState.value) {
+    return
+  }
+
+  await $fetch('/api/option/add', {
+    method: 'POST',
+    body: {
+      key: addOptionState.key,
+      value: addOptionState.value
+    },
+    onResponse({ response }) {
+      if (response.ok) {
+        toast.success()
+      }
+    }
+  })
+}
+
+const options = reactive({
+  platform: await getOptionByKey('platform'),
+  render: await getOptionByKey('render'),
+  colors: await getOptionByKey('colors'),
+  style: await getOptionByKey('style'),
+  materials: await getOptionByKey('materials'),
+  formfactor: await getOptionByKey('formfactor'),
 })
 
 const initGridItemCurrent = (item: IGridItem) => {
@@ -215,6 +260,28 @@ const columns = [
     id: 'price',
     accessorKey: 'data.price',
     header: "Price"
+  },
+  {
+    id: 'expand',
+    header: "Info",
+    cell: ({ row }) => {
+      if (row.index) {
+        return h(UButton, {
+          color: 'neutral',
+          variant: 'ghost',
+          icon: 'i-lucide-chevron-down',
+          square: true,
+          'aria-label': 'Expand',
+          ui: {
+            leadingIcon: [
+              'transition-transform',
+              row.getIsExpanded() ? 'duration-200 rotate-180' : ''
+            ]
+          },
+          onClick: () => row.toggleExpanded()
+        })
+      }
+    }
   },
   {
     id: 'images',
@@ -373,7 +440,13 @@ function handleClickOutside(id: string, callback: () => void) {
 
 <template>
   <div class="space-y-3">
-    <UTable id="gridData" :loading="pending" :data="gridState.data" :columns="columns"
+    <div class="space-x-3">
+      <USelect v-model="addOptionState.key"
+        :items="['colors', 'formfactor', 'materials', 'platform', 'render', 'style']" class="w-32" />
+      <UInput v-model="addOptionState.value" placeholder="option value" />
+      <UButton label="Save" @click="addOption" />
+    </div>
+    <UTable v-model:expanded="expanded" id="gridData" :loading="pending" :data="gridState.data" :columns="columns"
       :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }">
       <template #createdAt-cell="{ row }">
         <NuxtTime v-if="!row.original.isNewItem" :datetime="row.original.data.createdAt!" />
@@ -383,9 +456,8 @@ function handleClickOutside(id: string, callback: () => void) {
           <UButton icon="ic:outline-edit" @click="activeEdit(row.original)" color="neutral" />
           <UButton v-if="watchActiveRowInput(row)" :loading="gridState.current?.isProcessing" color="info"
             icon="ic:baseline-save" @click="row.original.save()" />
-          <UButton v-if="row.original.data.publicId"
-            :loading="gridState.current?.isProcessing" color="error" icon="ic:baseline-delete-forever"
-            @click="row.original.delete()" />
+          <UButton v-if="row.original.data.publicId" :loading="gridState.current?.isProcessing" color="error"
+            icon="ic:baseline-delete-forever" @click="row.original.delete()" />
         </div>
       </template>
       <template #status-cell="{ row }">
@@ -457,9 +529,64 @@ function handleClickOutside(id: string, callback: () => void) {
           <p v-if="row.original?.data.publicId">{{ row.original?.data.price }} {{ currency }}</p>
         </div>
       </template>
+      <template #expanded="{ row }">
+        <div class="info space-y-5">
+          <div>
+            <p>Platform</p>
+            <USelect v-model="row.original.data.info!.platform" :items="options.platform" />
+          </div>
+          <div>
+            <p>Render</p>
+            <USelect v-model="row.original.data.info!.render" :items="options.render" />
+          </div>
+          <div>
+            <p>Colors</p>
+            <USelect v-model="row.original.data.info!.colors" :items="options.colors" />
+          </div>
+          <div>
+            <p>Style</p>
+            <USelect v-model="row.original.data.info!.style" :items="options.style" />
+          </div>
+          <div>
+            <p>Materials</p>
+            <USelect v-model="row.original.data.info!.materials" :items="options.materials" />
+          </div>
+          <div>
+            <p>Formfactor</p>
+            <USelect v-model="row.original.data.info!.formfactor" :items="options.formfactor" />
+          </div>
+          <div>
+            <p>Size</p>
+            <UInput />
+          </div>
+          <div>
+            <p>description</p>
+            <UTextarea />
+          </div>
+        </div>
+      </template>
     </UTable>
 
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.info>div {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.info>div>p {
+  width: 150px;
+}
+
+
+.info>div>*:not(p) {
+  width: 300px;
+}
+
+.info>div>div *+* {
+  margin-left: 0.7rem;
+}
+</style>

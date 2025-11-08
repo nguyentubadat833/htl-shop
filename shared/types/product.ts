@@ -1,3 +1,6 @@
+import type z from "zod";
+import type { ProductInfoSchema } from "../schemas/product";
+
 export type FileType = "IMAGE" | "DESIGN";
 
 export interface CreateProductResponse {
@@ -10,6 +13,8 @@ export interface AddImageResponse {
   uploadLink: string;
 }
 
+export type ProductInfo = z.output<typeof ProductInfoSchema>
+
 export interface ProductItemResponse {
   publicId: string;
   name: string;
@@ -17,6 +22,7 @@ export interface ProductItemResponse {
   status: string;
   createdAt: Date;
   updatedAt: Date;
+  info: ProductInfo
   files: {
     publicId: string;
     type: FileType;

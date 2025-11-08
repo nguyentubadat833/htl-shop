@@ -18,6 +18,7 @@ export default defineWrappedResponseHandler(async (event) => {
       status: true,
       createdAt: true,
       updatedAt: true,
+      info: true,
       files: {
         select: {
           publicId: true,

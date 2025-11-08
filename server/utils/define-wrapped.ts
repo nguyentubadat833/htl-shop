@@ -1,5 +1,5 @@
 import type { EventHandler, EventHandlerRequest } from "h3";
-import { getStatusMessage, HttpStatus } from "./error";
+import { getStatusMessage } from "./error";
 
 export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(handler: EventHandler<T, D>): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
@@ -8,6 +8,7 @@ export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(h
       // return { response };
       return response;
     } catch (err) {
+      console.error(err)
       if (err instanceof ServerError) {
         throw createError({
           statusCode: err.code,
@@ -23,8 +24,13 @@ export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(h
 
 export const defineWrappedRequiredAuthHandler = <T extends EventHandlerRequest, D>(handler: EventHandler<T, D>): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
+    const userContextService = new UserAuthContext(event)
+    if (!userContextService.userAuth) {
+      throw createError({
+        statusCode: 401
+      })
+    }
     try {
-      UserAuthContext.hasAuthOrThrowInline(event)
       const response = await handler(event);
       // return { response };
       return response;
@@ -45,8 +51,14 @@ export const defineWrappedRequiredAuthHandler = <T extends EventHandlerRequest, 
 
 export const defineWrappedRequiredAdminHandler = <T extends EventHandlerRequest, D>(handler: EventHandler<T, D>): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
+      const userContextService = new UserAuthContext(event)
+    if (!userContextService.userAuth) {
+      throw createError({
+        statusCode: 401
+      })
+    }
     try {
-      UserAuthContext.hasAdminOrThrowInline(event)
+      userContextService.hasAdminOrThrow()
       const response = await handler(event);
       return response;
     } catch (err) {

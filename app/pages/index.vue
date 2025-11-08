@@ -20,12 +20,12 @@
         <!-- <template #body>test</template> -->
         <template #leading>
           <div class="flex justify-between w-full">
-            <span class="font-medium" :class="[{ 'text-green-600': card.plan === ProductPlan.Pro }]">{{ card.plan
+            <span class="font-medium" :class="[card.plan === ProductPlan.Pro ? 'text-green-600' : 'text-gray-400']">{{ card.plan.toUpperCase()
             }}</span>
-            <div class="text-gray-500 flex items-center gap-1">
+            <!-- <div class="text-gray-500 flex items-center gap-1">
               <Icon name="material-symbols:recommend-outline" size="20" />
               16
-            </div>
+            </div> -->
           </div>
         </template>
         <template #body>
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ProductPlan } from '~~/shared/types/product'
+import { ProductPlan, type ProductItemResponse, type ProductSEOItemResponse } from '~~/shared/types/product'
 
 
 type SortType = 'Popular' | 'Newest'
@@ -95,7 +95,11 @@ const choosePlan = reactive({
   pro: true
 })
 
-const products = await $fetch('/data/products')
+const products = ref<ProductSEOItemResponse[]>([])
+
+onBeforeMount(async () => {
+  products.value = await $fetch('/data/products',)
+})
 
 // const cards = ref([
 //   {
