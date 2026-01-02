@@ -2,14 +2,14 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["@nuxt/ui", "@nuxt/image", "@nuxt/content", "@prisma/nuxt"],
+  modules: ["@nuxt/ui", "@nuxt/image", "@nuxt/content"],
   css: ["~/assets/css/main.css"],
-  prisma: {
-    runMigration: false,
-    installStudio: false,
-    generateClient: false,
-    autoSetupPrisma: false,
-  },
+  // prisma: {
+  //   runMigration: false,
+  //   installStudio: false,
+  //   generateClient: false,
+  //   autoSetupPrisma: false,
+  // },
   runtimeConfig: {
     public: {
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
@@ -26,7 +26,7 @@ export default defineNuxtConfig({
       accessKey: process.env.NUXT_S3_ACCESS_KEY,
       secretKey: process.env.NUXT_S3_SECRET_KEY,
       bucketDefault: process.env.NUXT_S3_BUCKET_DEFAULT,
-      useSSL: process.env.NUXT_S3_USE_SSL === "true",
+      useSSL: process.env.NUXT_S3_USE_SSL,
     },
   },
   content: {
@@ -49,4 +49,7 @@ export default defineNuxtConfig({
       ssr: false,
     },
   },
+  // alias: {
+  //   '@prisma/client/index-browser': '@prisma/client', // Alias for correct entry
+  // },
 });

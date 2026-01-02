@@ -1,0 +1,13 @@
+NODE_ENV=dev
+DATABASE_URL=postgresql://datnguyen:datnguyen@localhost:5432/htl-shop
+
+NUXT_PUBLIC_GOOGLE_ID=42322942739-tvp0ofrtrd7e97tnurm67nm8cadvv7bk.apps.googleusercontent.com
+NUXT_GOOGLE_SECRET_KEY=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
+NUXT_GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/google/callback
+
+NUXT_S3_HOST=localhost
+NUXT_S3_PORT=9000
+NUXT_S3_ACCESS_KEY=datnguyen
+NUXT_S3_SECRET_KEY=datnguyen
+NUXT_S3_BUCKET_DEFAULT=
+NUXT_S3_USE_SSL=

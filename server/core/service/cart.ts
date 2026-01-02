@@ -1,5 +1,3 @@
-import { Cart } from "@prisma/client";
-import prisma from "~~/lib/prisma";
 import { OrderService } from "./order";
 import { ProductService } from "./product";
 import { CartItemResponse } from "~~/shared/types/cart";

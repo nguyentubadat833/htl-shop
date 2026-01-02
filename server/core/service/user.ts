@@ -1,5 +1,4 @@
 import { AuthProvider } from "@prisma/client";
-import prisma from "~~/lib/prisma";
 
 export class UserService {
   constructor() {}

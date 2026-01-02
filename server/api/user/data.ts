@@ -1,4 +1,3 @@
-import prisma from "~~/lib/prisma";
 import { UserItem } from "#shared/types/user";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {

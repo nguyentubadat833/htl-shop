@@ -1,6 +1,5 @@
-import prisma from "~~/lib/prisma";
-import { Order } from "@prisma/client";
 import { OrderWithProductsResponse } from "#shared/types/order";
+import { Order } from "@prisma/client";
 
 export class OrderService {
   order!: Order;

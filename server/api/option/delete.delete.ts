@@ -1,4 +1,3 @@
-import prisma from "~~/lib/prisma";
 import { DeleteOptionSchema } from "~~/shared/schemas/option";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {

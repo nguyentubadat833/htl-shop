@@ -1,4 +1,3 @@
-import prisma from "~~/lib/prisma";
 import { ProductItemResponse } from "~~/shared/types/product";
 
 export default defineWrappedResponseHandler(async (event) => {

@@ -1,6 +1,5 @@
 import * as Minio from "minio";
 import { S3 } from "../core/service/s3";
-import prisma from "~~/lib/prisma";
 
 export interface S3EventRecord {
   eventVersion: string;
@@ -40,7 +39,7 @@ export default defineNitroPlugin(async (nitroApp) => {
   S3.CLIENT = new Minio.Client({
     endPoint: s3Env.host,
     port: s3Env.port ? parseInt(s3Env.port) : undefined,
-    useSSL: s3Env.useSSL,
+    useSSL: s3Env.useSSL === "true",
     accessKey: s3Env.accessKey,
     secretKey: s3Env.secretKey,
   });

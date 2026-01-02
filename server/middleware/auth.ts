@@ -1,4 +1,3 @@
-import prisma from "~~/lib/prisma";
 import { GoogleService } from "../core/service/auth";
 
 export default defineEventHandler(async (event) => {

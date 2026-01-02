@@ -1,6 +1,5 @@
 import { ProductService } from "~~/server/core/service/product";
 import { DeleteProductSchema } from "~~/shared/schemas/product";
-import { UserAuthContext } from "~~/server/utils/context-working";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
   const { publicId } = zodValidateRequestOrThrow(DeleteProductSchema, await readBody(event));

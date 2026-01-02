@@ -1,4 +1,3 @@
-import prisma from "~~/lib/prisma";
 import { S3 } from "~~/server/core/service/s3";
 import { DeleteFileRequestSchema } from "~~/shared/schemas/product";
 
