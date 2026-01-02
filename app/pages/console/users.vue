@@ -1,41 +1,39 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import { Prisma } from '@prisma/client'
+import type { SerializeObject } from 'nitropack'
 
-const userSelect = Prisma.validator<Prisma.UserDefaultArgs>()({
-  select: {
-    image: true,
-    status: true,
-    email: true,
-    name: true,
-    createdAt: true
-  }
-})
-type User = Prisma.UserGetPayload<typeof userSelect>
+const { $userApi } = useNuxtApp()
+const { data: users } = await useAsyncData(() => $userApi('/api/user/data'))
 
-const prisma = usePrismaClient()
-const users = await prisma.user.findMany({
-  ...userSelect
-})
-
-
-const columns: TableColumn<User>[] = [
+const columns: TableColumn<SerializeObject<UserItem>>[] = [
   {
-    accessorKey: 'image',
-    header: 'Avatar',
+    accessorKey: 'publicId',
+    header: 'Id',
   },
   {
-    accessorKey: 'status',
-    header: 'Status'
+    accessorKey: 'provider',
+    header: 'Provider',
+  },
+  {
+    accessorKey: 'name',
+    header: 'Name',
   },
   {
     accessorKey: 'email',
     header: "Email"
   },
   {
+    accessorKey: 'status',
+    header: 'Status'
+  },
+  {
     accessorKey: 'createdAt',
     header: 'Register At'
-  }
+  },
+  {
+    accessorKey: 'image',
+    header: 'Avatar',
+  },
 ]
 </script>
 

@@ -130,7 +130,7 @@ class GridItem implements IGridItem {
           name: this.data.name,
           price: this.data.price,
           status: this.data.status,
-           info: this.data.info
+          info: this.data.info
         },
         onResponse: ({ response }) => {
           response.ok && GridItem.successCallback()
@@ -247,54 +247,32 @@ const { pending, refresh } = useAsyncData(async () => await $userApi('/api/produ
 
 const columns = [
   {
-    id: 'createdAt',
-    accessorKey: 'data.createdAt',
-    header: "Created At"
-  },
-  {
     id: "name",
     accessorKey: "data.name",
     header: "Name"
   },
-  {
-    id: 'price',
-    accessorKey: 'data.price',
-    header: "Price"
-  },
-  {
-    id: 'expand',
-    header: "Info",
-    cell: ({ row }) => {
-      if (row.index) {
-        return h(UButton, {
-          color: 'neutral',
-          variant: 'ghost',
-          icon: 'i-lucide-chevron-down',
-          square: true,
-          'aria-label': 'Expand',
-          ui: {
-            leadingIcon: [
-              'transition-transform',
-              row.getIsExpanded() ? 'duration-200 rotate-180' : ''
-            ]
-          },
-          onClick: () => row.toggleExpanded()
-        })
-      }
-    }
-  },
-  {
-    id: 'images',
-    header: 'Images'
-  },
-  {
-    id: 'file',
-    header: "File"
-  },
+  // {
+  //   id: 'price',
+  //   accessorKey: 'data.price',
+  //   header: "Price"
+  // },
+  // {
+  //   id: 'images',
+  //   header: 'Images'
+  // },
+  // {
+  //   id: 'file',
+  //   header: "File"
+  // },
   {
     id: 'status',
     accessorKey: 'data.status',
     header: "Status"
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'data.createdAt',
+    header: "Created At"
   },
   {
     id: 'action'
@@ -439,40 +417,41 @@ function handleClickOutside(id: string, callback: () => void) {
 </script>
 
 <template>
-  <div class="space-y-3">
-    <div class="space-x-3">
-      <USelect v-model="addOptionState.key"
+  <div class="space-y-3 h-full">
+    <!-- <div class="space-x-3"> -->
+    <!-- <USelect v-model="addOptionState.key"
         :items="['colors', 'formfactor', 'materials', 'platform', 'render', 'style']" class="w-32" />
       <UInput v-model="addOptionState.value" placeholder="option value" />
       <UButton label="Save" @click="addOption" />
-    </div>
-    <UTable v-model:expanded="expanded" id="gridData" :loading="pending" :data="gridState.data" :columns="columns"
-      :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }">
-      <template #createdAt-cell="{ row }">
-        <NuxtTime v-if="!row.original.isNewItem" :datetime="row.original.data.createdAt!" />
-      </template>
-      <template #action-cell="{ row }">
-        <div class="space-x-3">
-          <UButton icon="ic:outline-edit" @click="activeEdit(row.original)" color="neutral" />
-          <UButton v-if="watchActiveRowInput(row)" :loading="gridState.current?.isProcessing" color="info"
-            icon="ic:baseline-save" @click="row.original.save()" />
-          <UButton v-if="row.original.data.publicId" :loading="gridState.current?.isProcessing" color="error"
-            icon="ic:baseline-delete-forever" @click="row.original.delete()" />
-        </div>
-      </template>
-      <template #status-cell="{ row }">
-        <div v-if="!row.original.isNewItem">
-          <USelect v-if="watchActiveRowInput(row) && row.original.isEdit" v-model="row.original.data.status"
-            :items="['ACTIVE', 'INACTIVE']" />
-          <UBadge v-else :label="row.original.data.status"
-            :color="row.original.data.status === 'INACTIVE' ? 'neutral' : undefined" />
-        </div>
-      </template>
-      <template #name-cell="{ row }">
-        <UInput v-if="watchActiveRowInput(row)" v-model="row.original.data.name" class="w-72" />
-        <p v-else>{{ row.original.data.name }}</p>
-      </template>
-      <template #images-cell="{ row }">
+    </div> -->
+    <div class="grid grid-cols-[7fr_3fr] gap-4">
+      <UTable v-model:expanded="expanded" id="gridData" :loading="pending" :data="gridState.data" :columns="columns"
+        :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }">
+        <template #createdAt-cell="{ row }">
+          <NuxtTime v-if="!row.original.isNewItem" :datetime="row.original.data.createdAt!" />
+        </template>
+        <template #action-cell="{ row }">
+          <div class="space-x-3">
+            <UButton icon="ic:outline-edit" @click="activeEdit(row.original)" color="neutral" />
+            <UButton v-if="watchActiveRowInput(row)" :loading="gridState.current?.isProcessing" color="info"
+              icon="ic:baseline-save" @click="row.original.save()" />
+            <UButton v-if="row.original.data.publicId" :loading="gridState.current?.isProcessing" color="error"
+              icon="ic:baseline-delete-forever" @click="row.original.delete()" />
+          </div>
+        </template>
+        <template #status-cell="{ row }">
+          <div v-if="!row.original.isNewItem">
+            <USelect v-if="watchActiveRowInput(row) && row.original.isEdit" v-model="row.original.data.status"
+              :items="['ACTIVE', 'INACTIVE']" />
+            <UBadge v-else :label="row.original.data.status"
+              :color="row.original.data.status === 'INACTIVE' ? 'neutral' : undefined" />
+          </div>
+        </template>
+        <template #name-cell="{ row }">
+          <UInput v-if="watchActiveRowInput(row)" v-model="row.original.data.name" class="w-72" />
+          <p v-else>{{ row.original.data.name }}</p>
+        </template>
+        <!-- <template #images-cell="{ row }">
         <UModal v-if="row.original.data.publicId">
           <div class="flex gap-2 items-center">
             <UButton icon="ic:baseline-add-photo-alternate" color="neutral" variant="subtle"
@@ -501,8 +480,8 @@ function handleClickOutside(id: string, callback: () => void) {
             </div>
           </template>
         </UModal>
-      </template>
-      <template #file-cell="{ row }">
+      </template> -->
+        <!-- <template #file-cell="{ row }">
         <div class="flex items-center" @click="initGridItemCurrent(row.original)">
           <UButton v-if="!row.original.isNewItem && !row.original.designFile" icon="ic:outline-upload-file"
             color="neutral" variant="ghost" @click="clickById(`btnUDF${row.original.data.publicId}`)" />
@@ -516,20 +495,20 @@ function handleClickOutside(id: string, callback: () => void) {
           <p v-if="!row.original.isNewItem && !row.original.designFile" class="text-[0.7rem] text-gray-500">No
             file available</p>
         </div>
-      </template>
-      <template #price-cell="{ row }">
-        <UInputNumber v-if="watchActiveRowInput(row)" v-model="row.original.data.price" :format-options="{
-          style: 'currency',
-          currency: currency,
-          currencyDisplay: 'code',
-          currencySign: 'accounting'
-        }" />
+      </template> -->
+        <template #price-cell="{ row }">
+          <UInputNumber v-if="watchActiveRowInput(row)" v-model="row.original.data.price" :format-options="{
+            style: 'currency',
+            currency: currency,
+            currencyDisplay: 'code',
+            currencySign: 'accounting'
+          }" />
 
-        <div v-else>
-          <p v-if="row.original?.data.publicId">{{ row.original?.data.price }} {{ currency }}</p>
-        </div>
-      </template>
-      <template #expanded="{ row }">
+          <div v-else>
+            <p v-if="row.original?.data.publicId">{{ row.original?.data.price }} {{ currency }}</p>
+          </div>
+        </template>
+        <!-- <template #expanded="{ row }">
         <div class="info space-y-5">
           <div>
             <p>Platform</p>
@@ -564,9 +543,9 @@ function handleClickOutside(id: string, callback: () => void) {
             <UTextarea />
           </div>
         </div>
-      </template>
-    </UTable>
-
+      </template> -->
+      </UTable>
+    </div>
   </div>
 </template>
 

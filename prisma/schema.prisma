@@ -70,6 +70,8 @@ model DefineOption {
   publicId String @unique @default(cuid())
   key      String
   value    String
+
+  @@unique([key, value])
 }
 
 model User {
