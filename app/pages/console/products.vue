@@ -99,8 +99,9 @@ const gridItemResourcesCurrent = computed(() => {
     designFile: gridItemCurrent.value.files.find(file => file.type === 'DESIGN'),
   }
 })
-const uploadResourcesState = reactive<UploadResourcesState>(uploadResourceDefaultState)
 
+const uploadProductImageSelected = ref([])
+const uploadResourcesState = reactive<UploadResourcesState>(uploadResourceDefaultState)
 const { data: technicalOptions } = useLazyAsyncData(
   'technical-options',
   () => $userApi('/api/option/all'),
@@ -144,6 +145,9 @@ function onSelect(row: TableRow<GridItemData>, e?: Event) {
 }
 
 function changeSelectImages(files: File[] | null | undefined) {
+  if (!gridItemCurrent.value.publicId) {
+    return
+  }
   if (files) {
     uploadResourcesState.images = files.map(file => {
       return {
@@ -167,13 +171,24 @@ function changeSelectDesignFile(file: File | null | undefined) {
       status: 'pending'
     }
 
-    // uploadFiles('DESIGN')
+    fileActions().uploadFiles('DESIGN')
     // .then(() => GridItem.successCallback())
+  }
+}
+
+function reGetGridItemCurrent(publicId: string) {
+  const product = data.value?.find(prd => prd.publicId === publicId)
+  if (product) {
+    gridItemCurrent.value = product
   }
 }
 
 function fileActions() {
   async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
+    if (!gridItemCurrent.value.publicId) {
+      return
+    }
+
     let fileUploads: FileUpload[] = []
     if (type === 'IMAGE') {
       fileUploads = uploadResourcesState.images
@@ -218,9 +233,21 @@ function fileActions() {
           fileUpload.status = 'error'
         })
       }))
+        .then(() => {
+          uploadResourcesState.designFile = null
+          uploadResourcesState.images = []
+          uploadProductImageSelected.value = []
 
-      refreshProducts()
-      toast.success()
+          refreshProducts()
+            .then(() => {
+              reGetGridItemCurrent(gridItemCurrent.value.publicId)
+              toast.toast.add({
+                title: "Uploaded"
+              })
+            })
+        })
+
+
     }
   }
 
@@ -232,7 +259,13 @@ function fileActions() {
       },
       onResponse({ response }) {
         if (response.ok) {
-          toast.success()
+          refreshProducts()
+            .finally(() => {
+              reGetGridItemCurrent(gridItemCurrent.value.publicId)
+              toast.toast.add({
+                title: "Deleted"
+              })
+            })
         }
       }
     })
@@ -245,16 +278,16 @@ function fileActions() {
 }
 
 function productActions() {
-  function uploadResources() {
+  async function uploadResources() {
     if (uploadResourcesState.designFile) {
-      fileActions().uploadFiles('DESIGN').then(() => {
+      await fileActions().uploadFiles('DESIGN').then(() => {
         toast.toast.add({
           title: "Successfully upload file design"
         })
       })
     }
     if (uploadResourcesState.images.length) {
-      fileActions().uploadFiles('IMAGE').then(() => {
+      await fileActions().uploadFiles('IMAGE').then(() => {
         toast.toast.add({
           title: "Successfully upload images"
         })
@@ -266,10 +299,10 @@ function productActions() {
     uploadResourcesState.designFile = uploadResourceDefaultState.designFile
     uploadResourceDefaultState.images = uploadResourceDefaultState.images
   }
-  function save() {
+  async function save() {
     const data = gridItemCurrent.value
     if (!data.publicId) {
-      $userApi('/api/product/add', {
+      await $userApi('/api/product/add', {
         method: 'POST',
         body: <z.input<typeof AddProductSchema>>{
           name: data.name,
@@ -278,16 +311,18 @@ function productActions() {
         },
         onResponse: ({ response }) => {
           if (response.ok) {
-            uploadResources()
             refreshProducts()
-            toast.toast.add({
-              title: "Created"
-            })
+              .then(() => {
+                reGetGridItemCurrent(response._data.publicId)
+                toast.toast.add({
+                  title: "Created"
+                })
+              })
           }
         }
       })
     } else {
-      $userApi('/api/product/update', {
+      await $userApi('/api/product/update', {
         method: 'PUT',
         body: <z.input<typeof UpdateProductSchema>>{
           publicId: data.publicId,
@@ -298,11 +333,13 @@ function productActions() {
         },
         onResponse: ({ response }) => {
           if (response.ok) {
-            uploadResources()
             refreshProducts()
-            toast.toast.add({
-              title: "Updated"
-            })
+              .then(() => {
+                reGetGridItemCurrent(data.publicId)
+                toast.toast.add({
+                  title: "Updated"
+                })
+              })
           }
         }
       })
@@ -321,7 +358,10 @@ function productActions() {
       onResponse: ({ response }) => {
         if (response.ok) {
           refreshProducts()
-          toast.success()
+          gridItemCurrent.value = gridItemCurrentDefaultState
+          toast.toast.add({
+            title: "Deleted"
+          })
         }
       }
     })
@@ -364,8 +404,7 @@ function handleClickOutside(id: string, callback: () => void) {
 
 <template>
   <div class="grid grid-cols-[6fr_4fr] gap-4">
-    <UTable id="gridData" :loading="pending" :data="data" :columns="columns"
-      :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }" @select="(row, e) => onSelect(row, e)">
+    <UTable id="gridData" :loading="pending" :data="data" :columns="columns" @select="(row, e) => onSelect(row, e)">
       <template #createdAt-cell="{ row }">
         <NuxtTime v-if="!row.original.createdAt" :datetime="row.original.createdAt!" />
       </template>
@@ -414,27 +453,25 @@ function handleClickOutside(id: string, callback: () => void) {
                 <p v-if="!gridItemResourcesCurrent.designFile" class="text-[0.7rem] text-gray-500">
                   No design file available</p>
               </div>
-              <UButton v-if="uploadResourcesState.designFile" :label="uploadResourcesState.designFile?.file.name"
-                color="neutral" variant="outline" block @click="() => uploadResourcesState.designFile = null" />
-
+              <!-- <UButton v-if="uploadResourcesState.designFile" :label="uploadResourcesState.designFile?.file.name"
+                color="neutral" variant="outline" block @click="() => uploadResourcesState.designFile = null" /> -->
             </div>
           </UFormField>
           <UFormField label="Product images">
-            <!-- <UCarousel v-slot="{ item }" loop wheel-gestures :items="gridItemResourcesCurrent.productImages"
-              :ui="{ item: 'basis-1/3' }" class="w-96">
-              <div class="relative group grid place-items-center">
-                <img :src="item.link" class="rounded-lg object-cover mb-8" />
-
-                <UButton v-if="item.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
-                  color="neutral" variant="ghost"
-                  class="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  @click="fileActions().deleteFile(item.publicId)" />
+            <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
+              <div v-for="img in gridItemResourcesCurrent.productImages" class="relative group">
+                <img :key="img.publicId" :src="img.link" class="mb-4 w-full rounded-lg" />
+                <UButton v-if="img.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
+                  color="error" variant="link"
+                  class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  @click="fileActions().deleteFile(img.publicId)" />
               </div>
-            </UCarousel> -->
+            </div>
             <div class="space-y-4 mt-3">
-              <UFileUpload variant="button" multiple @update:model-value="changeSelectImages"
-                :ui="layout.uploadImages.ui" />
-              <!-- <UButton icon="ic:outline-file-upload" label="Upload" block @click="uploadFiles('IMAGE')" /> -->
+              <UFileUpload v-model="uploadProductImageSelected" variant="button" multiple
+                @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
+              </UFileUpload>
+              <UButton icon="ic:outline-file-upload" label="Upload" block @click="fileActions().uploadFiles('IMAGE')" />
             </div>
           </UFormField>
         </div>
@@ -493,7 +530,7 @@ function handleClickOutside(id: string, callback: () => void) {
         </div>
       </UCard>
       <div class="flex justify-end gap-3">
-        <UButton icon="ic:sharp-delete-forever" label="Delete" color="error" />
+        <UButton icon="ic:sharp-delete-forever" label="Delete" color="error" @click="productActions().del()" />
         <UButton icon="ic:baseline-save" label="Save" color="info" block @click="productActions().save()" />
       </div>
     </div>

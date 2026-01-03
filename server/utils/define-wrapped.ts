@@ -51,7 +51,7 @@ export const defineWrappedRequiredAuthHandler = <T extends EventHandlerRequest, 
 
 export const defineWrappedRequiredAdminHandler = <T extends EventHandlerRequest, D>(handler: EventHandler<T, D>): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
-      const userContextService = new UserAuthContext(event)
+    const userContextService = new UserAuthContext(event)
     if (!userContextService.userAuth) {
       throw createError({
         statusCode: 401
@@ -62,8 +62,8 @@ export const defineWrappedRequiredAdminHandler = <T extends EventHandlerRequest,
       const response = await handler(event);
       return response;
     } catch (err) {
+      console.error(err)
       if (err instanceof ServerError) {
-        console.error(err)
         throw createError({
           statusCode: err.code,
           statusMessage: getStatusMessage(err.code),

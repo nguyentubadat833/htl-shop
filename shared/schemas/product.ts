@@ -20,7 +20,7 @@ const FileBaseSchema = z.object({
 });
 
 export const AddProductSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1, "Tên sản phẩm không được để trống"),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   info: ProductInfoSchema
 });
