@@ -3,6 +3,11 @@ import { AddProductSchema, DeleteFileRequestSchema, DeleteProductSchema, UpdateP
 import type { TableColumn, TableRow } from '@nuxt/ui';
 import type z from 'zod';
 
+const UButton = resolveComponent('UButton')
+
+type OptionKey = 'platform' | 'render' | 'colors' | 'style' | 'materials' | 'formfactor'
+type GridItemData = Partial<ProductItemResponse>
+
 type FileUpload = {
   file: File
   percent: number
@@ -13,14 +18,16 @@ type UploadState = {
   designFile: FileUpload | null
 }
 
-type OptionKey = 'platform' | 'render' | 'colors' | 'style' | 'materials' | 'formfactor'
-type GridItemData = Partial<ProductItemResponse>
+type GridState = {
+  data: IGridItem[],
+  current?: IGridItem
+}
 
 interface IGridItem {
+  upload?: UploadState,
   data: GridItemData,
   isEdit: boolean
   isProcessing: boolean,
-  upload?: UploadState,
   isNewItem: boolean,
   designFile: {
     publicId: string,
@@ -153,12 +160,14 @@ class GridItem implements IGridItem {
 
 }
 
-type GridState = {
-  data: IGridItem[],
-  current?: IGridItem
+const layout = {
+  info: {
+    ui: {
+      body: 'space-y-3'
+    }
+  }
 }
 
-const UButton = resolveComponent('UButton')
 const uploadImagesUI = {
   file: 'max-h-20',
   files: 'max-h-72 overflow-y-auto'
@@ -169,16 +178,19 @@ const initUploadState: UploadState = {
   designFile: null
 }
 
+const girdItemDefault: GridItemData = {}
+
 const { createPresignedUploadTask } = useFile()
-const currency = ref('USD')
 const { $userApi } = useNuxtApp()
 const toast = new useAppToast()
+const currency = ref('USD')
 const expanded = ref({})
 
 const gridState = reactive<GridState>({
   data: [],
   current: undefined
 })
+const gridItemDataCurrent = ref<GridItemData>(girdItemDefault)
 
 const getOptionByKey = async (key: OptionKey): Promise<string[]> => {
   return await $fetch(`/api/option/${key}`)
@@ -274,9 +286,9 @@ const columns = [
     accessorKey: 'data.createdAt',
     header: "Created At"
   },
-  {
-    id: 'action'
-  }
+  // {
+  //   id: 'action'
+  // }
 ] satisfies TableColumn<IGridItem>[]
 
 function watchActiveRowInput(row?: TableRow<IGridItem>) {
@@ -320,7 +332,7 @@ function changeSelectDesignFile(file: File | null | undefined, item: IGridItem) 
       status: 'pending'
     }
 
-    uploadFiles('DESIGN').then(() => GridItem.successCallback())
+    // uploadFiles('DESIGN').then(() => GridItem.successCallback())
   }
 }
 
@@ -417,41 +429,40 @@ function handleClickOutside(id: string, callback: () => void) {
 </script>
 
 <template>
-  <div class="space-y-3 h-full">
+  <div class="h-full grid grid-cols-[7fr_3fr] gap-4">
     <!-- <div class="space-x-3"> -->
     <!-- <USelect v-model="addOptionState.key"
         :items="['colors', 'formfactor', 'materials', 'platform', 'render', 'style']" class="w-32" />
       <UInput v-model="addOptionState.value" placeholder="option value" />
       <UButton label="Save" @click="addOption" />
     </div> -->
-    <div class="grid grid-cols-[7fr_3fr] gap-4">
-      <UTable v-model:expanded="expanded" id="gridData" :loading="pending" :data="gridState.data" :columns="columns"
-        :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }">
-        <template #createdAt-cell="{ row }">
-          <NuxtTime v-if="!row.original.isNewItem" :datetime="row.original.data.createdAt!" />
-        </template>
-        <template #action-cell="{ row }">
-          <div class="space-x-3">
-            <UButton icon="ic:outline-edit" @click="activeEdit(row.original)" color="neutral" />
-            <UButton v-if="watchActiveRowInput(row)" :loading="gridState.current?.isProcessing" color="info"
-              icon="ic:baseline-save" @click="row.original.save()" />
-            <UButton v-if="row.original.data.publicId" :loading="gridState.current?.isProcessing" color="error"
-              icon="ic:baseline-delete-forever" @click="row.original.delete()" />
-          </div>
-        </template>
-        <template #status-cell="{ row }">
-          <div v-if="!row.original.isNewItem">
-            <USelect v-if="watchActiveRowInput(row) && row.original.isEdit" v-model="row.original.data.status"
-              :items="['ACTIVE', 'INACTIVE']" />
-            <UBadge v-else :label="row.original.data.status"
-              :color="row.original.data.status === 'INACTIVE' ? 'neutral' : undefined" />
-          </div>
-        </template>
-        <template #name-cell="{ row }">
-          <UInput v-if="watchActiveRowInput(row)" v-model="row.original.data.name" class="w-72" />
-          <p v-else>{{ row.original.data.name }}</p>
-        </template>
-        <!-- <template #images-cell="{ row }">
+    <UTable id="gridData" :loading="pending" :data="gridState.data" :columns="columns"
+      :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }">
+      <template #createdAt-cell="{ row }">
+        <NuxtTime v-if="!row.original.isNewItem" :datetime="row.original.data.createdAt!" />
+      </template>
+      <!-- <template #action-cell="{ row }">
+        <div class="space-x-3">
+          <UButton icon="ic:outline-edit" @click="activeEdit(row.original)" color="neutral" />
+          <UButton v-if="watchActiveRowInput(row)" :loading="gridState.current?.isProcessing" color="info"
+            icon="ic:baseline-save" @click="row.original.save()" />
+          <UButton v-if="row.original.data.publicId" :loading="gridState.current?.isProcessing" color="error"
+            icon="ic:baseline-delete-forever" @click="row.original.delete()" />
+        </div>
+      </template>
+      <template #status-cell="{ row }">
+        <div v-if="!row.original.isNewItem">
+          <USelect v-if="watchActiveRowInput(row) && row.original.isEdit" v-model="row.original.data.status"
+            :items="['ACTIVE', 'INACTIVE']" />
+          <UBadge v-else :label="row.original.data.status"
+            :color="row.original.data.status === 'INACTIVE' ? 'neutral' : undefined" />
+        </div>
+      </template> -->
+      <!-- <template #name-cell="{ row }">
+        <UInput v-if="watchActiveRowInput(row)" v-model="row.original.data.name" class="w-72" />
+        <p v-else>{{ row.original.data.name }}</p>
+      </template> -->
+      <!-- <template #images-cell="{ row }">
         <UModal v-if="row.original.data.publicId">
           <div class="flex gap-2 items-center">
             <UButton icon="ic:baseline-add-photo-alternate" color="neutral" variant="subtle"
@@ -481,7 +492,7 @@ function handleClickOutside(id: string, callback: () => void) {
           </template>
         </UModal>
       </template> -->
-        <!-- <template #file-cell="{ row }">
+      <!-- <template #file-cell="{ row }">
         <div class="flex items-center" @click="initGridItemCurrent(row.original)">
           <UButton v-if="!row.original.isNewItem && !row.original.designFile" icon="ic:outline-upload-file"
             color="neutral" variant="ghost" @click="clickById(`btnUDF${row.original.data.publicId}`)" />
@@ -496,19 +507,19 @@ function handleClickOutside(id: string, callback: () => void) {
             file available</p>
         </div>
       </template> -->
-        <template #price-cell="{ row }">
-          <UInputNumber v-if="watchActiveRowInput(row)" v-model="row.original.data.price" :format-options="{
-            style: 'currency',
-            currency: currency,
-            currencyDisplay: 'code',
-            currencySign: 'accounting'
-          }" />
+      <!-- <template #price-cell="{ row }">
+        <UInputNumber v-if="watchActiveRowInput(row)" v-model="row.original.data.price" :format-options="{
+          style: 'currency',
+          currency: currency,
+          currencyDisplay: 'code',
+          currencySign: 'accounting'
+        }" />
 
-          <div v-else>
-            <p v-if="row.original?.data.publicId">{{ row.original?.data.price }} {{ currency }}</p>
-          </div>
-        </template>
-        <!-- <template #expanded="{ row }">
+        <div v-else>
+          <p v-if="row.original?.data.publicId">{{ row.original?.data.price }} {{ currency }}</p>
+        </div>
+      </template> -->
+      <!-- <template #expanded="{ row }">
         <div class="info space-y-5">
           <div>
             <p>Platform</p>
@@ -544,7 +555,68 @@ function handleClickOutside(id: string, callback: () => void) {
           </div>
         </div>
       </template> -->
-      </UTable>
+    </UTable>
+    <div class="space-y-3">
+      <UButton icon="ic:outline-plus" label="Add Product" block />
+      <UCard :ui="layout.info.ui">
+        <UFormField label="ID">
+          <UInput disabled :model-value="gridItemDataCurrent.publicId" class="w-full" />
+        </UFormField>
+        <UFormField label="Name">
+          <UInput v-model="gridItemDataCurrent.name" class="w-full" />
+        </UFormField>
+        <UFormField label="Price">
+          <div class="flex gap-2">
+            <UInputNumber v-model="gridItemDataCurrent.price" :format-options="{
+              style: 'currency',
+              currency: currency,
+              currencyDisplay: 'code',
+              currencySign: 'accounting'
+            }" class="w-full" />
+            <UInput disabled :model-value="currency"/>
+          </div>
+        </UFormField>
+        <UFormField label="Status">
+          <USelect v-model="gridItemDataCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
+        </UFormField>
+        <UFormField label="Resource">
+          <div class="flex items-center gap-2">
+            <UButton v-if="!gridState.current?.isNewItem && !gridState.current?.designFile"
+              icon="ic:outline-upload-file" color="neutral" variant="ghost"
+              @click="clickById(`btnUDF${gridState.current?.data.publicId}`)" />
+            <UButton v-if="gridState.current?.designFile" icon="ic:baseline-download-for-offline" color="info"
+              variant="ghost" />
+            <UButton v-if="gridState.current?.designFile" icon="ic:baseline-delete-forever" color="error"
+              variant="ghost" @click="gridState.current?.designFile.delete()" />
+            <UFileUpload :id="`btnUDF${gridState.current?.data.publicId}`" variant="button"
+              @update:model-value="(file) => changeSelectDesignFile(file, gridState.current!)" :ui="uploadImagesUI"
+              class="hidden" />
+            <p v-if="!gridState.current?.isNewItem && !gridState.current?.designFile"
+              class="text-[0.7rem] text-gray-500">
+              No file available</p>
+          </div>
+        </UFormField>
+        <UFormField label="Images">
+          <UCarousel v-slot="{ item }" loop wheel-gestures :items="gridState.current?.images ?? []"
+            :ui="{ item: 'basis-1/3' }" class="w-96">
+            <div class="relative group grid place-items-center">
+              <img :src="item.link" class="rounded-lg object-cover mb-8" />
+
+              <UButton label="Remove" icon="ic:baseline-delete-sweep" block size="sm" color="neutral" variant="ghost"
+                class="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                @click="item.delete()" />
+            </div>
+          </UCarousel>
+          <div class="space-y-4">
+            <UFileUpload variant="button" multiple @update:model-value="changeSelectImages" :ui="uploadImagesUI" />
+            <!-- <UButton icon="ic:outline-file-upload" label="Upload" block @click="uploadFiles('IMAGE')" /> -->
+          </div>
+        </UFormField>
+      </UCard>
+      <div class="flex justify-end gap-3">
+        <UButton icon="ic:sharp-delete-forever" label="Delete" color="error" />
+        <UButton icon="ic:baseline-save" label="Save" color="info" block />
+      </div>
     </div>
   </div>
 </template>

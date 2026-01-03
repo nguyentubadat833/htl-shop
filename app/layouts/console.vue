@@ -80,7 +80,6 @@ const navItems = ref<NavigationMenuItem[][]>([
 <style scoped></style> -->
 <template>
   <ClientOnly>
-    {{ routePaths }}
     <div class="p-4 h-screen w-full grid grid-cols-[2fr_11fr] gap-4">
       <div class="p-2 space-y-6">
         <div class="flex items-center gap-4">
@@ -100,14 +99,14 @@ const navItems = ref<NavigationMenuItem[][]>([
           </div>
         </div>
       </div>
-      <UCard>
-        <div class="space-y-5">
+      <UCard :ui="layout.main.ui">
+        <div class="space-y-5 h-full overflow-hidden">
           <div class="p-2 text-2xl">
-            {{ navItemCurrent?.label }}
+            <UBreadcrumb :items="breadItems" :ui="layout.breadItems.ui" />
           </div>
           <USeparator />
-          <div>
-
+          <div class="h-full p-1">
+            <NuxtPage />
           </div>
         </div>
       </UCard>
@@ -118,8 +117,26 @@ const navItems = ref<NavigationMenuItem[][]>([
 <script lang="ts" setup>
 import type { NavigationMenuItem } from '@nuxt/ui'
 
-const routePaths = computed(() => useRoute().path.split('/'))
+const layout = {
+  main: {
+    ui: {
+      // root: 'bg-orange-200'
+    }
+  },
+  breadItems: {
+    ui: {
+      linkLabel: 'text-xl'
+    }
+  }
+}
+
 const navItemCurrent = ref<NavigationMenuItem>()
+const routePaths = computed(() => useRouter().currentRoute.value.path)
+const breadItems = computed(() => routePaths.value.split('/').slice(1).map(item => {
+  return {
+    label: item.toUpperCase()
+  }
+}))
 
 const navItems: NavigationMenuItem[][] = [
   [
@@ -176,8 +193,4 @@ async function navItemClick(data: NavigationMenuItem) {
   }
   navItemCurrent.value = data
 }
-
-onMounted(() => {
-  
-})
-</script>
+</script>bg-orange-200'
