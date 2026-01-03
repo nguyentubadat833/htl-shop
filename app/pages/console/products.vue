@@ -4,310 +4,148 @@ import type { TableColumn, TableRow } from '@nuxt/ui';
 import type z from 'zod';
 
 const UButton = resolveComponent('UButton')
+const layout = {
+  info: {
+    ui: {
+      body: 'h-full space-y-5'
+    }
+  },
+  uploadImages: {
+    ui: {
+      file: 'max-h-20',
+      files: 'max-h-72 overflow-y-auto'
+    }
+  }
+}
 
-type OptionKey = 'platform' | 'render' | 'colors' | 'style' | 'materials' | 'formfactor'
-type GridItemData = Partial<ProductItemResponse>
-
+type GridItemData = ProductItemResponse
+type TechnicalOptionsQuery = {
+  platform: string[]
+  render: string[]
+  colors: string[]
+  style: string[]
+  materials: string[]
+  formfactor: string[]
+}
 type FileUpload = {
   file: File
   percent: number
   status: 'pending' | 'progress' | 'success' | 'error'
 }
-type UploadState = {
+type UploadResourcesState = {
   images: FileUpload[]
   designFile: FileUpload | null
 }
 
-type GridState = {
-  data: IGridItem[],
-  current?: IGridItem
-}
-
-interface IGridItem {
-  upload?: UploadState,
-  data: GridItemData,
-  isEdit: boolean
-  isProcessing: boolean,
-  isNewItem: boolean,
-  designFile: {
-    publicId: string,
-    delete: () => void
-  } | null
-  images: {
-    link: string
-    filePublicId: string,
-    delete: () => void
-  }[] | null
-  save: () => void
-  delete: () => void
-}
-
-class GridItem implements IGridItem {
-  id: number
-  isEdit = false
-  isProcessing = false
-  upload?: UploadState
-  private static counter = 0
-  constructor(public data: GridItemData) {
-    this.id = Date.now() + ++GridItem.counter
-  }
-
-  private async deleteFile(filePublicId: string) {
-    await $userApi('/api/product/file/delete', {
-      method: 'DELETE',
-      body: <z.infer<typeof DeleteFileRequestSchema>>{
-        publicId: filePublicId
-      },
-      onResponse({ response }) {
-        if (response.ok) {
-          GridItem.resetDataCurrent()
-          toast.success()
-        }
-      }
-    })
-  }
-
-  get isNewItem() {
-    return !this.data?.publicId
-  }
-
-  get designFile() {
-    const data = this.data.files?.find(file => file.type === 'DESIGN')
-    if (data) {
-      return {
-        publicId: data.publicId,
-        delete: () => this.deleteFile(data.publicId)
-      }
-    }
-    return null
-  }
-
-  get images() {
-    return this.data.files?.filter(file => file.type === 'IMAGE')
-      .map((file, index) => {
-        const params = new URLSearchParams({
-          publicId: file.publicId
-        })
-        return {
-          link: `/storage/image?${params.toString()}`,
-          filePublicId: file.publicId,
-          delete: () => {
-            this.deleteFile(file.publicId)
-          }
-        }
-      }) ?? null
-  }
-
-  static successCallback() {
-    resetGridItemCurrent()
-    refresh()
-    toast.success()
-  }
-
-  static resetDataCurrent() {
-    const currentId = gridState.current?.data.publicId
-    refresh().then(() => {
-      const newCurrent = gridState.data.find(item => item.data.publicId === currentId)
-      if (newCurrent) {
-        initGridItemCurrent(newCurrent)
-      }
-    })
-  }
-
-  save() {
-    if (!this.data.publicId) {
-      $userApi('/api/product/add', {
-        method: 'POST',
-        body: <z.infer<typeof AddProductSchema>>{
-          name: this.data.name,
-          price: this.data.price,
-          info: this.data.info
-        },
-        onResponse: ({ response }) => {
-          response.ok && GridItem.successCallback()
-        }
-      }).finally(() => {
-
-      })
-    } else {
-      $userApi('/api/product/update', {
-        method: 'PUT',
-        body: <z.infer<typeof UpdateProductSchema>>{
-          publicId: this.data.publicId,
-          name: this.data.name,
-          price: this.data.price,
-          status: this.data.status,
-          info: this.data.info
-        },
-        onResponse: ({ response }) => {
-          response.ok && GridItem.successCallback()
-        }
-      })
-    }
-  }
-
-  delete() {
-    $userApi('/api/product/delete', {
-      method: 'DELETE',
-      body: <z.output<typeof DeleteProductSchema>>{
-        publicId: this.data.publicId
-      },
-      onResponse: ({ response }) => {
-        response.ok && GridItem.successCallback()
-      }
-    })
-  }
-
-}
-
-const layout = {
+const gridItemCurrentDefaultState: GridItemData = {
+  publicId: '',
+  name: '',
+  price: 0,
+  status: '',
+  createdAt: undefined,
+  updatedAt: undefined,
   info: {
-    ui: {
-      body: 'space-y-3'
-    }
-  }
+    platform: '',
+    render: '',
+    size: '',
+    colors: '',
+    style: '',
+    materials: '',
+    formfactor: '',
+    description: ''
+  },
+  files: []
 }
 
-const uploadImagesUI = {
-  file: 'max-h-20',
-  files: 'max-h-72 overflow-y-auto'
-}
-
-const initUploadState: UploadState = {
+const uploadResourceDefaultState: UploadResourcesState = {
   images: [],
   designFile: null
 }
 
-const girdItemDefault: GridItemData = {}
+const emptyOptions: TechnicalOptionsQuery = {
+  platform: [],
+  render: [],
+  colors: [],
+  style: [],
+  materials: [],
+  formfactor: [],
+}
 
 const { createPresignedUploadTask } = useFile()
 const { $userApi } = useNuxtApp()
 const toast = new useAppToast()
 const currency = ref('USD')
-const expanded = ref({})
+const gridItemCurrent = ref<GridItemData>(gridItemCurrentDefaultState)
+const gridItemResourcesCurrent = computed(() => {
+  return {
+    productImages: gridItemCurrent.value.files
+      .filter(file => file.type === 'IMAGE')
+      .map(file => {
+        const link = () => {
+          if (!file.publicId) {
+            return undefined
+          }
+          const params = new URLSearchParams({
+            publicId: file.publicId
+          })
+          return `/storage/image?${params.toString()}`
+        }
 
-const gridState = reactive<GridState>({
-  data: [],
-  current: undefined
-})
-const gridItemDataCurrent = ref<GridItemData>(girdItemDefault)
-
-const getOptionByKey = async (key: OptionKey): Promise<string[]> => {
-  return await $fetch(`/api/option/${key}`)
-}
-
-
-const addOptionState = reactive<Partial<{
-  key: OptionKey,
-  value: string
-}>>({
-  key: undefined,
-  value: undefined
-})
-
-const addOption = async () => {
-  if (!addOptionState.key || !addOptionState.value) {
-    return
+        return {
+          publicId: file.publicId,
+          link: link()
+        }
+      }),
+    designFile: gridItemCurrent.value.files.find(file => file.type === 'DESIGN'),
   }
-
-  await $fetch('/api/option/add', {
-    method: 'POST',
-    body: {
-      key: addOptionState.key,
-      value: addOptionState.value
-    },
-    onResponse({ response }) {
-      if (response.ok) {
-        toast.success()
-      }
-    }
-  })
-}
-
-const options = reactive({
-  platform: await getOptionByKey('platform'),
-  render: await getOptionByKey('render'),
-  colors: await getOptionByKey('colors'),
-  style: await getOptionByKey('style'),
-  materials: await getOptionByKey('materials'),
-  formfactor: await getOptionByKey('formfactor'),
 })
+const uploadResourcesState = reactive<UploadResourcesState>(uploadResourceDefaultState)
 
-const initGridItemCurrent = (item: IGridItem) => {
-  gridState.current = item
-  return gridState.current
-}
-
-const resetGridItemCurrent = () => {
-  gridState.current = undefined
-}
-
-const { pending, refresh } = useAsyncData(async () => await $userApi('/api/product/list', {
-  onResponse({ response }) {
-    if (response.ok) {
-      const data = response._data as ProductItemResponse[]
-      gridState.data = [
-        new GridItem({
-          name: "",
-          price: 0
-        })
-        , ...data.map(item => new GridItem(item))]
-      resetGridItemCurrent()
+const { data: technicalOptions } = useLazyAsyncData(
+  'technical-options',
+  () => $userApi('/api/option/all'),
+  {
+    default: () => emptyOptions,
+  }
+)
+const { pending, refresh: refreshProducts, data } = await useAsyncData(() => $userApi('/api/product/list'), {
+  transform: (value) => {
+    if (value && Array.isArray(value)) {
+      return value as unknown as ProductItemResponse[]
+    } else {
+      return []
     }
   }
-}))
+})
 
 const columns = [
   {
     id: "name",
-    accessorKey: "data.name",
+    accessorKey: "name",
     header: "Name"
   },
-  // {
-  //   id: 'price',
-  //   accessorKey: 'data.price',
-  //   header: "Price"
-  // },
-  // {
-  //   id: 'images',
-  //   header: 'Images'
-  // },
-  // {
-  //   id: 'file',
-  //   header: "File"
-  // },
   {
     id: 'status',
-    accessorKey: 'data.status',
+    accessorKey: 'status',
     header: "Status"
   },
   {
     id: 'createdAt',
-    accessorKey: 'data.createdAt',
+    accessorKey: 'createdAt',
     header: "Created At"
   },
-  // {
-  //   id: 'action'
-  // }
-] satisfies TableColumn<IGridItem>[]
+] satisfies TableColumn<ProductItemResponse>[]
 
-function watchActiveRowInput(row?: TableRow<IGridItem>) {
-  return gridState.current && gridState.current.isEdit && (row?.original.data.publicId === gridState.current?.data.publicId)
+function onSelect(row: TableRow<GridItemData>, e?: Event) {
+  gridItemCurrent.value = {
+    ...row.original,
+    status: row.original.status.toString()
+  }
 }
 
 function changeSelectImages(files: File[] | null | undefined) {
-  console.log(gridState.current)
-  if (!gridState.current) {
-    return
-  }
-
   if (files) {
-    const uploadState = toRef(gridState.current, 'upload')
-    if (!uploadState.value) {
-      uploadState.value = initUploadState
-    }
-
-    uploadState.value.images = files.map(file => {
+    uploadResourcesState.images = files.map(file => {
       return {
         file: file,
         percent: 0,
@@ -317,35 +155,32 @@ function changeSelectImages(files: File[] | null | undefined) {
   }
 }
 
-function changeSelectDesignFile(file: File | null | undefined, item: IGridItem) {
-  initGridItemCurrent(item)
-
+function changeSelectDesignFile(file: File | null | undefined) {
+  if (uploadResourcesState.designFile) {
+    return
+  }
   if (file) {
-    const uploadState = toRef(gridState.current!, 'upload')
-    if (!uploadState.value) {
-      uploadState.value = initUploadState
-    }
-
-    uploadState.value.designFile = {
+    // const uploadState = toRef(gridState.current!, 'upload')
+    uploadResourcesState.designFile = {
       file: file,
       percent: 0,
       status: 'pending'
     }
 
-    // uploadFiles('DESIGN').then(() => GridItem.successCallback())
+    // uploadFiles('DESIGN')
+    // .then(() => GridItem.successCallback())
   }
 }
 
-async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
-  if (gridState.current?.upload) {
-    console.log(gridState.current.upload)
+function fileActions() {
+  async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
     let fileUploads: FileUpload[] = []
     if (type === 'IMAGE') {
-      fileUploads = [...toRef(gridState.current.upload, 'images').value]
+      fileUploads = uploadResourcesState.images
     } else {
-      const file = toRef(gridState.current.upload, 'designFile')
-      if (file.value) {
-        fileUploads = [file.value]
+      const designFile = uploadResourcesState.designFile
+      if (designFile) {
+        fileUploads = [designFile]
       }
     }
 
@@ -358,7 +193,7 @@ async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
         return $userApi('/api/product/file/upload', {
           method: "POST",
           body: <z.infer<typeof UploadFileRequestSchema>>{
-            publicId: gridState.current!.data.publicId,
+            publicId: gridItemCurrent.value.publicId,
             file: {
               filename: fileUpload.file.name,
               size: fileUpload.file.size,
@@ -384,23 +219,122 @@ async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
         })
       }))
 
-      GridItem.resetDataCurrent()
+      refreshProducts()
       toast.success()
     }
+  }
+
+  async function deleteFile(filePublicId: string) {
+    await $userApi('/api/product/file/delete', {
+      method: 'DELETE',
+      body: <z.infer<typeof DeleteFileRequestSchema>>{
+        publicId: filePublicId
+      },
+      onResponse({ response }) {
+        if (response.ok) {
+          toast.success()
+        }
+      }
+    })
+  }
+
+  return {
+    uploadFiles,
+    deleteFile
+  }
+}
+
+function productActions() {
+  function uploadResources() {
+    if (uploadResourcesState.designFile) {
+      fileActions().uploadFiles('DESIGN').then(() => {
+        toast.toast.add({
+          title: "Successfully upload file design"
+        })
+      })
+    }
+    if (uploadResourcesState.images.length) {
+      fileActions().uploadFiles('IMAGE').then(() => {
+        toast.toast.add({
+          title: "Successfully upload images"
+        })
+      })
+    }
+  }
+  function add() {
+    gridItemCurrent.value = gridItemCurrentDefaultState
+    uploadResourcesState.designFile = uploadResourceDefaultState.designFile
+    uploadResourceDefaultState.images = uploadResourceDefaultState.images
+  }
+  function save() {
+    const data = gridItemCurrent.value
+    if (!data.publicId) {
+      $userApi('/api/product/add', {
+        method: 'POST',
+        body: <z.input<typeof AddProductSchema>>{
+          name: data.name,
+          price: data.price,
+          info: data.info
+        },
+        onResponse: ({ response }) => {
+          if (response.ok) {
+            uploadResources()
+            refreshProducts()
+            toast.toast.add({
+              title: "Created"
+            })
+          }
+        }
+      })
+    } else {
+      $userApi('/api/product/update', {
+        method: 'PUT',
+        body: <z.input<typeof UpdateProductSchema>>{
+          publicId: data.publicId,
+          name: data.name,
+          price: data.price,
+          status: data.status,
+          info: data.info
+        },
+        onResponse: ({ response }) => {
+          if (response.ok) {
+            uploadResources()
+            refreshProducts()
+            toast.toast.add({
+              title: "Updated"
+            })
+          }
+        }
+      })
+    }
+  }
+
+  function del() {
+    if (!gridItemCurrent.value.publicId) {
+      return
+    }
+    $userApi('/api/product/delete', {
+      method: 'DELETE',
+      body: <z.output<typeof DeleteProductSchema>>{
+        publicId: gridItemCurrent.value.publicId
+      },
+      onResponse: ({ response }) => {
+        if (response.ok) {
+          refreshProducts()
+          toast.success()
+        }
+      }
+    })
+  }
+  return {
+    add,
+    save,
+    del
   }
 }
 
 function clickById(id: string) {
   document.getElementById(id)?.click()
-}
-
-function activeEdit(item: IGridItem) {
-  if (gridState.current) {
-    item.isEdit = false
-    gridState.current = undefined
-  } else {
-    initGridItemCurrent(item).isEdit = true
-  }
 }
 
 function handleClickOutside(id: string, callback: () => void) {
@@ -429,193 +363,138 @@ function handleClickOutside(id: string, callback: () => void) {
 </script>
 
 <template>
-  <div class="h-full grid grid-cols-[7fr_3fr] gap-4">
-    <!-- <div class="space-x-3"> -->
-    <!-- <USelect v-model="addOptionState.key"
-        :items="['colors', 'formfactor', 'materials', 'platform', 'render', 'style']" class="w-32" />
-      <UInput v-model="addOptionState.value" placeholder="option value" />
-      <UButton label="Save" @click="addOption" />
-    </div> -->
-    <UTable id="gridData" :loading="pending" :data="gridState.data" :columns="columns"
-      :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }">
+  <div class="grid grid-cols-[6fr_4fr] gap-4">
+    <UTable id="gridData" :loading="pending" :data="data" :columns="columns"
+      :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }" @select="(row, e) => onSelect(row, e)">
       <template #createdAt-cell="{ row }">
-        <NuxtTime v-if="!row.original.isNewItem" :datetime="row.original.data.createdAt!" />
-      </template>
-      <!-- <template #action-cell="{ row }">
-        <div class="space-x-3">
-          <UButton icon="ic:outline-edit" @click="activeEdit(row.original)" color="neutral" />
-          <UButton v-if="watchActiveRowInput(row)" :loading="gridState.current?.isProcessing" color="info"
-            icon="ic:baseline-save" @click="row.original.save()" />
-          <UButton v-if="row.original.data.publicId" :loading="gridState.current?.isProcessing" color="error"
-            icon="ic:baseline-delete-forever" @click="row.original.delete()" />
-        </div>
+        <NuxtTime v-if="!row.original.createdAt" :datetime="row.original.createdAt!" />
       </template>
       <template #status-cell="{ row }">
-        <div v-if="!row.original.isNewItem">
-          <USelect v-if="watchActiveRowInput(row) && row.original.isEdit" v-model="row.original.data.status"
-            :items="['ACTIVE', 'INACTIVE']" />
-          <UBadge v-else :label="row.original.data.status"
-            :color="row.original.data.status === 'INACTIVE' ? 'neutral' : undefined" />
-        </div>
-      </template> -->
-      <!-- <template #name-cell="{ row }">
-        <UInput v-if="watchActiveRowInput(row)" v-model="row.original.data.name" class="w-72" />
-        <p v-else>{{ row.original.data.name }}</p>
-      </template> -->
-      <!-- <template #images-cell="{ row }">
-        <UModal v-if="row.original.data.publicId">
-          <div class="flex gap-2 items-center">
-            <UButton icon="ic:baseline-add-photo-alternate" color="neutral" variant="subtle"
-              @click="initGridItemCurrent(row.original)" />
-            <p v-if="!row.original.images?.length" class="text-[0.7rem] text-gray-500">No
-              images available</p>
+        <UBadge :label="row.original.status" :color="row.original.status === 'INACTIVE' ? 'neutral' : undefined" />
+      </template>
+    </UTable>
+    <div class="space-y-5 overflow-y-auto p-3">
+      <UButton icon="ic:outline-plus" label="Add Product" block @click="productActions().add()" />
+      <UCard :ui="layout.info.ui">
+        <UFormField label="ID">
+          <UInput disabled :model-value="gridItemCurrent.publicId" class="w-full" />
+        </UFormField>
+        <UFormField label="Name">
+          <UInput v-model="gridItemCurrent.name" class="w-full" />
+        </UFormField>
+        <UFormField label="Price">
+          <div class="flex gap-2">
+            <UInputNumber v-model="gridItemCurrent.price" :format-options="{
+              style: 'currency',
+              currency: currency,
+              currencyDisplay: 'code',
+              currencySign: 'accounting'
+            }" class="w-full" />
+            <UInput disabled :model-value="currency" />
           </div>
-          <template #content>
-            <div class="p-5 space-y-4">
-              <UCarousel v-slot="{ item }" loop wheel-gestures :items="gridState.current?.images ?? []"
-                :ui="{ item: 'basis-1/3' }" class="w-96">
-                <div class="relative group grid place-items-center">
-                  <img :src="item.link" class="rounded-lg object-cover mb-8" />
-
-                  <UButton label="Remove" icon="ic:baseline-delete-sweep" block size="sm" color="neutral"
-                    variant="ghost"
-                    class="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    @click="item.delete()" />
-                </div>
-              </UCarousel>
-              <div class="space-y-4">
-                <UFileUpload :id="`btnUpload${row.original.data.publicId}`" variant="button" multiple
-                  @update:model-value="changeSelectImages" :ui="uploadImagesUI" />
-                <UButton icon="ic:outline-file-upload" label="Upload" block @click="uploadFiles('IMAGE')" />
+        </UFormField>
+        <UFormField label="Status">
+          <USelect v-model="gridItemCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
+        </UFormField>
+        <USeparator label="Resources" />
+        <div class="space-y-5">
+          <UFormField label="Design file">
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <UButton v-if="!gridItemResourcesCurrent.designFile" icon="ic:outline-upload-file" color="neutral"
+                  variant="ghost" @click="clickById(`btnUDF${gridItemCurrent.publicId}`)" />
+                <UButton v-if="gridItemResourcesCurrent.designFile" icon="ic:baseline-download-for-offline" color="info"
+                  variant="ghost" />
+                <UButton v-if="gridItemResourcesCurrent.designFile && gridItemResourcesCurrent.designFile.publicId"
+                  icon="ic:baseline-delete-forever" color="error" variant="ghost"
+                  @click="fileActions().deleteFile(gridItemResourcesCurrent.designFile.publicId)" />
+                <UFileUpload :id="`btnUDF${gridItemCurrent.publicId}`" variant="button"
+                  @update:model-value="(file) => changeSelectDesignFile(file)" :ui="layout.uploadImages.ui"
+                  class="hidden" />
+                <p v-if="!gridItemResourcesCurrent.designFile" class="text-[0.7rem] text-gray-500">
+                  No design file available</p>
               </div>
-            </div>
-          </template>
-        </UModal>
-      </template> -->
-      <!-- <template #file-cell="{ row }">
-        <div class="flex items-center" @click="initGridItemCurrent(row.original)">
-          <UButton v-if="!row.original.isNewItem && !row.original.designFile" icon="ic:outline-upload-file"
-            color="neutral" variant="ghost" @click="clickById(`btnUDF${row.original.data.publicId}`)" />
-          <UButton v-if="row.original.designFile" icon="ic:baseline-download-for-offline" color="info"
-            variant="ghost" />
-          <UButton v-if="row.original.designFile" icon="ic:baseline-delete-forever" color="error" variant="ghost"
-            @click="row.original.designFile.delete()" />
-          <UFileUpload :id="`btnUDF${row.original.data.publicId}`" variant="button"
-            @update:model-value="(file) => changeSelectDesignFile(file, row.original)" :ui="uploadImagesUI"
-            class="hidden" />
-          <p v-if="!row.original.isNewItem && !row.original.designFile" class="text-[0.7rem] text-gray-500">No
-            file available</p>
-        </div>
-      </template> -->
-      <!-- <template #price-cell="{ row }">
-        <UInputNumber v-if="watchActiveRowInput(row)" v-model="row.original.data.price" :format-options="{
-          style: 'currency',
-          currency: currency,
-          currencyDisplay: 'code',
-          currencySign: 'accounting'
-        }" />
+              <UButton v-if="uploadResourcesState.designFile" :label="uploadResourcesState.designFile?.file.name"
+                color="neutral" variant="outline" block @click="() => uploadResourcesState.designFile = null" />
 
-        <div v-else>
-          <p v-if="row.original?.data.publicId">{{ row.original?.data.price }} {{ currency }}</p>
+            </div>
+          </UFormField>
+          <UFormField label="Product images">
+            <!-- <UCarousel v-slot="{ item }" loop wheel-gestures :items="gridItemResourcesCurrent.productImages"
+              :ui="{ item: 'basis-1/3' }" class="w-96">
+              <div class="relative group grid place-items-center">
+                <img :src="item.link" class="rounded-lg object-cover mb-8" />
+
+                <UButton v-if="item.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
+                  color="neutral" variant="ghost"
+                  class="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  @click="fileActions().deleteFile(item.publicId)" />
+              </div>
+            </UCarousel> -->
+            <div class="space-y-4 mt-3">
+              <UFileUpload variant="button" multiple @update:model-value="changeSelectImages"
+                :ui="layout.uploadImages.ui" />
+              <!-- <UButton icon="ic:outline-file-upload" label="Upload" block @click="uploadFiles('IMAGE')" /> -->
+            </div>
+          </UFormField>
         </div>
-      </template> -->
-      <!-- <template #expanded="{ row }">
+        <USeparator label="Technical information" />
         <div class="info space-y-5">
-          <div>
+          <div class="">
             <p>Platform</p>
-            <USelect v-model="row.original.data.info!.platform" :items="options.platform" />
+            <div class="flex gap-2">
+              <UInput v-model="gridItemCurrent.info.platform" class="w-full" />
+              <USelect v-model="gridItemCurrent.info.platform" :items="technicalOptions.platform" class="w-full" />
+            </div>
           </div>
           <div>
             <p>Render</p>
-            <USelect v-model="row.original.data.info!.render" :items="options.render" />
+            <div class="flex gap-2">
+              <UInput v-model="gridItemCurrent.info.render" class="w-full" />
+              <USelect v-model="gridItemCurrent.info.render" :items="technicalOptions.render" class="w-full" />
+            </div>
           </div>
           <div>
             <p>Colors</p>
-            <USelect v-model="row.original.data.info!.colors" :items="options.colors" />
+            <div class="flex gap-2">
+              <UInput v-model="gridItemCurrent.info.colors" class="w-full" />
+              <USelect v-model="gridItemCurrent.info.colors" :items="technicalOptions.colors" class="w-full" />
+            </div>
           </div>
           <div>
             <p>Style</p>
-            <USelect v-model="row.original.data.info!.style" :items="options.style" />
+            <div class="flex gap-2">
+              <UInput v-model="gridItemCurrent.info.style" class="w-full" />
+              <USelect v-model="gridItemCurrent.info.style" :items="technicalOptions.style" class="w-full" />
+            </div>
           </div>
           <div>
             <p>Materials</p>
-            <USelect v-model="row.original.data.info!.materials" :items="options.materials" />
+            <div class="flex gap-2">
+              <UInput v-model="gridItemCurrent.info.materials" class="w-full" />
+              <USelect v-model="gridItemCurrent.info.materials" :items="technicalOptions.materials" class="w-full" />
+            </div>
           </div>
           <div>
             <p>Formfactor</p>
-            <USelect v-model="row.original.data.info!.formfactor" :items="options.formfactor" />
+            <div class="flex gap-2">
+              <UInput v-model="gridItemCurrent.info.formfactor" class="w-full" />
+              <USelect v-model="gridItemCurrent.info.formfactor" :items="technicalOptions.formfactor" class="w-full" />
+            </div>
           </div>
           <div>
             <p>Size</p>
             <UInput />
           </div>
           <div>
-            <p>description</p>
+            <p>Description</p>
             <UTextarea />
           </div>
         </div>
-      </template> -->
-    </UTable>
-    <div class="space-y-3">
-      <UButton icon="ic:outline-plus" label="Add Product" block />
-      <UCard :ui="layout.info.ui">
-        <UFormField label="ID">
-          <UInput disabled :model-value="gridItemDataCurrent.publicId" class="w-full" />
-        </UFormField>
-        <UFormField label="Name">
-          <UInput v-model="gridItemDataCurrent.name" class="w-full" />
-        </UFormField>
-        <UFormField label="Price">
-          <div class="flex gap-2">
-            <UInputNumber v-model="gridItemDataCurrent.price" :format-options="{
-              style: 'currency',
-              currency: currency,
-              currencyDisplay: 'code',
-              currencySign: 'accounting'
-            }" class="w-full" />
-            <UInput disabled :model-value="currency"/>
-          </div>
-        </UFormField>
-        <UFormField label="Status">
-          <USelect v-model="gridItemDataCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
-        </UFormField>
-        <UFormField label="Resource">
-          <div class="flex items-center gap-2">
-            <UButton v-if="!gridState.current?.isNewItem && !gridState.current?.designFile"
-              icon="ic:outline-upload-file" color="neutral" variant="ghost"
-              @click="clickById(`btnUDF${gridState.current?.data.publicId}`)" />
-            <UButton v-if="gridState.current?.designFile" icon="ic:baseline-download-for-offline" color="info"
-              variant="ghost" />
-            <UButton v-if="gridState.current?.designFile" icon="ic:baseline-delete-forever" color="error"
-              variant="ghost" @click="gridState.current?.designFile.delete()" />
-            <UFileUpload :id="`btnUDF${gridState.current?.data.publicId}`" variant="button"
-              @update:model-value="(file) => changeSelectDesignFile(file, gridState.current!)" :ui="uploadImagesUI"
-              class="hidden" />
-            <p v-if="!gridState.current?.isNewItem && !gridState.current?.designFile"
-              class="text-[0.7rem] text-gray-500">
-              No file available</p>
-          </div>
-        </UFormField>
-        <UFormField label="Images">
-          <UCarousel v-slot="{ item }" loop wheel-gestures :items="gridState.current?.images ?? []"
-            :ui="{ item: 'basis-1/3' }" class="w-96">
-            <div class="relative group grid place-items-center">
-              <img :src="item.link" class="rounded-lg object-cover mb-8" />
-
-              <UButton label="Remove" icon="ic:baseline-delete-sweep" block size="sm" color="neutral" variant="ghost"
-                class="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                @click="item.delete()" />
-            </div>
-          </UCarousel>
-          <div class="space-y-4">
-            <UFileUpload variant="button" multiple @update:model-value="changeSelectImages" :ui="uploadImagesUI" />
-            <!-- <UButton icon="ic:outline-file-upload" label="Upload" block @click="uploadFiles('IMAGE')" /> -->
-          </div>
-        </UFormField>
       </UCard>
       <div class="flex justify-end gap-3">
         <UButton icon="ic:sharp-delete-forever" label="Delete" color="error" />
-        <UButton icon="ic:baseline-save" label="Save" color="info" block />
+        <UButton icon="ic:baseline-save" label="Save" color="info" block @click="productActions().save()" />
       </div>
     </div>
   </div>
@@ -634,7 +513,8 @@ function handleClickOutside(id: string, callback: () => void) {
 
 
 .info>div>*:not(p) {
-  width: 300px;
+  /* width: 300px; */
+  width: 100%;
 }
 
 .info>div>div *+* {

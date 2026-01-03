@@ -100,14 +100,12 @@ const navItems = ref<NavigationMenuItem[][]>([
         </div>
       </div>
       <UCard :ui="layout.main.ui">
-        <div class="space-y-5 h-full overflow-hidden">
-          <div class="p-2 text-2xl">
-            <UBreadcrumb :items="breadItems" :ui="layout.breadItems.ui" />
-          </div>
-          <USeparator />
-          <div class="h-full p-1">
-            <NuxtPage />
-          </div>
+        <div class="p-2 text-2xl">
+          <UBreadcrumb :items="breadItems" :ui="layout.breadItems.ui" />
+        </div>
+        <USeparator />
+        <div class="flex-1 overflow-hidden">
+          <NuxtPage class="h-full"/>
         </div>
       </UCard>
     </div>
@@ -120,7 +118,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 const layout = {
   main: {
     ui: {
-      // root: 'bg-orange-200'
+      body: 'h-full flex flex-col',
     }
   },
   breadItems: {

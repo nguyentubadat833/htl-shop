@@ -20,11 +20,11 @@ export interface ProductItemResponse {
   name: string;
   price: number;
   status: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
   info: ProductInfo
   files: {
-    publicId: string;
+    publicId?: string;
     type: FileType;
   }[];
 }
