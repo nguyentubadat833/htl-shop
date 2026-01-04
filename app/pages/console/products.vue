@@ -185,9 +185,24 @@ const uploadProductThumbnailsSelected = ref<File[]>()
 const currency = toRef(state.metadata, 'currency')
 const technicalOptions = toRef(state.metadata, 'technicalOptions')
 const productCurrent = toRef(state, 'productCurrent')
-const productInfoCurrent = toRef(productCurrent.value, 'info')
-const productFileCurrent = toRef(productCurrent.value.resources, 'productFile')
-const productThumbnailsCurrent = toRef(productCurrent.value.resources, 'thumbnails')
+const productInfoCurrent = computed({
+  get: () => productCurrent.value.info,
+  set: (v) => {
+    productCurrent.value.info = v
+  }
+})
+const productFileCurrent = computed({
+  get: () => productCurrent.value.resources.productFile,
+  set: (v) => {
+    productCurrent.value.resources.productFile = v
+  }
+})
+const productThumbnailsCurrent = computed({
+  get: () => productCurrent.value.resources.thumbnails,
+  set: (v) => {
+    productCurrent.value.resources.thumbnails = v
+  }
+})
 const uploadProductFile = toRef(state.uploadResource, 'productFile')
 const uploadProductThumbnails = toRef(state.uploadResource, 'thumbnails')
 
@@ -230,7 +245,6 @@ function actionOnProductPublicIdOrReturn() {
 
 function onSelect(row: TableRow<Product>, e?: Event) {
   state.productCurrent = row.original
-  nextTick()
 }
 
 function changeSelectImages(files: File[] | null | undefined) {
@@ -492,7 +506,6 @@ function clickById(id: string) {
         <div class="space-y-5">
           <UFormField label="Product file">
             <div class="space-y-3">
-              {{ productFileCurrent }}
               <div class="flex items-center gap-3">
                 <UButton v-if="!productFileCurrent" icon="ic:outline-upload-file" color="neutral" variant="ghost"
                   @click="clickById(`btnUDF${productCurrent.publicId}`)" />
