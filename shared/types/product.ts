@@ -24,7 +24,7 @@ export interface ProductItemResponse {
   updatedAt: Date | undefined;
   info: ProductInfo
   files: {
-    publicId?: string;
+    publicId: string;
     type: FileType;
   }[];
 }
