@@ -42,6 +42,7 @@
     "@iconify-json/ic": "^1.2.4",
     "@iconify-json/lucide": "^1.2.71",
     "@iconify-json/material-symbols": "^1.2.43",
+    "@types/nodemailer": "^7.0.4",
     "@types/pg": "^8.16.0",
     "@types/slug": "^5.0.9",
     "baseline-browser-mapping": "^2.9.11",

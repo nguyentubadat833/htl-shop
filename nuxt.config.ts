@@ -30,12 +30,12 @@ export default defineNuxtConfig({
     },
     mail: {
       host: process.env.NUXT_MAIL_HOST,
-        port: process.env.NUXT_MAIL_PORT,
-        secure: process.env.NUXT_MAIL_SECURE,
-        auth: {
-            user: process.env.NUXT_MAIL_AUTH_USER,
-            pass: process.env.NUXT_MAIL_AUTH_PASSWORD,
-        },
+      port: process.env.NUXT_MAIL_PORT,
+      secure: process.env.NUXT_MAIL_SECURE,
+      auth: {
+        user: process.env.NUXT_MAIL_AUTH_USER,
+        pass: process.env.NUXT_MAIL_AUTH_PASSWORD,
+      },
     }
   },
   content: {
