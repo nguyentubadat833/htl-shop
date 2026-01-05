@@ -45,14 +45,15 @@ export default function () {
     });
   }
 
-  function removeProducts(ids: string[]) {
-    $userApi("/api/shopping/cart/remove", {
+  async function removeProducts(ids: string[]) {
+    await $userApi("/api/shopping/cart/remove", {
       method: "DELETE",
       body: <z.infer<typeof RemoveProductsInCartSchema>>{
         product_publicIds: ids,
       },
       onResponse({ response }) {
         if (response.ok) {
+          count()
           appToast.success();
         }
       },

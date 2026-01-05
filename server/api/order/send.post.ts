@@ -57,19 +57,19 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
     .join('\n')
 
   const textMail = `
-  Dear ${order.orderByUser.name ?? 'Customer'},
+Dear ${order.orderByUser.name ?? 'Customer'},
 
-  Thank you for trusting and purchasing from HTL Architects.
+Thank you for trusting and purchasing from HTL Architects.
 
-  Below is the list of products you have purchased:
-  ${productListText}
+Below is the list of products you have purchased:
+${productListText}
 
-  Please find the attached files related to your order.
-  If you have any questions or need further assistance, feel free to contact us.
+Please find the attached files related to your order.
+If you have any questions or need further assistance, feel free to contact us.
 
-  Best regards,
-  HTL Architects
-  `
+Best regards,
+HTL Architects
+`
 
   const attachments: Attachment[] = []
 
@@ -100,7 +100,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
     text: textMail,
     attachments: attachments,
   })
-  
+
   await prisma.order.update({
     where: {
       publicId: orderPublicId

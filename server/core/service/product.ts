@@ -1,7 +1,7 @@
 import { S3 } from "./s3";
 import slug from 'slug'
 import { ProductInfo } from "#shared/types/product";
-import { ObjectStorage, Prisma, Product , ProductStatus } from "@prisma/client";
+import { ObjectStorage, Prisma, Product, ProductStatus } from "@prisma/client";
 export class ProductService {
   product!: Product;
 
@@ -77,6 +77,31 @@ export class ProductService {
 
       return alias
     }
+
+    if (status === 'ACTIVE') {
+      const files = await prisma.objectStorage.findMany({
+        where: {
+          AND: {
+            productId: this.product.id,
+            uploadedAt: {
+              not: null
+            }
+          }
+        },
+        select: {
+          type: true
+        }
+      })
+
+      if (!files.find(file => file.type === 'DESIGN')) {
+        throw new ServerError('Required product file', 409, 'logic')
+      }
+
+      if (!files.find(file => file.type === 'IMAGE')) {
+        throw new ServerError('Required thumbnail', 409, 'logic')
+      }
+    }
+
     return prisma.product.update({
       where: {
         id: this.product.id,

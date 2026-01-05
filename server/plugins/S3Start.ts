@@ -33,7 +33,7 @@ export interface S3EventRecord {
 }
 
 export default defineNitroPlugin(async (nitroApp) => {
-  
+
   const s3Env = useRuntimeConfig().s3;
 
   S3.CLIENT = new Minio.Client({
@@ -63,14 +63,14 @@ export default defineNitroPlugin(async (nitroApp) => {
       void prisma.objectStorage.update({
         where: {
           bucket_objectName: {
-            bucket: S3.BUCKET_UPLOAD_DEFAULT,
+            bucket: s3Record.s3.bucket.name,
             objectName: s3Record.s3.object.key,
           },
         },
         data: {
           uploadedAt: new Date(),
         },
-      });
+      }).then(rs => console.log(rs))
     } else if (s3Record.eventName.startsWith("s3:ObjectRemoved:")) {
       console.log("S3::Client::Notification::ObjectRemoved >> Removed: ", s3Record.s3.object.key);
     }

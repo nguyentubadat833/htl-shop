@@ -368,6 +368,7 @@ function fileActions() {
 function productActions() {
   function add() {
     state.productCurrent = productCurrentDefault
+    console.log(state)
   }
   async function save() {
     actionOnProductPublicIdOrReturn()

@@ -42,6 +42,7 @@ export class CartService {
         cartId: item.id,
         product: {
           plan: ProductPlan.Pro,
+          publicId: item.product.publicId,
           alias: item.product.alias,
           name: item.product.name,
           price: item.product.price,
@@ -81,9 +82,11 @@ export class CartService {
     await prisma.cart.deleteMany({
       where: {
         userId: this.userId,
-        id: {
-          in: product_publicIds,
-        },
+        product: {
+          publicId: {
+            in: product_publicIds
+          }
+        }
       },
     });
   }
