@@ -26,7 +26,7 @@ type ProductInfo = {
 type Product = {
   publicId: string | undefined
   name: string,
-  price: number | undefined
+  price: number
   status: string
   createdAt: Date | undefined,
   updatedAt: Date | undefined,
@@ -80,7 +80,7 @@ const technicalOptionsDefault: TechnicalOptions = {
 const productCurrentDefault: Product = {
   publicId: undefined,
   name: '',
-  price: undefined,
+  price: 0,
   status: '',
   createdAt: undefined,
   updatedAt: undefined,
@@ -174,18 +174,23 @@ const toast = new useAppToast()
 const state = reactive<State>({
   metadata: {
     currency: 'USD',
-    technicalOptions: technicalOptionsDefault
+    technicalOptions: structuredClone(technicalOptionsDefault)
   },
   products: [],
-  productCurrent: productCurrentDefault,
-  uploadResource: uploadResourceDefault
+  productCurrent: structuredClone(productCurrentDefault),
+  uploadResource: structuredClone(uploadResourceDefault)
 })
 
 const globalFilter = ref()
 const uploadProductThumbnailsSelected = ref<File[]>()
 const currency = toRef(state.metadata, 'currency')
 const technicalOptions = toRef(state.metadata, 'technicalOptions')
-const productCurrent = toRef(state, 'productCurrent')
+const productCurrent = computed({
+  get: () => state.productCurrent,
+  set: (v) => {
+    state.productCurrent = v
+  }
+})
 const productInfoCurrent = computed({
   get: () => productCurrent.value.info,
   set: (v) => {
@@ -367,8 +372,7 @@ function fileActions() {
 
 function productActions() {
   function add() {
-    state.productCurrent = productCurrentDefault
-    console.log(state)
+    state.productCurrent = structuredClone(productCurrentDefault)
   }
   async function save() {
     actionOnProductPublicIdOrReturn()
@@ -503,7 +507,7 @@ function clickById(id: string) {
             <UInput disabled :model-value="currency" />
           </div>
         </UFormField>
-        <UFormField label="Status">
+        <UFormField v-if="productCurrent.publicId" label="Status">
           <USelect v-model="productCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
         </UFormField>
         <div v-if="productCurrent.publicId">

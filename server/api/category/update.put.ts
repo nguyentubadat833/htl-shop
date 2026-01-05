@@ -12,19 +12,22 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
     })
   }), await readBody(event))
 
-  const alias = slug(name)
+  let alias: undefined | string = undefined
+  if (data.name) {
+    alias = slug(data.name)
 
-  const findWithAlias = await prisma.product.findUnique({
-    where: {
-      alias: alias
-    },
-    select: {
-      id: true
+    const findWithAlias = await prisma.product.findUnique({
+      where: {
+        alias: alias
+      },
+      select: {
+        id: true
+      }
+    })
+
+    if (findWithAlias) {
+      throw new ServerError('Category name must be unique', 409, 'logic')
     }
-  })
-
-  if (findWithAlias) {
-    throw new ServerError('Category name must be unique', 409, 'logic')
   }
 
   const category = await prisma.category.update({
