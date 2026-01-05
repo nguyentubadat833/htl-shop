@@ -510,6 +510,9 @@ function clickById(id: string) {
         <UFormField v-if="productCurrent.publicId" label="Status">
           <USelect v-model="productCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
         </UFormField>
+        <UFormField label="Categories">
+          
+        </UFormField>
         <div v-if="productCurrent.publicId">
           <USeparator label="Resources" />
           <div class="space-y-5">
