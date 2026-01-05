@@ -12,6 +12,20 @@ export interface OrderWithProductsResponse {
     }[]
 }
 
+export interface ProductOrderItemResponse {
+    productPublicId: string
+    productName: string
+    price: number
+}
+
+export interface PaymentOrderItemResponse {
+    transactionId?: string
+    method: PaymentMethod
+    amount: number
+    status: PaymentStatus
+    createdAt: string
+}
+
 export interface OrderItemResponse {
     publicId: string
     status: OrderStatus
@@ -22,16 +36,6 @@ export interface OrderItemResponse {
         name: string
         email: string
     }
-    items: {
-        productPublicId: string
-        productName: string
-        price: number
-    }[]
-    payments: {
-        transactionId?: string
-        method: PaymentMethod
-        amount: number
-        status: PaymentStatus
-        createdAt: string
-    }[]
+    items: ProductOrderItemResponse[]
+    payments: PaymentOrderItemResponse[]
 }

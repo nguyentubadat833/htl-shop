@@ -181,6 +181,7 @@ const state = reactive<State>({
   uploadResource: uploadResourceDefault
 })
 
+const globalFilter = ref()
 const uploadProductThumbnailsSelected = ref<File[]>()
 const currency = toRef(state.metadata, 'currency')
 const technicalOptions = toRef(state.metadata, 'technicalOptions')
@@ -467,15 +468,20 @@ function clickById(id: string) {
 
 <template>
   <div class="grid grid-cols-[6fr_4fr] gap-4">
-    <UTable id="gridData" :loading="pending" :data="state.products" :columns="columns"
-      @select="(row, e) => onSelect(row, e)">
-      <template #createdAt-cell="{ row }">
-        <NuxtTime v-if="!row.original.createdAt" :datetime="row.original.createdAt!" />
-      </template>
-      <template #status-cell="{ row }">
-        <UBadge :label="row.original.status" :color="row.original.status === 'INACTIVE' ? 'neutral' : undefined" />
-      </template>
-    </UTable>
+    <div>
+      <div class="flex px-4 py-3.5 border-b border-accented">
+        <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
+      </div>
+      <UTable id="gridData" :loading="pending" :data="state.products" :columns="columns"
+        v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
+        <template #createdAt-cell="{ row }">
+          <NuxtTime v-if="!row.original.createdAt" :datetime="row.original.createdAt!" />
+        </template>
+        <template #status-cell="{ row }">
+          <UBadge :label="row.original.status" :color="row.original.status === 'INACTIVE' ? 'neutral' : undefined" />
+        </template>
+      </UTable>
+    </div>
     <div class="space-y-5 overflow-y-auto p-3">
       <UButton icon="ic:outline-plus" label="Add Product" block @click="productActions().add()" />
       <UCard :ui="layout.info.ui">

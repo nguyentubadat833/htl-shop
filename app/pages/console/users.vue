@@ -3,6 +3,8 @@ import type { TableColumn } from '@nuxt/ui'
 import type { SerializeObject } from 'nitropack'
 
 const { $userApi } = useNuxtApp()
+const globalFilter = ref()
+
 const { data: users } = await useAsyncData(() => $userApi('/api/user/data'))
 
 const columns: TableColumn<SerializeObject<UserItem>>[] = [
@@ -39,7 +41,10 @@ const columns: TableColumn<SerializeObject<UserItem>>[] = [
 
 <template>
   <div>
-    <UTable :data="users" :columns="columns">
+    <div class="flex px-4 py-3.5 border-b border-accented">
+      <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
+    </div>
+    <UTable :data="users" :columns="columns" v-model:global-filter="globalFilter">
       <template #image-cell="{ row }">
         <UAvatar :src="row.original.image ?? undefined" :alt="row.original.name" />
       </template>

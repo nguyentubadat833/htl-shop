@@ -10,17 +10,18 @@
         <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
       </template>
     </UPopover>
-    <UButton id="googleSigninButton" :loading="isLoading" v-else label="Sign in" color="neutral" variant="ghost"
+    <UButton v-else id="googleSigninButton" :loading="isLoading" label="Sign in" color="neutral" variant="ghost"
       icon="ic:baseline-log-in" size="md" @click="signInWithGoogle" />
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
-import { VerifyCodeRequestSchema } from "#shared/schemas/auth";
-import type z from "zod";
-import { type UserAuthClient, UserRole, VarCookie } from "#shared/types/auth";
 import session from "~/utils/session.ts";
+import { type UserAuthClient, UserRole, VarCookie } from "#shared/types/auth";
 import type { NavigationMenuItem } from "@nuxt/ui";
+import type z from "zod";
+import { VerifyCodeRequestSchema } from "#shared/schemas/auth";
+import { useGoogleButton } from "~/composables/components/googleButton";
 
 type VerifyCodeRequest = z.infer<typeof VerifyCodeRequestSchema>
 const userUI = {
@@ -30,11 +31,12 @@ const popoverUI = {
   content: "p-2"
 };
 const { count: cartCount, quality: cartQuality } = useCart()
+const { loading: isLoading } = useGoogleButton()
 const { authSession } = session();
 const { googleId } = usePublicVariables();
 const googleClient = ref<any>(null);
 const userAuth = ref<UserAuthClient | null>(null);
-const isLoading = ref(false)
+// const isLoading = ref(false)
 
 const items = computed<NavigationMenuItem[][]>(() => {
   const rs = [
@@ -109,6 +111,7 @@ onBeforeMount(() => {
   }
 
 });
+
 onMounted(() => {
   const script = document.createElement("script");
   script.src = "https://accounts.google.com/gsi/client";
@@ -138,7 +141,8 @@ function initGoogle() {
             authSession().set(userAuth.value!);
             await nextTick()
             cartCount()
-            isLoading.value = false
+            useRouter().push(useRoute().fullPath)
+            // isLoading.value = false
           }
         }
       }).catch(() => isLoading.value = false)
