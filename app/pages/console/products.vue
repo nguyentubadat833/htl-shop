@@ -269,9 +269,6 @@ function changeSelectDesignFile(file: File | null | undefined) {
     }
 
     fileActions().uploadFiles('DESIGN')
-      .then(() => {
-        toast.success()
-      })
   }
 }
 
@@ -502,42 +499,45 @@ function clickById(id: string) {
         <UFormField label="Status">
           <USelect v-model="productCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
         </UFormField>
-        <USeparator label="Resources" />
-        <div class="space-y-5">
-          <UFormField label="Product file">
-            <div class="space-y-3">
-              <div class="flex items-center gap-3">
-                <UButton v-if="!productFileCurrent" icon="ic:outline-upload-file" color="neutral" variant="ghost"
-                  @click="clickById(`btnUDF${productCurrent.publicId}`)" />
-                <UButton v-if="productFileCurrent" icon="ic:baseline-download-for-offline" color="info"
-                  variant="ghost" />
-                <UButton v-if="productFileCurrent" icon="ic:baseline-delete-forever" color="error" variant="ghost"
-                  @click="fileActions().deleteFile(productFileCurrent.publicId)" />
-                <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button"
-                  @update:model-value="(file) => changeSelectDesignFile(file)" :ui="layout.uploadImages.ui"
-                  class="hidden" />
-                <p v-if="!productFileCurrent" class="text-[0.7rem] text-gray-500">
-                  No design file available</p>
+        <div v-if="productCurrent.publicId">
+          <USeparator label="Resources" />
+          <div class="space-y-5">
+            <UFormField label="Product file">
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <UButton v-if="!productFileCurrent" icon="ic:outline-upload-file" color="neutral" variant="ghost"
+                    @click="clickById(`btnUDF${productCurrent.publicId}`)" />
+                  <UButton v-if="productFileCurrent" icon="ic:baseline-download-for-offline" color="info"
+                    variant="ghost" />
+                  <UButton v-if="productFileCurrent" icon="ic:baseline-delete-forever" color="error" variant="ghost"
+                    @click="fileActions().deleteFile(productFileCurrent.publicId)" />
+                  <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button"
+                    @update:model-value="(file) => changeSelectDesignFile(file)" :ui="layout.uploadImages.ui"
+                    class="hidden" />
+                  <p v-if="!productFileCurrent" class="text-[0.7rem] text-gray-500">
+                    No design file available</p>
+                </div>
               </div>
-            </div>
-          </UFormField>
-          <UFormField label="Product thumbnails">
-            <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
-              <div v-for="img in productThumbnailsCurrent" class="relative group">
-                <img :key="img.publicId" :src="img.link" class="mb-4 w-full rounded-lg" />
-                <UButton v-if="img.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
-                  color="error" variant="link"
-                  class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  @click="fileActions().deleteFile(img.publicId)" />
+            </UFormField>
+            <UFormField label="Product thumbnails">
+              <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
+                <div v-for="img in productThumbnailsCurrent" class="relative group">
+                  <img :key="img.publicId" :src="img.link" class="mb-4 w-full rounded-lg" />
+                  <UButton v-if="img.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
+                    color="error" variant="link"
+                    class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    @click="fileActions().deleteFile(img.publicId)" />
+                </div>
               </div>
-            </div>
-            <div class="space-y-4 mt-3">
-              <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple
-                @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
-              </UFileUpload>
-              <UButton icon="ic:outline-file-upload" label="Upload" block @click="fileActions().uploadFiles('IMAGE')" />
-            </div>
-          </UFormField>
+              <div class="space-y-4 mt-3">
+                <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple
+                  @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
+                </UFileUpload>
+                <UButton icon="ic:outline-file-upload" label="Upload" block
+                  @click="fileActions().uploadFiles('IMAGE')" />
+              </div>
+            </UFormField>
+          </div>
         </div>
         <USeparator label="Technical information" />
         <div class="info space-y-5">

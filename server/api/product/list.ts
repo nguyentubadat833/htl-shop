@@ -1,6 +1,6 @@
 import { ProductItemResponse } from "~~/shared/types/product";
 
-export default defineWrappedResponseHandler(async (event) => {
+export default defineWrappedRequiredAdminHandler(async (event) => {
   return (await prisma.product.findMany({
     where: {
       status: {
