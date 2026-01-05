@@ -5,15 +5,18 @@ import { Mail } from '../core/service/mail'
 export default defineNitroPlugin((nitroApp) => {
     const mailENV = useRuntimeConfig().mail
 
-    const parse = z.safeParse(z.object({
+    const MailEnvSchema = z.object({
         host: z.string(),
-        port: z.string().transform(value => Number(value)),
-        secure: z.string().transform(value => value === 'true'),
+        port: z.number(),
+        secure: z.boolean(),
         auth: z.object({
             user: z.string(),
-            pass: z.string()
+            pass: z.string(),
         }),
-    }), mailENV)
+    })
+
+
+    const parse = z.safeParse(MailEnvSchema, mailENV)
     if (!parse.success) {
         throw new Error("Invalid environment mail")
     }
@@ -29,4 +32,5 @@ export default defineNitroPlugin((nitroApp) => {
             pass: auth.pass,
         },
     })
+    console.log('Mail info:', Mail.client.options)
 })

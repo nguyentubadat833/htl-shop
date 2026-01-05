@@ -4,7 +4,11 @@ import type { OrderItemResponse, OrderStatus, ProductOrderItemResponse } from '~
 
 interface State {
     currency: string
-    orderCurrent: OrderItemResponse | undefined
+    orderCurrent: OrderItemResponse | undefined,
+    sendMail: {
+        isLoading: boolean
+        confirmInput: string
+    }
 }
 
 const layout = {
@@ -57,13 +61,18 @@ const orderItemsColumns = [
     },
 ] satisfies TableColumn<ProductOrderItemResponse>[]
 
+const toast = new useAppToast()
 const { $userApi } = useNuxtApp()
-const { data: orders, pending } = await useAsyncData(() => $userApi('/api/order/list'))
+const { data: orders, refresh, pending } = await useAsyncData(() => $userApi('/api/order/list'))
 const globalFilter = ref()
 
 const state = reactive<State>({
     currency: 'USD',
-    orderCurrent: undefined
+    orderCurrent: undefined,
+    sendMail: {
+        isLoading: false,
+        confirmInput: ''
+    }
 })
 
 function onSelect(row: TableRow<OrderItemResponse>, e?: Event) {
@@ -72,6 +81,41 @@ function onSelect(row: TableRow<OrderItemResponse>, e?: Event) {
 
 function getStatusColor(status: OrderStatus): any {
     return statusColor[status]
+}
+
+function confirmInput() {
+    if (state.sendMail.confirmInput === 'confirm') {
+        sendMail()
+            .then(() => {
+                state.sendMail.confirmInput = ''
+            })
+    } else {
+        toast.toast.add({
+            title: "Please enter 'confirm'",
+            color: 'error'
+        })
+    }
+}
+
+async function sendMail() {
+    if (!state.orderCurrent) {
+        return
+    }
+    state.sendMail.isLoading = true
+    await $userApi('/api/order/send', {
+        method: 'POST',
+        body: {
+            orderPublicId: state.orderCurrent.publicId
+        },
+        onResponse({ response }) {
+            if (response.ok) {
+                refresh()
+                toast.success()
+            }
+        }
+    }).finally(() => {
+        state.sendMail.isLoading = false
+    })
 }
 
 </script>
@@ -103,6 +147,10 @@ function getStatusColor(status: OrderStatus): any {
         </div>
         <div v-if="state.orderCurrent" class="space-y-5 overflow-y-auto p-3">
             <UCard :ui="layout.orderItems.ui">
+                <div class="flex justify-end gap-4">
+                    <UInput v-model="state.sendMail.confirmInput" placeholder="Please input 'confirm'" />
+                    <UButton :loading="state.sendMail.isLoading" label="Send mail" @click="confirmInput()" />
+                </div>
                 <UFormField label="Order items">
                     <UTable :data="state.orderCurrent?.items ?? []" :columns="orderItemsColumns">
                         <template #price-cell="{ row }">
