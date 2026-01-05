@@ -25,7 +25,7 @@
         </div>
         <USeparator />
         <div class="flex-1 overflow-hidden">
-          <NuxtPage class="h-full"/>
+          <NuxtPage class="h-full" />
         </div>
       </UCard>
     </div>
@@ -69,6 +69,11 @@ const navItems: NavigationMenuItem[][] = [
       label: 'Users',
       icon: 'ic:sharp-manage-accounts',
       to: '/console/users'
+    },
+    {
+      label: 'Categories',
+      icon: 'ic:twotone-menu',
+      to: '/console/categories'
     },
     {
       label: 'Products',
