@@ -108,6 +108,16 @@ model ObjectStorage {
   @@unique([bucket, objectName])
 }
 
+model Category {
+  id       Int       @id @default(autoincrement())
+  publicId String    @unique @default(cuid())
+  alias    String    @unique
+  name     String
+  type     String
+  active   Boolean   @default(false)
+  products Product[]
+}
+
 model Product {
   id              Int             @id @default(autoincrement())
   publicId        String          @unique @default(cuid())
@@ -122,6 +132,7 @@ model Product {
   info            Json
   carts           Cart[]
   files           ObjectStorage[]
+  categories      Category[]
 }
 
 model Order {
