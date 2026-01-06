@@ -95,7 +95,7 @@ const navItems: NavigationMenuItem[][] = [
   // ],
   [
     {
-      label: 'Guest mode',
+      label: 'Guest',
       icon: 'ic:sharp-remove-red-eye',
       to: '/'
     },
