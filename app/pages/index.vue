@@ -7,9 +7,9 @@
     </template>
     <div class="flex justify-between">
       <div class="flex gap-4">
-        <UCheckbox v-model="planValues.free" label="FREE"
+        <UCheckbox :model-value="choosePlans.includes(ProductPlan.Free)" label="FREE"
           @update:model-value="(value) => choosePlan(value, ProductPlan.Free)" />
-        <UCheckbox v-model="planValues.pro" label="PRO"
+        <UCheckbox :model-value="choosePlans.includes(ProductPlan.Pro)" label="PRO"
           @update:model-value="(value) => choosePlan(value, ProductPlan.Pro)" />
       </div>
       <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI" />
@@ -20,7 +20,7 @@
           <div class="flex justify-between w-full">
             <span class="font-medium" :class="[card.plan === ProductPlan.Pro ? 'text-green-600' : 'text-gray-400']">{{
               card.plan.toUpperCase()
-            }}</span>
+              }}</span>
           </div>
         </template>
         <template #body>
@@ -87,10 +87,7 @@ const sortOptions = <SortType[]>['Newest', 'Popular']
 const products = useState<ProductSEOItemResponse[]>('products', () => [])
 const categoryPublicIds = ref<string[]>([])
 const chooseSortType = ref<SortType>('Popular')
-const planValues = reactive({
-  pro: true,
-  free: true
-})
+const choosePlans = useState<ProductPlan[]>(() => [ProductPlan.Free, ProductPlan.Pro])
 
 const { data: productList } = await useAsyncData(() => $fetch('/data/products', {
   onResponse({ response }) {
@@ -112,12 +109,12 @@ function setProductsWithCategories(publicIds: string[]) {
     products.value = productList.value ?? []
   }
 
-  if (!planValues.free) {
-    products.value = products.value.filter(prd => prd.plan !== ProductPlan.Free)
-  }
-  if (!planValues.pro) {
-    products.value = products.value.filter(prd => prd.plan !== ProductPlan.Pro)
-  }
+  // if (!planValues.free) {
+  //   products.value = products.value.filter(prd => prd.plan !== ProductPlan.Free)
+  // }
+  // if (!planValues.pro) {
+  //   products.value = products.value.filter(prd => prd.plan !== ProductPlan.Pro)
+  // }
 }
 
 function handlerSelectMenuItem(publicIds: string[]) {
@@ -125,13 +122,40 @@ function handlerSelectMenuItem(publicIds: string[]) {
   setProductsWithCategories(publicIds)
 }
 
+// function isProductPlan(value: unknown): value is ProductPlan {
+//   return Object.values(ProductPlan).includes(value as ProductPlan)
+// }
+
 function choosePlan(value: boolean | "indeterminate", plan: ProductPlan) {
   if (value === true) {
     setProductsWithCategories(categoryPublicIds.value)
+    choosePlans.value.push(plan)
   } else {
     products.value = products.value.filter(prd => prd.plan !== plan)
+    choosePlans.value = choosePlans.value.filter(pl => pl !== plan)
   }
 }
+
+// const planQueries = router.currentRoute.value.query['plans']
+// if (planQueries) {
+//   if (typeof planQueries === 'string') {
+//     if (isProductPlan(planQueries)) {
+//       choosePlans.value.push(planQueries)
+//     }
+//   } else if (Array.isArray(planQueries)) {
+//     choosePlans.value.push(
+//       ...planQueries.filter(isProductPlan)
+//     )
+//   }
+// } else {
+//   choosePlans.value = [ProductPlan.Free, ProductPlan.Pro]
+//   router.replace({
+//     query: {
+//       plans: choosePlans.value
+//     }
+//   })
+// }
+
 </script>
 
 <style></style>

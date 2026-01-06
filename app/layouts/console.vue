@@ -48,6 +48,7 @@ const layout = {
   }
 }
 
+const { logout } = useAuth()
 const navItemCurrent = ref<NavigationMenuItem>()
 const routePaths = computed(() => useRouter().currentRoute.value.path)
 const breadItems = computed(() => routePaths.value.split('/').slice(1).map(item => {
@@ -83,24 +84,15 @@ const navItems: NavigationMenuItem[][] = [
     {
       label: 'Orders',
       icon: 'ic:baseline-chrome-reader-mode',
-      to: '/console/orders'
+      to: '/console/orders',
     },
-    // {
-    //   label: 'Library',
-    //   icon: 'ic:baseline-photo-library',
-    //   to: '/console/library'
-    // }
   ],
-  [
-    // {
-    //   label: 'Setting',
-    //   type: 'label'
-    // },
-    {
-      label: 'Logout',
-      icon: 'ic:outline-logout'
-    }
-  ],
+  // [
+  //   {
+  //     label: 'Logout',
+  //     icon: 'ic:outline-logout',
+  //   }
+  // ],
   [
     {
       label: 'Guest mode',

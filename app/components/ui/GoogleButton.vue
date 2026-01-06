@@ -30,7 +30,9 @@ const userUI = {
 const popoverUI = {
   content: "p-2"
 };
-const { count: cartCount, quality: cartQuality } = useCart()
+
+const { logout } = useAuth()
+const { count: cartCount } = useCart()
 const { loading: isLoading } = useGoogleButton()
 const { authSession } = session();
 const { googleId } = usePublicVariables();
@@ -64,14 +66,18 @@ const items = computed<NavigationMenuItem[][]>(() => {
         label: "Logout",
         icon: "ic:outline-log-out",
         onSelect() {
-          $fetch("/api/auth/google/logout", {
-            method: "DELETE"
-          }).finally(() => {
-            authSession().remove();
-            userAuth.value = null;
-            cartQuality.value = undefined
-            navigateTo('/')
-          });
+          logout()
+            .finally(() => {
+              userAuth.value = null;
+            })
+          // $fetch("/api/auth/google/logout", {
+          //   method: "DELETE"
+          // }).finally(() => {
+          //   authSession().remove();
+          //   userAuth.value = null;
+          //   cartQuality.value = undefined
+          //   navigateTo('/')
+          // });
         }
       }
     ]
@@ -145,7 +151,7 @@ function initGoogle() {
             // isLoading.value = false
           }
         }
-      }).catch(() => isLoading.value = false)
+      }).finally(() => isLoading.value = false)
     }
   });
 }
