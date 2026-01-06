@@ -2,30 +2,25 @@
   <UPage :ui="pageUI">
     <template #left>
       <UPageAside>
-        <UiMenu />
+        <UiMenu @selected-items="handlerSelectMenuItem" />
       </UPageAside>
     </template>
-
     <div class="flex justify-between">
       <div class="flex gap-4">
-        <UCheckbox v-model="choosePlan.free" label="FREE" />
-        <UCheckbox v-model="choosePlan.pro" label="PRO" />
+        <UCheckbox v-model="planValues.free" label="FREE"
+          @update:model-value="(value) => choosePlan(value, ProductPlan.Free)" />
+        <UCheckbox v-model="planValues.pro" label="PRO"
+          @update:model-value="(value) => choosePlan(value, ProductPlan.Pro)" />
       </div>
-
       <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI" />
-
     </div>
     <UPageGrid>
       <UPageCard v-for="(card, index) in products" :key="index" v-bind="card" :ui="cardUI">
-        <!-- <template #body>test</template> -->
         <template #leading>
           <div class="flex justify-between w-full">
-            <span class="font-medium" :class="[card.plan === ProductPlan.Pro ? 'text-green-600' : 'text-gray-400']">{{ card.plan.toUpperCase()
+            <span class="font-medium" :class="[card.plan === ProductPlan.Pro ? 'text-green-600' : 'text-gray-400']">{{
+              card.plan.toUpperCase()
             }}</span>
-            <!-- <div class="text-gray-500 flex items-center gap-1">
-              <Icon name="material-symbols:recommend-outline" size="20" />
-              16
-            </div> -->
           </div>
         </template>
         <template #body>
@@ -66,7 +61,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ProductPlan, type ProductItemResponse, type ProductSEOItemResponse } from '~~/shared/types/product'
+import { ProductPlan, type ProductSEOItemResponse } from '#shared/types/product'
 
 
 type SortType = 'Popular' | 'Newest'
@@ -88,78 +83,55 @@ const chooseSortTypeUI = {
 }
 
 const { addProduct } = useCart()
-const chooseSortType = ref<SortType>('Popular')
 const sortOptions = <SortType[]>['Newest', 'Popular']
-const choosePlan = reactive({
-  free: true,
-  pro: true
+const products = useState<ProductSEOItemResponse[]>('products', () => [])
+const categoryPublicIds = ref<string[]>([])
+const chooseSortType = ref<SortType>('Popular')
+const planValues = reactive({
+  pro: true,
+  free: true
 })
 
-const products = ref<ProductSEOItemResponse[]>([])
+const { data: productList } = await useAsyncData(() => $fetch('/data/products', {
+  onResponse({ response }) {
+    if (response.ok) {
+      products.value = response._data
+    }
+  }
+}))
 
-onBeforeMount(async () => {
-  products.value = await $fetch('/data/products',)
-})
+function setProductsWithCategories(publicIds: string[]) {
+  if (publicIds.length) {
+    const setCategoryPublicIds = new Set(publicIds)
+    products.value = productList.value?.filter(prd =>
+      prd.categories.some(ctg =>
+        setCategoryPublicIds.has(ctg.publicId)
+      )
+    ) ?? []
+  } else {
+    products.value = productList.value ?? []
+  }
 
-// const cards = ref([
-//   {
-//     title: 'Eagle Plushy Kids toy',
-//     images: ['https://b4.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8164/8164078.68fa1eadd13f4.jpeg', 'https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8164/8164081.68fa1eaddc953.jpeg'],
-//     price: '2$',
-//     plan: Plan.Pro,
-//   },
-//   {
-//     title: 'Santa Claus Statue',
-//     images: ['https://b5.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8163/8163253.68f9e607058ca.jpeg'],
-//     price: '3,5$',
-//     plan: Plan.Free
-//     // to: '/docs/getting-started/integrations/fonts'
-//   },
-//   {
-//     title: 'Decorative set with orchid',
-//     images: ['https://b6.3dsky.org/media/cache/sky_model_new_thumb_ang/model_images/0000/0000/8162/8162578.68f9594b077ce.jpeg'],
-//     price: '4,25$',
-//     plan: Plan.Pro
-//     // to: '/docs/getting-started/integrations/color-mode'
-//   },
-//   {
-//     title: 'Garage Display Shelf Cars Toys for Children 02',
-//     images: ['https://b4.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8154/8154867.68f66e7fbf80c.jpeg', 'https://b4.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8154/8154868.68f66e7fc463f.jpeg'],
-//     price: '6$',
-//     plan: Plan.Free
-//   },
-//   {
-//     title: 'Decorative Set 048',
-//     images: ['https://b4.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8163/8163742.68fa05359fdb1.jpeg', 'https://b4.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8163/8163743.68fa0535a4d2a.jpeg'],
-//     price: '2$',
-//     plan: Plan.Free
-//   },
-//   {
-//     title: 'Water Cooler / Water Purifier',
-//     images: ['https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8163/8163289.68f9e96955aab.jpeg', 'https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8163/8163290.68f9e976cf353.jpeg'],
-//     price: '4,5$',
-//     plan: Plan.Pro
-//   },
-//   {
-//     title: 'Spa and Beauty Salon No. 6',
-//     images: ['https://b6.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8162/8162309.68f9307bea61a.jpeg', 'https://b6.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8162/8162313.68f9307c02021.jpeg'],
-//     price: '4,5$',
-//     plan: Plan.Free
-//   },
-//   {
-//     title: 'Wooden Blinds Set 38',
-//     images: ['https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8165/8165054.68fa63ccab23d.jpeg', 'https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8165/8165058.68fa63ccb5ac9.jpeg'],
-//     price: '10$',
-//     plan: Plan.Pro
-//   },
-//   {
-//     title: '2026 Ford Mustang RTR',
-//     images: ['https://b6.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8165/8165808.68faf491c8289.jpeg'],
-//     price: '15$',
-//     plan: Plan.Pro
-//   }
-// ])
+  if (!planValues.free) {
+    products.value = products.value.filter(prd => prd.plan !== ProductPlan.Free)
+  }
+  if (!planValues.pro) {
+    products.value = products.value.filter(prd => prd.plan !== ProductPlan.Pro)
+  }
+}
 
+function handlerSelectMenuItem(publicIds: string[]) {
+  categoryPublicIds.value = publicIds
+  setProductsWithCategories(publicIds)
+}
+
+function choosePlan(value: boolean | "indeterminate", plan: ProductPlan) {
+  if (value === true) {
+    setProductsWithCategories(categoryPublicIds.value)
+  } else {
+    products.value = products.value.filter(prd => prd.plan !== plan)
+  }
+}
 </script>
 
 <style></style>

@@ -15,3 +15,13 @@ export interface CategoryItemResponse {
     active: boolean
     products: CategoryProductItemResponse[]
 }
+
+export interface CategorySEOItem {
+    publicId: string,
+    alias: string,
+    name: string,
+    type: string,
+    products: {
+        count: number
+    }
+}

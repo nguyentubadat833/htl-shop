@@ -6,8 +6,9 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
       type: true,
       active: true
     },
-    orderBy: {
-      type: 'desc'
-    }
+    orderBy: [
+      { type: 'asc' },
+      { name: 'asc' }
+    ]
   })
 })

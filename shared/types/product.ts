@@ -39,10 +39,15 @@ export enum ProductPlan {
 
 export interface ProductSEOItemResponse {
   publicId: string;
-  plan: ProductPlan,
+  plan: string,
   alias: string
   name: string;
   price: number;
-  createdAt: Date;
+  createdAt: string;
   imageLinks: string[]
+  categories: {
+    alias: string,
+    publicId: string,
+    name: string
+  }[]
 }

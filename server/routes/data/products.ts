@@ -13,6 +13,16 @@ export default defineWrappedResponseHandler(async (event) => {
                 select: {
                     publicId: true
                 }
+            },
+            categories: {
+                where: {
+                    active: true
+                },
+                select: {
+                    alias: true,
+                    publicId: true,
+                    name: true
+                }
             }
         }
     }).then(data => data.map(item => {
@@ -22,8 +32,9 @@ export default defineWrappedResponseHandler(async (event) => {
             alias: item.alias,
             name: item.name,
             price: item.price,
-            createdAt: item.createdAt,
-            imageLinks: item.files.map(file => file.publicId).map(id => `/storage/image?publicId=${id}`)
+            createdAt: item.createdAt.toString(),
+            imageLinks: item.files.map(file => file.publicId).map(id => `/storage/image?publicId=${id}`),
+            categories: item.categories
         }
-    }))   
+    }))
 })
