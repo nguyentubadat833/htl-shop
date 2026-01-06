@@ -38,7 +38,6 @@ const { authSession } = session();
 const { googleId } = usePublicVariables();
 const googleClient = ref<any>(null);
 const userAuth = ref<UserAuthClient | null>(null);
-// const isLoading = ref(false)
 
 const items = computed<NavigationMenuItem[][]>(() => {
   const rs = [
