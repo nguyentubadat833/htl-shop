@@ -1,4 +1,5 @@
 import session from "~/utils/session.ts";
+import { UserRole } from "~~/shared/types/auth";
 
 export default defineNuxtRouteMiddleware((to, from) => {
   const { authSession } = session();

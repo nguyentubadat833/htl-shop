@@ -7,11 +7,8 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Copy package manager files trước để cache layer
 COPY package.json pnpm-lock.yaml .npmrc* ./
 
-# Install dependencies (production + dev để build)
-RUN pnpm install --frozen-lockfile
-
-# Copy source code
 COPY . .
+RUN pnpm install --frozen-lockfile --ignore-scripts=false
 
 # Build project
 RUN pnpm run build

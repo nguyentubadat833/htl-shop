@@ -1,7 +1,7 @@
 import { S3 } from "./s3";
 import slug from 'slug'
 import { ProductInfo } from "#shared/types/product";
-import { ObjectStorage, Prisma, Product, ProductStatus } from "~~/server/utils/db";
+import { ObjectStorage, Prisma, Product, ProductStatus } from "~~/prisma/generated/client";
 export class ProductService {
   product!: Product;
 

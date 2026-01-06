@@ -1,5 +1,5 @@
 import type { EventHandlerRequest, H3Event } from "h3";
-import { UserRole } from './db'
+import { UserRole } from "~~/prisma/generated/client";
 
 export type UserAuth = {
   id: number;
