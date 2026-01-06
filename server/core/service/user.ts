@@ -1,7 +1,7 @@
-import { AuthProvider } from "@prisma/client";
+import { AuthProvider } from "~~/server/utils/db";
 
 export class UserService {
-  constructor() {}
+  constructor() { }
 
   async registerUserProvider(provider: AuthProvider, providerUserId: string, email: string, name: string, picture?: string) {
     return await prisma.user.upsert({

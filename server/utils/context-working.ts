@@ -1,5 +1,5 @@
-import { UserRole } from "@prisma/client";
 import type { EventHandlerRequest, H3Event } from "h3";
+import { UserRole } from './db'
 
 export type UserAuth = {
   id: number;
@@ -9,7 +9,7 @@ export type UserAuth = {
 };
 
 export class UserAuthContext {
-  constructor(public event: H3Event<EventHandlerRequest>) {}
+  constructor(public event: H3Event<EventHandlerRequest>) { }
 
   set userAuth(user: UserAuth) {
     this.event.context.userAuth = user;
@@ -45,10 +45,10 @@ export class UserAuthContext {
   }
 
   static hasAuthOrThrowInline(event: H3Event<EventHandlerRequest>) {
-     const userAuthContext = new UserAuthContext(event);
-     return userAuthContext.getUserAuthOrThrow()
+    const userAuthContext = new UserAuthContext(event);
+    return userAuthContext.getUserAuthOrThrow()
   }
- 
+
   static hasAdminOrThrowInline(event: H3Event<EventHandlerRequest>) {
     const userAuthContext = new UserAuthContext(event);
     userAuthContext.hasAdminOrThrow();

@@ -37,7 +37,8 @@ export default defineWrappedResponseHandler(async (event) => {
         alias: product.alias,
         name: product.name,
         price: product.price,
-        createdAt: product.createdAt,
-        imageLinks: product.files.map(file => file.publicId).map(id => `/storage/image?publicId=${id}`)
+        createdAt: product.createdAt.toString(),
+        imageLinks: product.files.map(file => file.publicId).map(id => `/storage/image?publicId=${id}`),
+        categories: []
     }
 })

@@ -1,5 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '@prisma/client'
+// import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '~~/prisma/generated'
+import {AuthProvider, UserRole, Order, ObjectStorage, Prisma, Product, ProductStatus } from '~~/prisma/generated'
 
 const prismaClientSingleton = () => {
   const pool = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
@@ -16,3 +18,13 @@ export const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
+
+export {
+  AuthProvider,
+  UserRole,
+  Order,
+  ObjectStorage,
+  Prisma,
+  Product,
+  ProductStatus
+}

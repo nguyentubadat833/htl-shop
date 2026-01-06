@@ -1,5 +1,5 @@
 import { OrderWithProductsResponse } from "#shared/types/order";
-import { Order } from "@prisma/client";
+import { Order } from '~~/server/utils/db'
 
 export class OrderService {
   order!: Order;
@@ -17,7 +17,7 @@ export class OrderService {
   }
 
   static async getWithProducts(orderPublicId: string): Promise<OrderWithProductsResponse> {
-    const data =  await prisma.order.findUniqueOrThrow({
+    const data = await prisma.order.findUniqueOrThrow({
       where: { publicId: orderPublicId },
       select: {
         publicId: true,
@@ -37,11 +37,11 @@ export class OrderService {
       }
     })
 
-    if(!data){
+    if (!data) {
       throw new ServerError(HttpStatus[404], 404)
     }
 
-    const {publicId, status, amount, items} = data
+    const { publicId, status, amount, items } = data
     return {
       publicId,
       status,
