@@ -191,7 +191,8 @@ async function save() {
       method: 'POST',
       body: {
         name: state.current.name,
-        type: state.current.type
+        type: state.current.type,
+        active: state.current.status === 'ACTIVE'
       },
       onResponse({ response }) {
         if (response.ok) {

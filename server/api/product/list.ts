@@ -24,6 +24,11 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
           type: true,
         },
       },
+      categories: {
+        select: {
+          publicId: true
+        }
+      }
     },
   })) as ProductItemResponse[];
 });

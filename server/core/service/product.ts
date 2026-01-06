@@ -29,7 +29,7 @@ export class ProductService {
     return this;
   }
 
-  static async create(name: string, price: number, info: ProductInfo, createdByUserId: number) {
+  static async create(name: string, price: number, info: ProductInfo, createdByUserId: number, categoryPublicIds: string[]) {
     const alias = slug(name)
     const findWithAlias = await prisma.product.findUnique({
       where: {
@@ -44,6 +44,20 @@ export class ProductService {
       throw new ServerError('Product name must be unique', 409, 'logic')
     }
 
+    let categoryIds: number[] = []
+    if (categoryPublicIds.length) {
+      categoryIds = await prisma.category.findMany({
+        where: {
+          publicId: {
+            in: categoryPublicIds
+          }
+        },
+        select: {
+          id: true
+        }
+      }).then(data => data.map(i => i.id))
+    }
+
     return await prisma.product.create({
       data: {
         name,
@@ -51,11 +65,18 @@ export class ProductService {
         price,
         info: info as Prisma.JsonObject,
         createdByUserId: createdByUserId,
+        categories: {
+          connect: categoryIds.map(id => {
+            return {
+              id: id
+            }
+          })
+        }
       },
     });
   }
 
-  async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus) {
+  async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus, categoryPublicIds?: string[]) {
     const setAlias = async (input?: string) => {
       if (!input) return undefined
 
@@ -102,6 +123,20 @@ export class ProductService {
       }
     }
 
+    let categoryIds: number[] = []
+    if (categoryPublicIds && categoryPublicIds.length) {
+      categoryIds = await prisma.category.findMany({
+        where: {
+          publicId: {
+            in: categoryPublicIds
+          }
+        },
+        select: {
+          id: true
+        }
+      }).then(data => data.map(i => i.id))
+    }
+
     return prisma.product.update({
       where: {
         id: this.product.id,
@@ -112,6 +147,13 @@ export class ProductService {
         price: price,
         info: info,
         status: status,
+        categories: {
+          set: categoryIds.map(id => {
+            return {
+              id: id
+            }
+          })
+        }
       },
     });
   }

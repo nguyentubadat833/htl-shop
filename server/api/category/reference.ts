@@ -4,16 +4,10 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
       publicId: true,
       name: true,
       type: true,
-      active: true,
-      products: {
-        select: {
-          publicId: true,
-          name: true
-        }
-      }
+      active: true
     },
     orderBy: {
-      name: 'asc'
+      type: 'desc'
     }
   })
 })

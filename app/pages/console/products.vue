@@ -12,6 +12,14 @@ type TechnicalOptions = {
   formfactor: string[]
 }
 
+type CategoryItemSelected = {
+  label: string
+  name: string
+  publicId: string
+  type: string
+  active: boolean
+}
+
 type ProductInfo = {
   platform: string
   render: string
@@ -40,6 +48,13 @@ type Product = {
       publicId: string
     } | null
   }
+  categories: {
+    publicId: string
+    name: string
+    label: string
+    type: string
+    active: boolean
+  }[]
 }
 
 type FileUpload = {
@@ -97,7 +112,8 @@ const productCurrentDefault: Product = {
   resources: {
     thumbnails: [],
     productFile: null
-  }
+  },
+  categories: []
 }
 
 const layout = {
@@ -132,6 +148,17 @@ const columns = [
   },
 ] satisfies TableColumn<ProductItemResponse>[]
 
+const categorySearchListToSelected = (categoryPublicIds: string[]) => {
+  if (Array.isArray(categorySearchGroup.value)) {
+    const searchList = categorySearchGroup.value[0]
+    if (searchList) {
+      const categorySetPublicId = new Set(categoryPublicIds)
+      return searchList.items.filter(c => categorySetPublicId.has(c.publicId))
+    }
+  }
+  return []
+}
+
 const productResponseToProduct = (input: ProductItemResponse): Product => {
   const designFile = input.files.find(file => file.type === 'DESIGN')
   return {
@@ -163,7 +190,8 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
       productFile: designFile ? {
         publicId: designFile.publicId
       } : null
-    }
+    },
+    categories: categorySearchListToSelected(input.categories.map(c => c.publicId))
   }
 }
 
@@ -221,6 +249,23 @@ await useAsyncData(
     }
   })
 )
+
+const { data: categorySearchGroup } = await useAsyncData(() => $userApi('/api/category/reference'), {
+  transform(value) {
+    return [
+      {
+        id: 'categories',
+        label: 'Categories',
+        items: value.map(item => {
+          return {
+            ...item,
+            label: `${item.type} — ${item.name} ${!item.active ? '— INACTIVE' : '' }`
+          } as CategoryItemSelected
+        })
+      }
+    ]
+  }
+})
 
 const { refresh: refreshProducts, pending } = await useAsyncData(() => $userApi('/api/product/list', {
   onResponse({ response }) {
@@ -338,8 +383,6 @@ function fileActions() {
               })
             })
         })
-
-
     }
   }
 
@@ -383,7 +426,8 @@ function productActions() {
         body: <z.input<typeof AddProductSchema>>{
           name: data.name,
           price: data.price,
-          info: data.info
+          info: data.info,
+          category_publicIds: data.categories.map(i => i.publicId)
         },
         onResponse: ({ response }) => {
           if (response.ok) {
@@ -402,7 +446,8 @@ function productActions() {
           name: data.name,
           price: data.price,
           status: data.status,
-          info: data.info
+          info: data.info,
+          category_publicIds: data.categories.map(i => i.publicId)
         },
         onResponse: ({ response }) => {
           if (response.ok) {
@@ -511,7 +556,8 @@ function clickById(id: string) {
           <USelect v-model="productCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
         </UFormField>
         <UFormField label="Categories">
-          
+          <UCommandPalette v-model="state.productCurrent.categories" multiple selected-icon="i-lucide-circle-check"
+            :groups="categorySearchGroup" placeholder="Search category" class="flex-1 h-80" />
         </UFormField>
         <div v-if="productCurrent.publicId">
           <USeparator label="Resources" />

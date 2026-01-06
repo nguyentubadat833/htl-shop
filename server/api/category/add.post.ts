@@ -3,9 +3,10 @@ import slug from "slug"
 import { CategoryType } from '#shared/types/category'
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
-  const { name, type } = zodValidateRequestOrThrow(z.object({
+  const { name, type, active } = zodValidateRequestOrThrow(z.object({
     name: z.string(),
-    type: z.enum(CategoryType)
+    type: z.enum(CategoryType),
+    active: z.boolean().default(false)
   }), await readBody(event))
 
   const alias = slug(name)
@@ -27,7 +28,8 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
     data: {
       alias: alias,
       name: name,
-      type: type
+      type: type,
+      active: active
     },
     select: {
       publicId: true,

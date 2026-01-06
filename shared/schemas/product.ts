@@ -22,14 +22,16 @@ const FileBaseSchema = z.object({
 export const AddProductSchema = z.object({
   name: z.string().min(1, "Tên sản phẩm không được để trống"),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
-  info: ProductInfoSchema
+  info: ProductInfoSchema,
+  category_publicIds: z.array(z.string()).default([])
 });
 
 export const UpdateProductSchema = ProductBaseSchema.extend({
   name: z.string().optional(),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
-  info: ProductInfoSchema
+  info: ProductInfoSchema,
+  category_publicIds: z.array(z.string())
 });
 
 export const DeleteProductSchema = ProductBaseSchema.extend({});

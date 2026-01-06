@@ -27,6 +27,9 @@ export interface ProductItemResponse {
     publicId: string;
     type: FileType;
   }[];
+  categories: {
+    publicId: string
+  }[]
 }
 
 export enum ProductPlan {
