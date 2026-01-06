@@ -11,5 +11,6 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
   const { id: publicId } = zodValidateRequestOrThrow(ParamsSchema, params);
 
   const { objectName, bucket } = await ProductService.getFile(publicId, "DESIGN");
-  return await S3.CLIENT.presignedGetObject(bucket, objectName);
+  const expiresInSeconds = 60 * 5
+  return await S3.CLIENT.presignedGetObject(bucket, objectName, expiresInSeconds);
 });

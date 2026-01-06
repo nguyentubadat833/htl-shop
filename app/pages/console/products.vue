@@ -259,7 +259,7 @@ const { data: categorySearchGroup } = await useAsyncData(() => $userApi('/api/ca
         items: value.map(item => {
           return {
             ...item,
-            label: `${item.type} — ${item.name} ${!item.active ? '— INACTIVE' : '' }`
+            label: `${item.type} — ${item.name} ${!item.active ? '— INACTIVE' : ''}`
           } as CategoryItemSelected
         })
       }
@@ -407,9 +407,24 @@ function fileActions() {
     })
   }
 
+  function downloadFile(filePublicId?: string) {
+    if (!filePublicId) {
+      return
+    }
+    $userApi(`/api/product/file/design/${filePublicId}`, {
+      onResponse({ response }) {
+        if (response.ok) {
+          const url = response._data
+          window.open(url, '_blank')
+        }
+      }
+    })
+  }
+
   return {
     uploadFiles,
-    deleteFile
+    deleteFile,
+    downloadFile
   }
 }
 
@@ -568,7 +583,7 @@ function clickById(id: string) {
                   <UButton v-if="!productFileCurrent" icon="ic:outline-upload-file" color="neutral" variant="ghost"
                     @click="clickById(`btnUDF${productCurrent.publicId}`)" />
                   <UButton v-if="productFileCurrent" icon="ic:baseline-download-for-offline" color="info"
-                    variant="ghost" />
+                    variant="ghost" @click="fileActions().downloadFile(productFileCurrent.publicId)" />
                   <UButton v-if="productFileCurrent" icon="ic:baseline-delete-forever" color="error" variant="ghost"
                     @click="fileActions().deleteFile(productFileCurrent.publicId)" />
                   <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button"
