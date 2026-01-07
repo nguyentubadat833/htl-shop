@@ -63,7 +63,6 @@
 <script lang="ts" setup>
 import { ProductPlan, type ProductSEOItemResponse } from '#shared/types/product'
 
-
 type SortType = 'Popular' | 'Newest'
 
 const pageUI = {

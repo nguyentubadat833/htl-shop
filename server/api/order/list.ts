@@ -1,4 +1,4 @@
-import { OrderItemResponse } from "~~/shared/types/order";
+import { OrderItemResponse } from "#shared/types/order";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
   return await prisma.order.findMany({

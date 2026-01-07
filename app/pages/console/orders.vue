@@ -1,169 +1,161 @@
 <script setup lang="ts">
-import type { TableColumn, TableRow } from '@nuxt/ui';
-import type { OrderItemResponse, OrderStatus, ProductOrderItemResponse } from '~~/shared/types/order';
+import { OrderStatus } from "~~/prisma/generated/browser";
+import type { TableColumn, TableRow } from "@nuxt/ui";
+import type { OrderItemResponse, ProductOrderItemResponse } from "#shared/types/order";
 
 interface State {
-    currency: string
-    orderCurrent: OrderItemResponse | undefined,
-    sendMail: {
-        isLoading: boolean
-        confirmInput: string
-    }
+  currency: string;
+  orderCurrent: OrderItemResponse | undefined;
+  sendMail: {
+    isLoading: boolean;
+    confirmInput: string;
+  };
 }
 
 const layout = {
-    orderItems: {
-        ui: {
-            body: 'h-full space-y-5'
-        }
+  orderItems: {
+    ui: {
+      body: "h-full space-y-5",
     },
-}
+  },
+};
 
 const statusColor: Record<OrderStatus, string> = {
-    PENDING: 'neutral',
-    PAID: 'success',
-    SENDING: 'warning',
-    DELIVERED: 'info',
-    CANCELLED: 'error'
-}
+  PENDING: "neutral",
+  PAID: "success",
+  SENDING: "warning",
+  DELIVERED: "info",
+  CANCELLED: "error",
+};
 
 const columns = [
-    {
-        accessorKey: 'orderAt',
-        header: "Order at"
-    },
-    {
-        accessorKey: "publicId",
-        header: "ID"
-    },
-    {
-        accessorKey: 'status',
-        header: "Status"
-    },
-    {
-        accessorKey: 'amount',
-        header: 'Total amount'
-    },
-    {
-        accessorKey: 'orderByUser',
-        header: 'Order by'
-    }
-] satisfies TableColumn<OrderItemResponse>[]
+  {
+    accessorKey: "orderAt",
+    header: "Order at",
+  },
+  {
+    accessorKey: "publicId",
+    header: "ID",
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+  },
+  {
+    accessorKey: "amount",
+    header: "Total amount",
+  },
+  {
+    accessorKey: "orderByUser",
+    header: "Order by",
+  },
+] satisfies TableColumn<OrderItemResponse>[];
 
 const orderItemsColumns = [
-    {
-        accessorKey: "productName",
-        header: "Name"
-    },
-    {
-        accessorKey: 'price',
-        header: "Price"
-    },
-] satisfies TableColumn<ProductOrderItemResponse>[]
+  {
+    accessorKey: "productName",
+    header: "Name",
+  },
+  {
+    accessorKey: "price",
+    header: "Price",
+  },
+] satisfies TableColumn<ProductOrderItemResponse>[];
 
-const toast = new useAppToast()
-const { $userApi } = useNuxtApp()
-const { data: orders, refresh, pending } = await useAsyncData(() => $userApi('/api/order/list'))
-const globalFilter = ref()
+const toast = new useAppToast();
+const { $userApi } = useNuxtApp();
+const { data: orders, refresh, pending } = await useAsyncData(() => $userApi("/api/order/list"));
+const globalFilter = ref();
 
 const state = reactive<State>({
-    currency: 'USD',
-    orderCurrent: undefined,
-    sendMail: {
-        isLoading: false,
-        confirmInput: ''
-    }
-})
+  currency: "USD",
+  orderCurrent: undefined,
+  sendMail: {
+    isLoading: false,
+    confirmInput: "",
+  },
+});
 
 function onSelect(row: TableRow<OrderItemResponse>, e?: Event) {
-    state.orderCurrent = row.original
+  state.orderCurrent = row.original;
 }
 
 function getStatusColor(status: OrderStatus): any {
-    return statusColor[status]
+  return statusColor[status];
 }
 
 function confirmInput() {
-    if (state.sendMail.confirmInput === 'confirm') {
-        sendMail()
-            .then(() => {
-                state.sendMail.confirmInput = ''
-            })
-    } else {
-        toast.toast.add({
-            title: "Please enter 'confirm'",
-            color: 'error'
-        })
-    }
+  if (state.sendMail.confirmInput === "confirm") {
+    sendMail().then(() => {
+      state.sendMail.confirmInput = "";
+    });
+  } else {
+    toast.toast.add({
+      title: "Please enter 'confirm'",
+      color: "error",
+    });
+  }
 }
 
 async function sendMail() {
-    if (!state.orderCurrent) {
-        return
-    }
-    state.sendMail.isLoading = true
-    await $userApi('/api/order/send', {
-        method: 'POST',
-        body: {
-            orderPublicId: state.orderCurrent.publicId
-        },
-        onResponse({ response }) {
-            if (response.ok) {
-                refresh()
-                toast.success()
-            }
-        }
-    }).finally(() => {
-        state.sendMail.isLoading = false
-    })
+  if (!state.orderCurrent) {
+    return;
+  }
+  state.sendMail.isLoading = true;
+  await $userApi("/api/order/send", {
+    method: "POST",
+    body: {
+      orderPublicId: state.orderCurrent.publicId,
+    },
+    onResponse({ response }) {
+      if (response.ok) {
+        refresh();
+        toast.success();
+      }
+    },
+  }).finally(() => {
+    state.sendMail.isLoading = false;
+  });
 }
-
 </script>
 
 <template>
-    <div :class="[{ 'grid grid-cols-[6fr_4fr] gap-4': state.orderCurrent }]">
-        <div>
-            <div class="flex px-4 py-3.5 border-b border-accented">
-                <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
-            </div>
-            <UTable id="gridData" :loading="pending" :data="orders" :columns="columns"
-                v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
-                <template #status-cell="{ row }">
-                    <UBadge :label="row.original.status" :color="getStatusColor(row.original.status)" />
-                </template>
-                <template #orderAt-cell="{ row }">
-                    <NuxtTime :datetime="row.original.orderAt" year="numeric" month="numeric" day="numeric" />
-                </template>
-                <template #orderByUser-cell="{ row }">
-                    <div class="flex flex-col">
-                        <span>{{ row.original.orderByUser.name }}</span>
-                        <span>{{ row.original.orderByUser.email }}</span>
-                    </div>
-                </template>
-                <template #amount-cell="{ row }">
-                    {{ row.original.amount }} {{ state.currency }}
-                </template>
-            </UTable>
-        </div>
-        <div v-if="state.orderCurrent" class="space-y-5 overflow-y-auto p-3">
-            <UCard :ui="layout.orderItems.ui">
-                <div class="flex justify-end gap-4">
-                    <UInput v-model="state.sendMail.confirmInput" placeholder="Please input 'confirm'" />
-                    <UButton :loading="state.sendMail.isLoading" label="Send mail" @click="confirmInput()" />
-                </div>
-                <UFormField label="Order items">
-                    <UTable :data="state.orderCurrent?.items ?? []" :columns="orderItemsColumns">
-                        <template #price-cell="{ row }">
-                            {{ row.original.price }} {{ state.currency }}
-                        </template>
-                    </UTable>
-                </UFormField>
-                <UFormField label="Payments">
-
-                </UFormField>
-            </UCard>
-        </div>
+  <div :class="[{ 'grid grid-cols-[6fr_4fr] gap-4': state.orderCurrent }]">
+    <div>
+      <div class="flex px-4 py-3.5 border-b border-accented">
+        <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
+      </div>
+      <UTable id="gridData" :loading="pending" :data="orders" :columns="columns" v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
+        <template #status-cell="{ row }">
+          <UBadge :label="row.original.status" :color="getStatusColor(row.original.status)" />
+        </template>
+        <template #orderAt-cell="{ row }">
+          <NuxtTime :datetime="row.original.orderAt" year="numeric" month="numeric" day="numeric" />
+        </template>
+        <template #orderByUser-cell="{ row }">
+          <div class="flex flex-col">
+            <span>{{ row.original.orderByUser.name }}</span>
+            <span>{{ row.original.orderByUser.email }}</span>
+          </div>
+        </template>
+        <template #amount-cell="{ row }"> {{ row.original.amount }} {{ state.currency }} </template>
+      </UTable>
     </div>
+    <div v-if="state.orderCurrent" class="space-y-5 overflow-y-auto p-3">
+      <UCard :ui="layout.orderItems.ui">
+        <div class="flex justify-end gap-4">
+          <UInput v-model="state.sendMail.confirmInput" placeholder="Please input 'confirm'" />
+          <UButton :loading="state.sendMail.isLoading" label="Send mail" @click="confirmInput()" />
+        </div>
+        <UFormField label="Order items">
+          <UTable :data="state.orderCurrent?.items ?? []" :columns="orderItemsColumns">
+            <template #price-cell="{ row }"> {{ row.original.price }} {{ state.currency }} </template>
+          </UTable>
+        </UFormField>
+        <UFormField label="Payments"> </UFormField>
+      </UCard>
+    </div>
+  </div>
 </template>
 
 <style scoped></style>

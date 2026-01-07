@@ -1,5 +1,5 @@
 import { OrderWithProductsResponse } from "#shared/types/order";
-import { Order } from '~~/server/utils/db'
+import { Order } from '~~/prisma/generated/client'
 
 export class OrderService {
   order!: Order;

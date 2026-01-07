@@ -1,6 +1,6 @@
 import slug from "slug"
 import z from "zod"
-import { CategoryType } from "~~/shared/types/category"
+import { CategoryType } from "#shared/types/category"
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
   const { publicId, data } = zodValidateRequestOrThrow(z.object({

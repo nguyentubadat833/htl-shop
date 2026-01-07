@@ -1,4 +1,4 @@
-import { ProductItemResponse } from "~~/shared/types/product";
+import { ProductItemResponse } from "#shared/types/product";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
   return (await prisma.product.findMany({

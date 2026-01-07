@@ -18,7 +18,6 @@
 </template>
 
 <script lang="ts" setup>
-
 const { orderId: id } = useRoute().query
 const { $userApi } = useNuxtApp()
 const openQRModal = ref(false)

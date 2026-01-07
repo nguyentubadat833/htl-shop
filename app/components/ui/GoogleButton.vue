@@ -1,39 +1,52 @@
 <template>
   <ClientOnly>
     <UPopover v-if="userAuth" :ui="popoverUI">
-      <UUser :avatar="{
-        src: userAuth?.picture ?? '',
-        icon: 'i-lucide-image'
-      }" :ui="userUI" />
+      <UUser
+        :avatar="{
+          src: userAuth?.picture ?? '',
+          icon: 'i-lucide-image',
+        }"
+        :ui="userUI"
+      />
 
       <template #content>
         <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
       </template>
     </UPopover>
-    <UButton v-else id="googleSigninButton" :loading="isLoading" label="Sign in" color="neutral" variant="ghost"
-      icon="ic:baseline-log-in" size="md" @click="signInWithGoogle" />
+    <UButton
+      v-else
+      id="googleSigninButton"
+      :loading="isLoading"
+      label="Sign in"
+      color="neutral"
+      variant="ghost"
+      icon="ic:baseline-log-in"
+      size="md"
+      @click="signInWithGoogle"
+    />
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
 import session from "~/utils/session.ts";
-import { type UserAuthClient, UserRole, VarCookie } from "#shared/types/auth";
+import { type UserAuthClient, VarCookie } from "#shared/types/auth";
 import type { NavigationMenuItem } from "@nuxt/ui";
 import type z from "zod";
+import { UserRole } from "~~/prisma/generated/browser";
 import { VerifyCodeRequestSchema } from "#shared/schemas/auth";
 import { useGoogleButton } from "~/composables/components/googleButton";
 
-type VerifyCodeRequest = z.infer<typeof VerifyCodeRequestSchema>
+type VerifyCodeRequest = z.infer<typeof VerifyCodeRequestSchema>;
 const userUI = {
-  name: "lg:block hidden"
+  name: "lg:block hidden",
 };
 const popoverUI = {
-  content: "p-2"
+  content: "p-2",
 };
 
-const { logout } = useAuth()
-const { count: cartCount } = useCart()
-const { loading: isLoading } = useGoogleButton()
+const { logout } = useAuth();
+const { count: cartCount } = useCart();
+const { loading: isLoading } = useGoogleButton();
 const { authSession } = session();
 const { googleId } = usePublicVariables();
 const googleClient = ref<any>(null);
@@ -45,30 +58,29 @@ const items = computed<NavigationMenuItem[][]>(() => {
       {
         label: userAuth.value?.name ?? "",
         icon: "ic:outline-account-circle",
-        to: "/profile"
+        to: "/profile",
       },
     ],
     [
       {
         label: "My cart",
         icon: "ic:outline-shopping-basket",
-        to: "/cart"
+        to: "/cart",
       },
       {
         label: "History",
         icon: "ic:round-history",
-        to: "/history"
-      }
+        to: "/history",
+      },
     ],
     [
       {
         label: "Logout",
         icon: "ic:outline-log-out",
         onSelect() {
-          logout()
-            .finally(() => {
-              userAuth.value = null;
-            })
+          logout().finally(() => {
+            userAuth.value = null;
+          });
           // $fetch("/api/auth/google/logout", {
           //   method: "DELETE"
           // }).finally(() => {
@@ -77,26 +89,26 @@ const items = computed<NavigationMenuItem[][]>(() => {
           //   cartQuality.value = undefined
           //   navigateTo('/')
           // });
-        }
-      }
-    ]
-  ]
+        },
+      },
+    ],
+  ];
 
   if (userAuth.value?.role === UserRole.ADMIN.toString()) {
     rs.unshift([
       {
-        label: 'Console',
-        icon: 'ic:baseline-admin-panel-settings',
-        to: '/console'
-      }
-    ])
+        label: "Console",
+        icon: "ic:baseline-admin-panel-settings",
+        to: "/console",
+      },
+    ]);
   }
 
-  return rs
+  return rs;
 });
 
 onBeforeMount(() => {
-  const isLogin = useCookie(VarCookie.G_LOGIN)
+  const isLogin = useCookie(VarCookie.G_LOGIN);
   if (isLogin.value) {
     userAuth.value = authSession().get();
     if (!userAuth.value) {
@@ -108,13 +120,12 @@ onBeforeMount(() => {
             userAuth.value = response._data;
             authSession().set(userAuth.value!);
           }
-        }
+        },
       });
     }
   } else {
-    authSession().remove()
+    authSession().remove();
   }
-
 });
 
 onMounted(() => {
@@ -134,24 +145,24 @@ function initGoogle() {
     callback: async (response: any) => {
       // console.log('Google OAuth Response:', response)
 
-      isLoading.value = true
+      isLoading.value = true;
       await $fetch("/api/auth/google/verify-code", {
         method: "POST",
         body: <VerifyCodeRequest>{
-          code: response.code
+          code: response.code,
         },
         async onResponse({ response }) {
           if (response.ok && response._data) {
             userAuth.value = response._data;
             authSession().set(userAuth.value!);
-            await nextTick()
-            cartCount()
-            useRouter().push(useRoute().fullPath)
+            await nextTick();
+            cartCount();
+            useRouter().push(useRoute().fullPath);
             // isLoading.value = false
           }
-        }
-      }).finally(() => isLoading.value = false)
-    }
+        },
+      }).finally(() => (isLoading.value = false));
+    },
   });
 }
 

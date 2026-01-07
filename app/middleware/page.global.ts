@@ -1,5 +1,5 @@
 import session from "~/utils/session.ts";
-import { UserRole } from "~~/shared/types/auth";
+import { UserRole } from "~~/prisma/generated/browser";
 
 export default defineNuxtRouteMiddleware((to, from) => {
   const { authSession } = session();
@@ -9,9 +9,9 @@ export default defineNuxtRouteMiddleware((to, from) => {
     }
   }
 
-  if(to.path.startsWith('/cart') || to.path.startsWith('/payment')){
-    if(!authSession().get()){
-      return navigateTo('/')
+  if (to.path.startsWith("/cart") || to.path.startsWith("/payment")) {
+    if (!authSession().get()) {
+      return navigateTo("/");
     }
   }
 });

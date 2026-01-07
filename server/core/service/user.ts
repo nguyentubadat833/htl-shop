@@ -1,4 +1,4 @@
-import { AuthProvider } from "~~/server/utils/db";
+import { AuthProvider } from "~~/prisma/generated/client";
 
 export class UserService {
   constructor() { }

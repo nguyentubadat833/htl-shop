@@ -1,5 +1,5 @@
 import z from "zod"
-import { ProductPlan, ProductSEOItemResponse } from "~~/shared/types/product"
+import { ProductPlan, ProductSEOItemResponse } from "#shared/types/product"
 
 export default defineWrappedResponseHandler(async (event) => {
     const { alias } = zodValidateRequestOrThrow(z.object({

@@ -1,7 +1,6 @@
 import type z from "zod";
 import session from "~/utils/session.ts";
-import type { AddProductToCartSchema, CheckoutInCartSchema, RemoveProductsInCartSchema } from "~~/shared/schemas/cart";
-import type { CartItemResponse } from "~~/shared/types/cart";
+import type { AddProductToCartSchema, CheckoutInCartSchema, RemoveProductsInCartSchema } from "#shared/schemas/cart";
 
 const quality = ref();
 

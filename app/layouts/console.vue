@@ -48,7 +48,6 @@ const layout = {
   }
 }
 
-const { logout } = useAuth()
 const navItemCurrent = ref<NavigationMenuItem>()
 const routePaths = computed(() => useRouter().currentRoute.value.path)
 const breadItems = computed(() => routePaths.value.split('/').slice(1).map(item => {

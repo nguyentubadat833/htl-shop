@@ -1,4 +1,4 @@
-import { AddOptionSchema } from "~~/shared/schemas/option";
+import { AddOptionSchema } from "#shared/schemas/option";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
   const { key, value } = zodValidateRequestOrThrow(AddOptionSchema, await readBody(event));

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const { list, checkout: cartCheckout, removeProducts } = useCart()
 const router = useRouter()
 const data = ref()

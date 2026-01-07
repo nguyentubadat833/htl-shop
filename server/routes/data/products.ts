@@ -1,4 +1,4 @@
-import { ProductPlan, ProductSEOItemResponse } from "~~/shared/types/product"
+import { ProductPlan, ProductSEOItemResponse } from "#shared/types/product"
 
 export default defineWrappedResponseHandler(async (event) => {
     return await prisma.product.findMany({

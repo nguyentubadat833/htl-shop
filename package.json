@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "clean:ui": "rimraf .nuxt",
-    "clean": "rimraf .nuxt node_modules",
+    "clean": "rimraf node_modules .nuxt .data",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
@@ -22,8 +22,8 @@
     "@nuxt/content": "^3.7.1",
     "@nuxt/image": "1.11.0",
     "@nuxt/ui": "4.0.1",
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
+    "@prisma/adapter-pg": "6.19.1",
+  "@prisma/client": "6.19.1",
     "google-auth-library": "^10.4.1",
     "minio": "^8.0.6",
     "nodemailer": "^7.0.12",
@@ -47,7 +47,7 @@
     "@types/slug": "^5.0.9",
     "baseline-browser-mapping": "^2.9.11",
     "dotenv": "^17.2.3",
-    "prisma": "^7.2.0",
+    "prisma": "6.19.1",
     "tsx": "^4.21.0"
   }
 }

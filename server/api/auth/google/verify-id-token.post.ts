@@ -1,5 +1,5 @@
 import { GoogleService } from "~~/server/core/service/auth";
-import { UserAuthClient } from "~~/shared/types/auth";
+import { UserAuthClient } from "#shared/types/auth";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);

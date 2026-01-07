@@ -1,6 +1,6 @@
 import { OrderService } from "./order";
 import { ProductService } from "./product";
-import { CartItemResponse } from "~~/shared/types/cart";
+import { CartItemResponse } from "#shared/types/cart";
 
 export class CartService {
   constructor(private readonly userId: number) { }
