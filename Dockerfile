@@ -22,6 +22,7 @@ WORKDIR /app
 
 # Copy chỉ output sau khi build
 COPY --from=build /app/.output ./
+COPY --from=build /app/prisma/generated ./
 
 # Thiết lập biến môi trường
 ENV PORT=3000

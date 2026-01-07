@@ -1,4 +1,3 @@
-import * as Minio from "minio";
 import { S3 } from "../core/service/s3";
 
 export interface S3EventRecord {
@@ -32,20 +31,7 @@ export interface S3EventRecord {
   };
 }
 
-export default defineNitroPlugin(async (nitroApp) => {
-
-  const s3Env = useRuntimeConfig().s3;
-
-  S3.CLIENT = new Minio.Client({
-    endPoint: s3Env.host,
-    port: s3Env.port ? parseInt(s3Env.port) : undefined,
-    useSSL: s3Env.useSSL === "true",
-    accessKey: s3Env.accessKey,
-    secretKey: s3Env.secretKey,
-  });
-
-  S3.BUCKET_UPLOAD_DEFAULT = s3Env.bucketDefault;
-
+export async function startS3Listener() {
   if (!(await S3.CLIENT.bucketExists(S3.BUCKET_UPLOAD_DEFAULT))) {
     await S3.CLIENT.makeBucket(S3.BUCKET_UPLOAD_DEFAULT);
   }
@@ -57,22 +43,24 @@ export default defineNitroPlugin(async (nitroApp) => {
 
   listener.on("notification", (record) => {
     const s3Record = record as S3EventRecord;
-
+    console.log("Minio notification run!!!");
     if (s3Record.eventName.startsWith("s3:ObjectCreated:")) {
       console.log("S3::Client::Notification::ObjectCreated >> Uploaded: ", s3Record.s3.object.key);
-      void prisma.objectStorage.update({
-        where: {
-          bucket_objectName: {
-            bucket: s3Record.s3.bucket.name,
-            objectName: s3Record.s3.object.key,
+      void prisma.objectStorage
+        .update({
+          where: {
+            bucket_objectName: {
+              bucket: s3Record.s3.bucket.name,
+              objectName: s3Record.s3.object.key,
+            },
           },
-        },
-        data: {
-          uploadedAt: new Date(),
-        },
-      }).then(rs => console.log(rs))
+          data: {
+            uploadedAt: new Date(),
+          },
+        })
+        .then((rs) => console.log(rs));
     } else if (s3Record.eventName.startsWith("s3:ObjectRemoved:")) {
       console.log("S3::Client::Notification::ObjectRemoved >> Removed: ", s3Record.s3.object.key);
     }
   });
-});
+}

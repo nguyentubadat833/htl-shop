@@ -5,9 +5,11 @@ type VerifyCodeWithPostmessage = {
   payload: TokenPayload;
 };
 
+const { google } = useRuntimeConfig();
+
 export class GoogleService {
-  static CLIENT_ID: string;
-  static SECRET_ID: string;
+  static CLIENT_ID = google.clientId
+  static SECRET_ID = google.clientSecret
   constructor() {}
 
   async verifyCodeWithPostMessage(code: string): Promise<VerifyCodeWithPostmessage> {
