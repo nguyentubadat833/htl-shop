@@ -11,6 +11,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ProductPlan {
+  FREE
+  PRO
+}
+
 enum FileType {
   IMAGE
   DESIGN
@@ -124,6 +129,7 @@ model Product {
   publicId        String          @unique @default(cuid())
   alias           String          @unique
   name            String
+  plan            ProductPlan
   price           Float
   status          ProductStatus   @default(INACTIVE)
   createdAt       DateTime        @default(now())

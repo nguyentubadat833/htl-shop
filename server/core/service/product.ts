@@ -1,7 +1,7 @@
 import { S3 } from "./s3";
 import slug from 'slug'
 import { ProductInfo } from "#shared/types/product";
-import { ObjectStorage, Prisma, Product, ProductStatus } from "~~/prisma/generated/client";
+import { ObjectStorage, Prisma, Product, ProductStatus, ProductPlan } from "~~/prisma/generated/client";
 export class ProductService {
   product!: Product;
 
@@ -29,7 +29,7 @@ export class ProductService {
     return this;
   }
 
-  static async create(name: string, price: number, info: ProductInfo, createdByUserId: number, categoryPublicIds: string[]) {
+  static async create(plan: ProductPlan, name: string, price: number, info: ProductInfo, createdByUserId: number, categoryPublicIds: string[]) {
     const alias = slug(name)
     const findWithAlias = await prisma.product.findUnique({
       where: {
@@ -60,6 +60,7 @@ export class ProductService {
 
     return await prisma.product.create({
       data: {
+        plan,
         name,
         alias,
         price,
@@ -76,7 +77,7 @@ export class ProductService {
     });
   }
 
-  async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus, categoryPublicIds?: string[]) {
+  async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus, categoryPublicIds?: string[], plan?: ProductPlan) {
     const setAlias = async (input?: string) => {
       if (!input) return undefined
 
@@ -104,9 +105,9 @@ export class ProductService {
         where: {
           AND: {
             productId: this.product.id,
-            uploadedAt: {
-              not: null
-            }
+            // uploadedAt: {
+            //   not: null
+            // }
           }
         },
         select: {
@@ -142,6 +143,7 @@ export class ProductService {
         id: this.product.id,
       },
       data: {
+        plan: plan,
         alias: await setAlias(name),
         name: name,
         price: price,

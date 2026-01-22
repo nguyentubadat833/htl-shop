@@ -2,6 +2,7 @@
 import { AddProductSchema, DeleteFileRequestSchema, DeleteProductSchema, UpdateProductSchema, UploadFileRequestSchema } from '#shared/schemas/product'
 import type { TableColumn, TableRow } from '@nuxt/ui';
 import type z from 'zod';
+import { ProductPlan, type ProductStatus } from '~~/prisma/generated/browser';
 
 type TechnicalOptions = {
   platform: string[]
@@ -33,9 +34,10 @@ type ProductInfo = {
 
 type Product = {
   publicId: string | undefined
+  plan: ProductPlan
   name: string,
   price: number
-  status: string
+  status: ProductStatus
   createdAt: Date | undefined,
   updatedAt: Date | undefined,
   info: ProductInfo,
@@ -94,9 +96,10 @@ const technicalOptionsDefault: TechnicalOptions = {
 
 const productCurrentDefault: Product = {
   publicId: undefined,
+  plan: 'PRO',
   name: '',
   price: 0,
-  status: '',
+  status: 'INACTIVE',
   createdAt: undefined,
   updatedAt: undefined,
   info: {
@@ -148,6 +151,8 @@ const columns = [
   },
 ] satisfies TableColumn<ProductItemResponse>[]
 
+const planOptions = [ProductPlan.FREE, ProductPlan.PRO]
+
 const categorySearchListToSelected = (categoryPublicIds: string[]) => {
   if (Array.isArray(categorySearchGroup.value)) {
     const searchList = categorySearchGroup.value[0]
@@ -163,6 +168,7 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
   const designFile = input.files.find(file => file.type === 'DESIGN')
   return {
     publicId: input.publicId,
+    plan: input.plan,
     name: input.name,
     price: input.price,
     status: input.status,
@@ -438,12 +444,13 @@ function productActions() {
     if (!data.publicId) {
       await $userApi('/api/product/add', {
         method: 'POST',
-        body: <z.input<typeof AddProductSchema>>{
+        body: {
           name: data.name,
           price: data.price,
           info: data.info,
-          category_publicIds: data.categories.map(i => i.publicId)
-        },
+          category_publicIds: data.categories.map(i => i.publicId),
+          plan: data.plan
+        } satisfies z.input<typeof AddProductSchema>,
         onResponse: ({ response }) => {
           if (response.ok) {
             resetProductCurrent(response._data.publicId)
@@ -456,14 +463,14 @@ function productActions() {
     } else {
       await $userApi('/api/product/update', {
         method: 'PUT',
-        body: <z.input<typeof UpdateProductSchema>>{
+        body: {
           publicId: data.publicId,
           name: data.name,
           price: data.price,
           status: data.status,
           info: data.info,
           category_publicIds: data.categories.map(i => i.publicId)
-        },
+        } satisfies z.input<typeof UpdateProductSchema>,
         onResponse: ({ response }) => {
           if (response.ok) {
             refreshProducts()
@@ -552,6 +559,9 @@ function clickById(id: string) {
       <UCard :ui="layout.info.ui">
         <UFormField label="ID">
           <UInput disabled :model-value="productCurrent.publicId" class="w-full" />
+        </UFormField>
+        <UFormField label="Plan">
+          <USelect v-model="productCurrent.plan" :items="planOptions" class="w-full" />
         </UFormField>
         <UFormField label="Name">
           <UInput v-model="productCurrent.name" class="w-full" />

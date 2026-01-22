@@ -1,5 +1,6 @@
 import type z from "zod";
 import type { ProductInfoSchema } from "../schemas/product";
+import type { ProductPlan, ProductStatus } from "~~/prisma/generated/enums";
 
 export type FileType = "IMAGE" | "DESIGN";
 
@@ -17,9 +18,10 @@ export type ProductInfo = z.output<typeof ProductInfoSchema>
 
 export interface ProductItemResponse {
   publicId: string;
+  plan: ProductPlan,
   name: string;
   price: number;
-  status: string;
+  status: ProductStatus;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
   info: ProductInfo
@@ -32,10 +34,10 @@ export interface ProductItemResponse {
   }[]
 }
 
-export enum ProductPlan {
-  Free = "Free",
-  Pro = "Pro"
-}
+// export enum ProductPlan {
+//   Free = "Free",
+//   Pro = "Pro"
+// }
 
 export interface ProductSEOItemResponse {
   publicId: string;

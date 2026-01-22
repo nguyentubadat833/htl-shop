@@ -12,6 +12,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
     },
     select: {
       publicId: true,
+      plan: true,
       name: true,
       price: true,
       status: true,

@@ -1,4 +1,5 @@
-import { ProductPlan, ProductSEOItemResponse } from "#shared/types/product"
+import { ProductSEOItemResponse } from "#shared/types/product"
+import { ProductPlan } from "~~/prisma/generated/enums"
 
 export default defineWrappedResponseHandler(async (event) => {
     return await prisma.product.findMany({
@@ -27,7 +28,7 @@ export default defineWrappedResponseHandler(async (event) => {
         }
     }).then(data => data.map(item => {
         return <ProductSEOItemResponse>{
-            plan: ProductPlan.Pro,
+            plan: ProductPlan.PRO,
             publicId: item.publicId,
             alias: item.alias,
             name: item.name,

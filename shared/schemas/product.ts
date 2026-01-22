@@ -1,4 +1,5 @@
 import z from "zod";
+import { ProductPlan, ProductStatus } from "~~/prisma/generated/enums";
 
 const ProductBaseSchema = z.object({
   publicId: z.string(),
@@ -20,6 +21,7 @@ const FileBaseSchema = z.object({
 });
 
 export const AddProductSchema = z.object({
+  plan: z.enum(ProductPlan),
   name: z.string().min(1, "Tên sản phẩm không được để trống"),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   info: ProductInfoSchema,
@@ -27,9 +29,10 @@ export const AddProductSchema = z.object({
 });
 
 export const UpdateProductSchema = ProductBaseSchema.extend({
+  plan: z.enum(ProductPlan).optional(),
   name: z.string().optional(),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional(),
-  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+  status: z.enum(ProductStatus).optional(),
   info: ProductInfoSchema,
   category_publicIds: z.array(z.string())
 });

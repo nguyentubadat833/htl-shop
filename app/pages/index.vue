@@ -7,10 +7,10 @@
     </template>
     <div class="flex justify-between">
       <div class="flex gap-4">
-        <UCheckbox :model-value="choosePlans.includes(ProductPlan.Free)" label="FREE"
-          @update:model-value="(value) => choosePlan(value, ProductPlan.Free)" />
-        <UCheckbox :model-value="choosePlans.includes(ProductPlan.Pro)" label="PRO"
-          @update:model-value="(value) => choosePlan(value, ProductPlan.Pro)" />
+        <UCheckbox :model-value="choosePlans.includes(ProductPlan.FREE)" label="FREE"
+          @update:model-value="(value) => choosePlan(value, ProductPlan.FREE)" />
+        <UCheckbox :model-value="choosePlans.includes(ProductPlan.PRO)" label="PRO"
+          @update:model-value="(value) => choosePlan(value, ProductPlan.PRO)" />
       </div>
       <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI" />
     </div>
@@ -18,7 +18,7 @@
       <UPageCard v-for="(card, index) in products" :key="index" v-bind="card" :ui="cardUI">
         <template #leading>
           <div class="flex justify-between w-full">
-            <span class="font-medium" :class="[card.plan === ProductPlan.Pro ? 'text-green-600' : 'text-gray-400']">{{
+            <span class="font-medium" :class="[card.plan === ProductPlan.PRO ? 'text-green-600' : 'text-gray-400']">{{
               card.plan.toUpperCase()
               }}</span>
           </div>
@@ -61,7 +61,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ProductPlan, type ProductSEOItemResponse } from '#shared/types/product'
+import { type ProductSEOItemResponse } from '#shared/types/product'
+import { ProductPlan } from '~~/prisma/generated/browser'
 
 type SortType = 'Popular' | 'Newest'
 
@@ -86,7 +87,7 @@ const sortOptions = <SortType[]>['Newest', 'Popular']
 const products = useState<ProductSEOItemResponse[]>('products', () => [])
 const categoryPublicIds = ref<string[]>([])
 const chooseSortType = ref<SortType>('Popular')
-const choosePlans = useState<ProductPlan[]>(() => [ProductPlan.Free, ProductPlan.Pro])
+const choosePlans = useState<ProductPlan[]>(() => [ProductPlan.FREE, ProductPlan.PRO])
 
 const { data: productList } = await useAsyncData(() => $fetch('/data/products', {
   onResponse({ response }) {
