@@ -29,7 +29,8 @@
         <div class="space-y-5">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
-              <UBadge :label="info?.plan.toUpperCase()" />
+              <UBadge :label="info?.plan.toUpperCase()"
+                :color="info?.plan === ProductPlan.FREE ? 'neutral' : 'success'" />
               <span class="text-gray-500 font-bold text-xl">{{ info?.price }}</span>
             </div>
             <div class="text-gray-400 font-medium">
@@ -39,7 +40,8 @@
           </div>
           <div>
             <UButton label="Add to cart" icon="ic:outline-add-shopping-cart" color="secondary" variant="soft"
-              :ui="btnAddToCartUI" block class="hover:cursor-pointer" @click="() => {info?.id && addProduct(info.id)}" />
+              :ui="btnAddToCartUI" block class="hover:cursor-pointer"
+              @click="() => { info?.id && addProduct(info.id) }" />
           </div>
         </div>
         <div class="space-y-2">
@@ -55,13 +57,15 @@
 </template>
 
 <script lang="ts" setup>
+import { ProductPlan } from '~~/prisma/generated/browser'
+
 
 const btnAddToCartUI = {
   root: 'w-full',
   base: 'rounded-3xl h-10'
 }
 
-const {addProduct} = useCart()
+const { addProduct } = useCart()
 const route = useRoute()
 
 const { data: info } = await useFetch(`/data/product/${route.params.alias}`, {

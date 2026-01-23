@@ -135,6 +135,10 @@ const layout = {
 
 const columns = [
   {
+    accessorKey: 'plan',
+    header: 'Plan'
+  },
+  {
     id: "name",
     accessorKey: "name",
     header: "Name"
@@ -250,7 +254,7 @@ await useAsyncData(
   () => $userApi('/api/option/all', {
     onResponse({ response }) {
       if (response.ok) {
-        state.metadata.technicalOptions = response._data as unknown as TechnicalOptions
+        state.metadata.technicalOptions = response._data
       }
     }
   })

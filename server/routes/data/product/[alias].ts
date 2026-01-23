@@ -17,6 +17,7 @@ export default defineWrappedResponseHandler(async (event) => {
             name: true,
             price: true,
             createdAt: true,
+            plan: true,
             files: {
                 where: {
                     type: 'IMAGE'
@@ -33,7 +34,7 @@ export default defineWrappedResponseHandler(async (event) => {
     }
 
     return <ProductSEOItemResponse>{
-        plan: ProductPlan.PRO,
+        plan: product.plan,
         publicId: product.publicId,
         alias: product.alias,
         name: product.name,

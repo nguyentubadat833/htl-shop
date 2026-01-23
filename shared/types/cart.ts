@@ -1,8 +1,9 @@
-import type { ProductPlan } from "./product";
+import type { ProductPlan } from "~~/prisma/generated/browser";
 
 export interface CartItemResponse {
   cartId: string;
   product: {
+    publicId: string
     plan: ProductPlan,
     name: string;
     alias: string

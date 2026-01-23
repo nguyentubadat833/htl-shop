@@ -28,7 +28,7 @@ export default defineWrappedResponseHandler(async (event) => {
         }
     }).then(data => data.map(item => {
         return <ProductSEOItemResponse>{
-            plan: ProductPlan.PRO,
+            plan: item.plan,
             publicId: item.publicId,
             alias: item.alias,
             name: item.name,

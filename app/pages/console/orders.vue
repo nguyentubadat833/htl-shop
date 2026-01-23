@@ -62,6 +62,7 @@ const orderItemsColumns = [
   },
 ] satisfies TableColumn<ProductOrderItemResponse>[];
 
+const router = useRouter()
 const toast = new useAppToast();
 const { $userApi } = useNuxtApp();
 const { data: orders, refresh, pending } = await useAsyncData(() => $userApi("/api/order/list"));
@@ -117,6 +118,16 @@ async function sendMail() {
     state.sendMail.isLoading = false;
   });
 }
+
+function pushToModel(alias: string) {
+  const routeData = router.resolve({
+    name: "model-alias",
+    params: { alias: alias },
+  })
+
+  window.open(routeData.href, "_blank")
+}
+
 </script>
 
 <template>
@@ -125,7 +136,8 @@ async function sendMail() {
       <div class="flex px-4 py-3.5 border-b border-accented">
         <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
       </div>
-      <UTable id="gridData" :loading="pending" :data="orders" :columns="columns" v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
+      <UTable id="gridData" :loading="pending" :data="orders" :columns="columns" v-model:global-filter="globalFilter"
+        @select="(row, e) => onSelect(row, e)">
         <template #status-cell="{ row }">
           <UBadge :label="row.original.status" :color="getStatusColor(row.original.status)" />
         </template>
@@ -149,6 +161,10 @@ async function sendMail() {
         </div>
         <UFormField label="Order items">
           <UTable :data="state.orderCurrent?.items ?? []" :columns="orderItemsColumns">
+            <template #productName-cell="{ row }">
+              <span class="hover:underline hover:cursor-pointer"
+                @click="pushToModel(row.original.productAlias)">{{ row.original.productName }}</span>
+            </template>
             <template #price-cell="{ row }"> {{ row.original.price }} {{ state.currency }} </template>
           </UTable>
         </UFormField>

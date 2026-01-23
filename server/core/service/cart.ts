@@ -1,6 +1,7 @@
 import { OrderService } from "./order";
 import { ProductService } from "./product";
 import { CartItemResponse } from "#shared/types/cart";
+import { ProductPlan } from "~~/prisma/generated/client";
 
 export class CartService {
   constructor(private readonly userId: number) { }
@@ -41,7 +42,7 @@ export class CartService {
       return {
         cartId: item.id,
         product: {
-          plan: ProductPlan.Pro,
+          plan: item.product.plan,
           publicId: item.product.publicId,
           alias: item.product.alias,
           name: item.product.name,

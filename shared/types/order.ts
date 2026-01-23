@@ -14,6 +14,7 @@ export interface OrderWithProductsResponse {
 }
 
 export interface ProductOrderItemResponse {
+  productAlias: string
   productPublicId: string;
   productName: string;
   price: number;

@@ -14,6 +14,12 @@
 // import { GoogleVerifyTokenRequestSchema } from '#shared/schemas/auth'
 import z from 'zod';
 
+definePageMeta({
+  middleware: () => {
+    return abortNavigation()
+  }
+})
+
 // type VerifyTokenReq = z.infer<typeof GoogleVerifyTokenRequestSchema>
 useHead({
   script: [

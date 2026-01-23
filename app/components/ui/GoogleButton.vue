@@ -3,7 +3,7 @@
     <UPopover v-if="userAuth" :ui="popoverUI">
       <UUser
         :avatar="{
-          src: userAuth?.picture ?? '',
+          src: userAuth.picture,
           icon: 'i-lucide-image',
         }"
         :ui="userUI"

@@ -21,6 +21,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
         select: {
           product: {
             select: {
+              alias: true,
               publicId: true,
               name: true,
               price: true
@@ -53,6 +54,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
           },
           items: item.items.map(i => {
             return {
+              productAlias: i.product.alias,
               productPublicId: i.product.publicId,
               productName: i.product.name,
               price: i.product.price
