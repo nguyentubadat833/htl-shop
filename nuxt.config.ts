@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["@nuxt/ui", "@nuxt/image", "@nuxt/content"],
+  modules: ["@nuxt/ui", "@nuxt/image", "@nuxt/content", "@nuxtjs/ngrok"],
   css: ["~/assets/css/main.css"],
   // prisma: {
   //   runMigration: false,
@@ -58,6 +58,16 @@ export default defineNuxtConfig({
       ssr: false,
     },
   },
+
+  vite: {
+    server: {
+      allowedHosts: true
+    }
+  },
+  ngrok: {
+    authtoken_from_env: true,
+  },
+
   // alias: {
   //   '@prisma/client/index-browser': '@prisma/client', // Alias for correct entry
   // },

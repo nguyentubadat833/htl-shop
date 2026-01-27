@@ -17,3 +17,5 @@ NUXT_MAIL_PORT=587
 NUXT_MAIL_SECURE=false
 NUXT_MAIL_AUTH_USER=
 NUXT_MAIL_AUTH_PASSWORD=ogzn xlkk ozsh vjdl
+
+NGROK_AUTHTOKEN='your-authtoken-from-ngrok'

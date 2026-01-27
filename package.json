@@ -22,6 +22,7 @@
     "@nuxt/content": "^3.7.1",
     "@nuxt/image": "1.11.0",
     "@nuxt/ui": "4.0.1",
+    "@nuxtjs/ngrok": "3.0.1",
     "@prisma/adapter-pg": "6.19.1",
     "@prisma/client": "6.19.1",
     "google-auth-library": "^10.4.1",
