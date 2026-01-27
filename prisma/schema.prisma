@@ -131,6 +131,8 @@ model Product {
   name            String
   plan            ProductPlan
   price           Float
+  discountPrice   Float?
+  currency        String
   status          ProductStatus   @default(INACTIVE)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
