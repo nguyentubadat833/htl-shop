@@ -78,106 +78,119 @@ model DefineOption {
   value    String
 
   @@unique([key, value])
+  @@map("define_option")
 }
 
 model User {
   id                Int          @id @default(autoincrement())
-  publicId          String       @default(cuid())
+  publicId          String       @default(cuid()) @map("public_id")
   provider          AuthProvider
-  providerAccountId String
+  providerAccountId String       @map("provider_account_id")
   status            UserStatus   @default(ACTIVE)
   role              UserRole?
   name              String
   email             String
   image             String?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
   products          Product[]
   orders            Order[]
   carts             Cart[]
 
   @@unique([provider, providerAccountId])
+  @@map("user")
 }
 
 model ObjectStorage {
   id         BigInt    @id @default(autoincrement())
-  publicId   String    @unique @default(ulid())
+  publicId   String    @unique @default(ulid()) @map("public_id")
   bucket     String
-  objectName String
-  createdAt  DateTime  @default(now())
-  uploadedAt DateTime?
+  objectName String    @map("object_name")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  uploadedAt DateTime? @map("updated_at")
   product    Product   @relation(fields: [productId], references: [id])
-  productId  Int
+  productId  Int       @map("product_id")
   type       FileType
   size       BigInt
 
   @@unique([bucket, objectName])
+  @@map("object_storage")
 }
 
 model Category {
   id       Int       @id @default(autoincrement())
-  publicId String    @unique @default(cuid())
+  publicId String    @unique @default(cuid()) @map("public_id")
   alias    String    @unique
   name     String
   type     String
   active   Boolean   @default(false)
   products Product[]
+
+  @@map("category")
 }
 
 model Product {
   id              Int             @id @default(autoincrement())
-  publicId        String          @unique @default(cuid())
+  publicId        String          @unique @default(cuid()) @map("public_id")
   alias           String          @unique
   name            String
   plan            ProductPlan
   price           Float
-  discountPrice   Float?
+  discountPrice   Float?          @map("discount_price")
   currency        String
   status          ProductStatus   @default(INACTIVE)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
   createdByUser   User            @relation(fields: [createdByUserId], references: [id])
-  createdByUserId Int
+  createdByUserId Int             @map("created_by_user_id")
   info            Json
   carts           Cart[]
   files           ObjectStorage[]
   categories      Category[]
+
+  @@map("product")
 }
 
 model Order {
   id            BigInt      @id @default(autoincrement())
-  publicId      String      @unique @default(ulid())
+  publicId      String      @unique @default(ulid()) @map("public_id")
   items         Cart[]
   orderByUser   User        @relation(fields: [orderByUserId], references: [id])
-  orderByUserId Int
-  orderAt       DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  orderByUserId Int         @map("order_by_user_id")
+  orderAt       DateTime    @default(now()) @map("order_at")
+  updatedAt     DateTime    @updatedAt @map("updateAt")
   status        OrderStatus @default(PENDING)
   amount        Float
   payments      Payment[]
+
+  @@map("order")
 }
 
 model Payment {
   id            String        @id @default(ulid())
   order         Order         @relation(fields: [orderId], references: [id])
-  orderId       BigInt
+  orderId       BigInt        @map("order_id")
   amount        Float
   method        PaymentMethod
   status        PaymentStatus @default(PENDING)
-  transactionId String?
+  transactionId String?       @map("transaction_id")
   metadata      Json?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  @@map("payment")
 }
 
 model Cart {
   id        String   @id @default(ulid())
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    Int      @map("user_id")
   product   Product  @relation(fields: [productId], references: [id])
-  productId Int
+  productId Int      @map("product_id")
   price     Float
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
   order     Order?   @relation(fields: [orderId], references: [id])
-  orderId   BigInt?
+  orderId   BigInt?  @map("order_id")
+
+  @@map("cart")
 }

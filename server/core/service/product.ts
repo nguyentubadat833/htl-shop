@@ -64,6 +64,7 @@ export class ProductService {
         name,
         alias,
         price,
+        currency: 'USD',
         info: info as Prisma.JsonObject,
         createdByUserId: createdByUserId,
         categories: {
