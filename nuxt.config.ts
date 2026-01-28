@@ -1,3 +1,5 @@
+type SepayENV = "sandbox" | "production"
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
@@ -36,6 +38,11 @@ export default defineNuxtConfig({
         user: process.env.NUXT_MAIL_AUTH_USER,
         pass: process.env.NUXT_MAIL_AUTH_PASSWORD,
       },
+    },
+    sepay: {
+      id: process.env.SEPAY_ID,
+      key: process.env.SEPAY_KEY,
+      env: process.env.SEPAY_ENV
     }
   },
   content: {

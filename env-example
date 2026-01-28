@@ -19,3 +19,5 @@ NUXT_MAIL_AUTH_USER=
 NUXT_MAIL_AUTH_PASSWORD=ogzn xlkk ozsh vjdl
 
 NGROK_AUTHTOKEN='your-authtoken-from-ngrok'
+SEPAY_ID=SP-TEST-LHB32BB8
+SEPAY_KEY=

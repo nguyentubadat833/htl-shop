@@ -5,7 +5,7 @@
         label: 'Payment now'
       }" orientation="horizontal" tagline="Pay once, own it forever">
       <template #button>
-        <UButton label="Payment now" icon="ic:outline-payments" color="warning" block @click="openQR()" />
+        <UButton label="Payment now" icon="ic:outline-payments" color="warning" block @click="payment()" />
       </template>
     </UPricingPlan>
     <UModal v-model:open="openQRModal">
@@ -18,6 +18,17 @@
 </template>
 
 <script lang="ts" setup>
+
+
+interface PaymentInfo {
+  orderId: string,
+  orderAmount: number,
+  currency: string,
+  description: string,
+  checkoutURL: string,
+  checkoutForm: object
+}
+
 const { orderId: id } = useRoute().query
 const { $userApi } = useNuxtApp()
 const openQRModal = ref(false)
@@ -31,17 +42,23 @@ if (!id) {
 
 const { amount, products } = await $userApi(`/api/shopping/order/${id}`)
 
-async function getAmountVND(){
-  const {get, convert} = changeRate()
-  const rates = await get()
-  return convert(amount, 1, rates.VND)
+async function payment() {
+  window.location.href = `/api/payment/sepay/bank/${id}`
 }
 
-async function openQR(){
-  const amount = await getAmountVND()
-  finalAmount.value = Math.ceil(amount)
-  openQRModal.value = true
-}
+
+
+// async function getAmountVND(){
+//   const {get, convert} = changeRate()
+//   const rates = await get()
+//   return convert(amount, 1, rates.VND)
+// }
+
+// async function openQR(){
+//   const amount = await getAmountVND()
+//   finalAmount.value = Math.ceil(amount)
+//   openQRModal.value = true
+// }
 
 // onBeforeRouteLeave(async () => {
 //   // const confirmLeave = window.confirm("Bạn có chắc chắn muốn rời trang thanh toán không? Đơn hàng sẽ bị hủy.")
@@ -52,6 +69,8 @@ async function openQR(){
 
 //   return false
 // })
+console.log(useRoute().query)
+console.log(useRoute().params)
 </script>
 
 <style></style>
