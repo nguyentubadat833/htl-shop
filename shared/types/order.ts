@@ -11,6 +11,7 @@ export interface OrderWithProductsResponse {
     name: string;
     price: number;
   }[];
+  paid: boolean
 }
 
 export interface ProductOrderItemResponse {

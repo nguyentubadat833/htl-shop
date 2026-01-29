@@ -8,7 +8,6 @@ const { sepay: sepayConfig } = useRuntimeConfig()
 let client: SePayPgClient | null = null
 
 const getClient = () => {
-    console.log('get sepay client')
     const parse = z.object({
         env: z.enum(["sandbox", "production"]),
         id: z.string(),

@@ -23,7 +23,8 @@ async function checkout() {
   router.push({
     path: 'payment',
     query: {
-      orderId: orderId
+      orderId: orderId,
+      status: 'confirm'
     },
   })
 }

@@ -33,6 +33,15 @@ export class OrderService {
               }
             }
           }
+        },
+        _count: {
+          select: {
+            payments: {
+              where: {
+                status: 'SUCCESS'
+              }
+            }
+          }
         }
       }
     })
@@ -41,7 +50,7 @@ export class OrderService {
       throw new ServerError(HttpStatus[404], 404)
     }
 
-    const { publicId, status, amount, items } = data
+    const { publicId, status, amount, items, _count } = data
     return {
       publicId,
       status,
@@ -51,7 +60,8 @@ export class OrderService {
           name: item.product.name,
           price: item.product.price
         }
-      })
+      }),
+      paid: _count.payments > 0
     }
   }
 

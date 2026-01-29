@@ -9,7 +9,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
     }
   }
 
-  if (to.path.startsWith("/cart") || to.path.startsWith("/payment")) {
+  // if (to.path.startsWith("/cart") || to.path.startsWith("/payment")) {
+  //   if (!authSession().get()) {
+  //     return navigateTo("/");
+  //   }
+  // }
+  if (to.path.startsWith("/cart")) {
     if (!authSession().get()) {
       return navigateTo("/");
     }

@@ -11,14 +11,22 @@
     <UModal v-model:open="openQRModal">
       <template #content>
         <img
-          :src="`https://img.vietqr.io/image/970422-0971168578-print.png?amount=${finalAmount}&accountName=Le%20Huu%20Thien&addInfo=TT%20DH%20${id}`" />
+          :src="`https://img.vietqr.io/image/970422-0971168578-print.png?amount=${finalAmount}&accountName=Le%20Huu%20Thien&addInfo=TT%20DH%20${orderId}`" />
       </template>
     </UModal>
   </div>
 </template>
 
 <script lang="ts" setup>
+import z from 'zod'
 
+interface PricePlan {
+  products: {
+    name: string,
+    price: number
+  }[],
+  amount: number
+}
 
 interface PaymentInfo {
   orderId: string,
@@ -28,25 +36,42 @@ interface PaymentInfo {
   checkoutURL: string,
   checkoutForm: object
 }
+enum Status {
+  Confirm = 'confirm',
+  Success = 'success',
+  Error = 'error',
+  Cancel = 'cancel',
+}
 
-const { orderId: id } = useRoute().query
+
+const route = useRoute()
 const { $userApi } = useNuxtApp()
 const openQRModal = ref(false)
 const finalAmount = ref<number>()
+const status = ref<Status>()
+const orderId = ref<string>()
 
-if (!id) {
+const queryRaw = route.query
+const parseQuery = z.object({
+  status: z.enum(Status),
+  orderId: z.string()
+}).safeParse(queryRaw)
+if (!parseQuery.success) {
+  console.log(parseQuery.error.issues)
   throw createError({
     statusCode: 404
   })
 }
 
-const { amount, products } = await $userApi(`/api/shopping/order/${id}`)
+orderId.value = parseQuery.data.orderId
+status.value = parseQuery.data.status
+
+const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId.value}`)
 
 async function payment() {
-  window.location.href = `/api/payment/sepay/bank/${id}`
+  // console.log(window.origin)
+  window.location.href = `/api/payment/sepay/bank?orderId=${orderId.value}&origin=${window.origin}`
 }
-
-
 
 // async function getAmountVND(){
 //   const {get, convert} = changeRate()
@@ -69,8 +94,7 @@ async function payment() {
 
 //   return false
 // })
-console.log(useRoute().query)
-console.log(useRoute().params)
+
 </script>
 
 <style></style>

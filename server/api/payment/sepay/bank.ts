@@ -2,23 +2,25 @@ import { CreateSepayPaymentSchema } from '#shared/schemas/payment'
 import { SepayService } from '~~/server/core/service/sepay'
 
 export default defineWrappedRequiredAuthHandler(async (event) => {
-  const { orderPublicId } = zodValidateRequestOrThrow(
+  const { orderId, origin } = zodValidateRequestOrThrow(
     CreateSepayPaymentSchema,
-    getRouterParams(event)
+    getQuery(event)
   )
 
   const sepayService = new SepayService()
   const requestURL = getRequestURL(event)
-  const origin = requestURL.origin
+  
+  console.log(origin)
 
+  console.log(`${origin}/payment?status=success`)
   const { checkoutForm, checkoutURL } =
     await sepayService.createCheckoutBankTransfer(
-      orderPublicId,
+      orderId,
       'VND',
-      `TT DH ${orderPublicId}`,
-      `${origin}/payment?status=success`,
-      `${origin}/payment?status=error`,
-      `${origin}/payment?status=cancel`,
+      `TT DH ${orderId}`,
+      `${origin}/payment?orderId=${orderId}&status=success`,
+      `${origin}/payment?orderId=${orderId}&status=error`,
+      `${origin}/payment?orderId=${orderId}&status=cancel`,
     )
 
   const hiddenInputs = Object.entries(checkoutForm)
