@@ -25,7 +25,7 @@ export default function () {
     return await $userApi("/api/shopping/cart/data/list");
   }
 
-  function addProduct(id: string) {
+  function addProduct(id: string, name?: string) {
     if (!authSession().get()) {
       document.getElementById("googleSigninButton")?.click();
       return;
@@ -38,7 +38,10 @@ export default function () {
       onResponse({ response }) {
         if (response.ok) {
           count();
-          appToast.success();
+          appToast.success({
+            title: 'Added to cart',
+            description: name
+          });
         }
       },
     });

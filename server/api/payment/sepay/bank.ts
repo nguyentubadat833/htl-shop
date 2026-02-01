@@ -8,16 +8,11 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
   )
 
   const sepayService = new SepayService()
-  const requestURL = getRequestURL(event)
-  
-  console.log(origin)
-
-  console.log(`${origin}/payment?status=success`)
   const { checkoutForm, checkoutURL } =
     await sepayService.createCheckoutBankTransfer(
       orderId,
       'VND',
-      `TT DH ${orderId}`,
+      `DH2D3DS ${orderId}`,
       `${origin}/payment?orderId=${orderId}&status=success`,
       `${origin}/payment?orderId=${orderId}&status=error`,
       `${origin}/payment?orderId=${orderId}&status=cancel`,

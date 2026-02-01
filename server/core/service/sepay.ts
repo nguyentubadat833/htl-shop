@@ -1,7 +1,7 @@
 import { SePayPgClient } from 'sepay-pg-node';
 import z from 'zod';
 import { OrderService } from './order';
-import { changeRate } from './money';
+import { changeRate, getAmountVND } from './money';
 
 const { sepay: sepayConfig } = useRuntimeConfig()
 
@@ -29,12 +29,11 @@ const getClient = () => {
     return client
 }
 
-async function getAmountVND(amount: number) {
-    const { get, convert } = changeRate()
-    const rates = (await get()).rates
-    return convert(amount, 1, rates.VND)
-}
-
+// async function getAmountVND(amount: number) {
+//     const { get, convert } = changeRate()
+//     const rates = (await get()).rates
+//     return convert(amount, 1, rates.VND)
+// }
 
 export class SepayService {
 
@@ -56,10 +55,19 @@ export class SepayService {
                 publicId: orderPublicIdId
             },
             select: {
-                amount: true
+                amount: true,
+                status: true
             }
         })
-        const amount = await getAmountVND(order.amount).then(Math.ceil)
+
+        if (order.status === 'PAID') {
+            throw createError({
+                statusCode: 409,
+                message: 'Order is paid'
+            })
+        }
+
+        const amount = await getAmountVND(order.amount)
 
         const checkoutURL = this.client.checkout.initCheckoutUrl();
         const checkoutForm = this.client.checkout.initOneTimePaymentFields({

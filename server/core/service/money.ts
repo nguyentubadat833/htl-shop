@@ -85,3 +85,10 @@ export function changeRate() {
         convert
     }
 }
+
+export async function getAmountVND(amount: number) {
+    const { get, convert } = changeRate()
+    const rates = (await get()).rates
+    const rs =  convert(amount, 1, rates.VND)
+    return Math.ceil(rs)
+}

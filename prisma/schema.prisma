@@ -34,13 +34,13 @@ enum PaymentStatus {
   REFUNDED // đã hoàn tiền (nếu có)
 }
 
-enum PaymentMethod {
-  STRIPE
-  PAYPAL
-  MOMO
-  VNPAY
-  MANUAL // chuyển khoản thủ công (nếu có)
-}
+// enum PaymentMethod {
+//   STRIPE
+//   PAYPAL
+//   MOMO
+//   VNPAY
+//   MANUAL // chuyển khoản thủ công (nếu có)
+// }
 
 enum OrderStatus {
   PENDING // chờ thanh toán
@@ -160,6 +160,7 @@ model Order {
   orderAt       DateTime    @default(now()) @map("order_at")
   updatedAt     DateTime    @updatedAt @map("updateAt")
   status        OrderStatus @default(PENDING)
+  currency      String
   amount        Float
   payments      Payment[]
 
@@ -171,7 +172,7 @@ model Payment {
   order         Order         @relation(fields: [orderId], references: [id])
   orderId       BigInt        @map("order_id")
   amount        Float
-  method        PaymentMethod
+  method        String
   status        PaymentStatus @default(PENDING)
   transactionId String?       @map("transaction_id")
   metadata      Json?

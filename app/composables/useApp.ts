@@ -7,11 +7,15 @@ export function usePublicVariables() {
 
 export class useAppToast {
   toast = useToast()
-  constructor(){}
+  constructor() { }
 
-  success(){
+  success(input?: {
+    title?: string,
+    description?: string
+  }) {
     this.toast.add({
-      title: "Success"
+      title: input?.title ?? "Success",
+      description: input?.description
     })
   }
 }

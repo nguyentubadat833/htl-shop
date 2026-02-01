@@ -13,7 +13,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     credentials: "include",
     async onResponseError({ response }) {
       if (response.status === 401) {
-        await nuxtApp.runWithContext(() => navigateTo("/auth/login"));
+        await nuxtApp.runWithContext(() => navigateTo("/"));
       } else {
         let message = "Error";
         if ("error" in response._data && response._data.error === true && "message" in response._data) {

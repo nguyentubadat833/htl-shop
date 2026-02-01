@@ -1,41 +1,40 @@
 <template>
   <div class="space-y-5">
-    <UPricingPlan title="Payment" description="Complete your payment to receive your order as soon as possible."
-      :price="convertMoney(amount)" :features="products.map(prd => prd.name)" :button="{
-        label: 'Payment now'
-      }" orientation="horizontal" tagline="Pay once, own it forever">
+    <UPricingPlan :title="cardState.title" :description="cardState.description" :price="convertMoney(amount)"
+      :features="products.map(prd => prd.name)" orientation="horizontal" :tagline="cardState.tagline">
       <template #button>
-        <UButton label="Payment now" icon="ic:outline-payments" color="warning" block @click="payment()" />
+        <UButton :disabled="orderIsPaid" :label="cardState.paymentButtonLabel" icon="ic:outline-payments"
+          :color="(cardState.paymentButtonColor as any)" block @click="payment()" />
       </template>
     </UPricingPlan>
-    <UModal v-model:open="openQRModal">
+    <!-- <UModal v-model:open="openQRModal">
       <template #content>
         <img
           :src="`https://img.vietqr.io/image/970422-0971168578-print.png?amount=${finalAmount}&accountName=Le%20Huu%20Thien&addInfo=TT%20DH%20${orderId}`" />
       </template>
-    </UModal>
+    </UModal> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import z from 'zod'
 
-interface PricePlan {
-  products: {
-    name: string,
-    price: number
-  }[],
-  amount: number
-}
+// interface PricePlan {
+//   products: {
+//     name: string,
+//     price: number
+//   }[],
+//   amount: number
+// }
 
-interface PaymentInfo {
-  orderId: string,
-  orderAmount: number,
-  currency: string,
-  description: string,
-  checkoutURL: string,
-  checkoutForm: object
-}
+// interface PaymentInfo {
+//   orderId: string,
+//   orderAmount: number,
+//   currency: string,
+//   description: string,
+//   checkoutURL: string,
+//   checkoutForm: object
+// }
 enum Status {
   Confirm = 'confirm',
   Success = 'success',
@@ -46,10 +45,18 @@ enum Status {
 
 const route = useRoute()
 const { $userApi } = useNuxtApp()
-const openQRModal = ref(false)
-const finalAmount = ref<number>()
+// const openQRModal = ref(false)
+// const finalAmount = ref<number>()
 const status = ref<Status>()
 const orderId = ref<string>()
+const cardState = reactive({
+  title: 'Payment',
+  description: 'Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email.',
+  tagline: 'Pay once, own it forever',
+  paymentButtonLabel: 'Continue to Payment',
+  paymentButtonColor: 'warning'
+})
+const orderIsPaid = computed(() => paid || status.value === Status.Success)
 
 const queryRaw = route.query
 const parseQuery = z.object({
@@ -57,7 +64,6 @@ const parseQuery = z.object({
   orderId: z.string()
 }).safeParse(queryRaw)
 if (!parseQuery.success) {
-  console.log(parseQuery.error.issues)
   throw createError({
     statusCode: 404
   })
@@ -72,6 +78,15 @@ async function payment() {
   // console.log(window.origin)
   window.location.href = `/api/payment/sepay/bank?orderId=${orderId.value}&origin=${window.origin}`
 }
+
+onBeforeMount(() => {
+  if (orderIsPaid.value) {
+    cardState.description = 'The product will be delivered directly to your email shortly. Please check your inbox (and spam folder) for the download details.'
+    cardState.tagline = 'Payment Successful'
+    cardState.paymentButtonLabel = 'Paid'
+    cardState.paymentButtonColor = 'info'
+  }
+})
 
 // async function getAmountVND(){
 //   const {get, convert} = changeRate()

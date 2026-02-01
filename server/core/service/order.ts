@@ -1,5 +1,9 @@
 import { OrderWithProductsResponse } from "#shared/types/order";
 import { Order } from '~~/prisma/generated/client'
+import { Mail } from "~~/server/core/service/mail";
+import { S3 } from "~~/server/core/service/s3";
+import type { Attachment } from 'nodemailer/lib/mailer'
+import type { Readable } from 'stream'
 
 export class OrderService {
   order!: Order;
@@ -65,7 +69,7 @@ export class OrderService {
     }
   }
 
-  static async create(orderByUserId: number, cardIds: string[]) {
+  static async create(orderByUserId: number, cardIds: string[], currency: 'VND' | 'USD' = 'USD') {
     // const products = await Promise.all(
     //   product_publicIds.map(async (id) => {
     //     const prdService = await new ProductService().withPublicId(id);
@@ -87,7 +91,8 @@ export class OrderService {
         amount: items.reduce((sum, prd) => sum + prd.price, 0),
         items: {
           connect: items.map(c => ({ id: c.id }))
-        }
+        },
+        currency: currency
       },
       include: {
         items: true
@@ -95,73 +100,107 @@ export class OrderService {
     });
   }
 
-  // async removeItems(productPublicIds: string[]) {
-  //   await prisma.$transaction(async (tx) => {
-  //     await tx.orderItem.deleteMany({
-  //       where: {
-  //         orderId: this.order.id,
-  //         product: {
-  //           publicId: {
-  //             in: productPublicIds,
-  //           },
-  //         },
-  //       },
-  //     });
+  static async sendProduct(orderPublicId: string) {
+    const order = await prisma.order.findUniqueOrThrow({
+      where: {
+        publicId: orderPublicId,
+      },
+      select: {
+        status: true,
+        orderByUser: {
+          select: {
+            name: true,
+            email: true
+          }
+        },
+        items: {
+          select: {
+            product: {
+              select: {
+                name: true,
+                files: {
+                  where: {
+                    type: 'DESIGN'
+                  },
+                  select: {
+                    type: true,
+                    objectName: true,
+                    bucket: true
+                  },
+                  take: 1
+                }
+              }
+            }
+          }
+        }
+      }
+    })
 
-  //     const { _sum } = await tx.orderItem.aggregate({
-  //       where: { orderId: this.order.id },
-  //       _sum: { price: true },
-  //     });
+    if (
+      order.items.find(item => !item.product.files.length)
+    ) {
+      throw new ServerError("Missing design file", 409, 'logic')
+    }
 
-  //     const newAmount = _sum.price ?? 0;
+    const productListText = order.items
+      .map((item, index) => `${index + 1}. ${item.product.name}`)
+      .join('\n')
 
-  //     const order = await tx.order.update({
-  //       where: { id: this.order.id },
-  //       data: {
-  //         amount: newAmount,
-  //       },
-  //     });
+    const textMail = `
+    Dear ${order.orderByUser.name ?? 'Customer'},
+    
+    Thank you for trusting and purchasing from HTL Architects.
+    
+    Below is the list of products you have purchased:
+    ${productListText}
+    
+    Please find the attached files related to your order.
+    If you have any questions or need further assistance, feel free to contact us.
+    
+    Best regards,
+    HTL Architects
+    `
 
-  //     this.order = order;
-  //   });
-  // }
+    const attachments: Attachment[] = []
 
-  // async addItems(productPublicIds: string[]) {
-  //   const items = await Promise.all(
-  //     productPublicIds.map(async (id) => {
-  //       const prdService = await new ProductService().withPublicId(id);
-  //       return { productId: prdService.product.id, price: prdService.finalPrice };
-  //     }),
-  //   );
+    for (const item of order.items) {
+      const file = item.product.files[0]
+      if (!file) continue
 
-  //   await prisma.$transaction(async (tx) => {
-  //     await tx.orderItem.createMany({
-  //       data: items.map((itm) => {
-  //         return {
-  //           productId: itm.productId,
-  //           price: itm.price,
-  //           orderId: this.order.id,
-  //         };
-  //       }),
-  //     });
+      const stream: Readable = await S3.CLIENT.getObject(
+        file.bucket,
+        file.objectName
+      )
 
-  //     const { _sum } = await tx.orderItem.aggregate({
-  //       where: { orderId: this.order.id },
-  //       _sum: { price: true },
-  //     });
+      stream.on('error', (err) => {
+        console.error('[MINIO STREAM ERROR]', err)
+      })
 
-  //     const newAmount = _sum.price ?? 0;
+      attachments.push({
+        filename: file.objectName,
+        content: stream,
+        contentType: 'application/octet-stream'
+      })
+    }
 
-  //     const order = await tx.order.update({
-  //       where: { id: this.order.id },
-  //       data: {
-  //         amount: newAmount,
-  //       },
-  //     });
+    await Mail.client.sendMail({
+      from: `"HTL Architects" <${Mail.userAuth}>`,
+      to: order.orderByUser.email,
+      subject: 'Thank you for your purchase at HTL Architects',
+      text: textMail,
+      attachments: attachments,
+    })
 
-  //     this.order = order;
-  //   });
-  // }
+    await prisma.order.update({
+      where: {
+        publicId: orderPublicId
+      },
+      data: {
+        status: 'DELIVERED'
+      }
+    })
+
+  }
 
   async cancel() {
     await prisma.order.update({

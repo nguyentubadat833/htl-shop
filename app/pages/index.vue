@@ -51,7 +51,7 @@
                 <p class="font-medium"> {{ convertMoney(card.price) }}</p>
               </div>
               <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer"
-                @click="addProduct(card.publicId)" />
+                @click="addProduct(card.publicId, card.name)" />
             </div>
           </div>
         </template>
