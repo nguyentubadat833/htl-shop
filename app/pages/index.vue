@@ -20,7 +20,7 @@
           <div class="flex justify-between w-full">
             <span class="font-medium" :class="[card.plan === ProductPlan.PRO ? 'text-green-600' : 'text-gray-400']">{{
               card.plan.toUpperCase()
-              }}</span>
+            }}</span>
           </div>
         </template>
         <template #body>
@@ -47,8 +47,8 @@
                 card.name }}</div>
             <div class="flex justify-between">
               <div class="flex items-center gap-2 text-gray-500">
-                <Icon name="ic:outline-payments" size="20" />
-                <p class="font-medium"> {{ convertMoney(card.price) }}</p>
+                <!-- <Icon name="ic:outline-payments" size="20" /> -->
+                <p class="font-medium"> {{ `${priceToUSD(card.price)} (≈${priceToVND(card.priceVND)})` }}</p>
               </div>
               <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer"
                 @click="addProduct(card.publicId, card.name)" />

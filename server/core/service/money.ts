@@ -1,5 +1,5 @@
 type Rates = Record<'USD' | 'VND', number>
-type ChangeRate = {
+export type ChangeRate = {
     time: number,
     rates: Rates
 }
@@ -35,7 +35,7 @@ export function changeRate() {
                 }
             }
         })
-        if(!data){
+        if (!data) {
             throw createError({
                 statusCode: 500,
                 statusMessage: 'Get Rate Error'
@@ -86,9 +86,12 @@ export function changeRate() {
     }
 }
 
-export async function getAmountVND(amount: number) {
+export async function getAmountVND(amount: number, changeRateInput?: ChangeRate) {
     const { get, convert } = changeRate()
-    const rates = (await get()).rates
-    const rs =  convert(amount, 1, rates.VND)
+    if (!changeRateInput) {
+        changeRateInput = await get()
+    }
+    const rates = changeRateInput.rates
+    const rs = convert(amount, 1, rates.VND)
     return Math.ceil(rs)
 }

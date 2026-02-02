@@ -4,6 +4,25 @@ type ChangeRate = {
     rates: Rates
 }
 
+export function priceToVND(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "VND",
+  }).format(value);
+}
+
+export function priceToUSD(value: number) {
+  const hasDecimal = !Number.isInteger(value);
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: hasDecimal ? 2 : 0,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+
 export function convertMoney(value: number, locale = 'us') {
     if (locale === 'us') {
         return `$${value}`

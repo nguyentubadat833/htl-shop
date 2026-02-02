@@ -1,7 +1,6 @@
 import { SePayPgClient } from 'sepay-pg-node';
 import z from 'zod';
-import { OrderService } from './order';
-import { changeRate, getAmountVND } from './money';
+import { getAmountVND } from './money';
 
 const { sepay: sepayConfig } = useRuntimeConfig()
 

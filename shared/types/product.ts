@@ -45,6 +45,7 @@ export interface ProductSEOItemResponse {
   alias: string
   name: string;
   price: number;
+  priceVND: number;
   createdAt: string;
   imageLinks: string[]
   categories: {
