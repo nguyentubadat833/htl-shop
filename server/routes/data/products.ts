@@ -5,7 +5,7 @@ export default defineWrappedResponseHandler(async (event) => {
     const { get } = changeRate()
     const changeRateResult = await get()
 
-    return prisma.product.findMany({
+    const data = await prisma.product.findMany({
         where: {
             status: 'ACTIVE'
         },
@@ -29,7 +29,8 @@ export default defineWrappedResponseHandler(async (event) => {
                 }
             }
         }
-    }).then(data => Promise.all(
+    })
+    return await Promise.all(
         data.map(async item => {
             return {
                 plan: item.plan,
@@ -43,5 +44,5 @@ export default defineWrappedResponseHandler(async (event) => {
                 categories: item.categories
             } satisfies ProductSEOItemResponse
         })
-    ))
+    )
 })

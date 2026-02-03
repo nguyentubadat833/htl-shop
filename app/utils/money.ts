@@ -13,7 +13,7 @@ export function priceToVND(value: number) {
 
 export function priceToUSD(value: number) {
   const hasDecimal = !Number.isInteger(value);
-
+ 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

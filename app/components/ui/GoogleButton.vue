@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <UPopover v-if="userAuth" :ui="popoverUI">
+    <UPopover v-if="userAuth!== null" :ui="popoverUI">
       <UUser
         :avatar="{
           src: userAuth.picture,
@@ -38,10 +38,10 @@ import { useGoogleButton } from "~/composables/components/googleButton";
 
 type VerifyCodeRequest = z.infer<typeof VerifyCodeRequestSchema>;
 const userUI = {
-  name: "lg:block hidden",
+  name: "lg:block hidden"
 };
 const popoverUI = {
-  content: "p-2",
+  content: "p-2"
 };
 
 const { logout } = useAuth();
@@ -58,20 +58,20 @@ const items = computed<NavigationMenuItem[][]>(() => {
       {
         label: userAuth.value?.name ?? "",
         icon: "ic:outline-account-circle",
-        to: "/profile",
-      },
+        to: "/profile"
+      }
     ],
     [
       {
         label: "My cart",
         icon: "ic:outline-shopping-basket",
-        to: "/cart",
+        to: "/cart"
       },
       {
         label: "History",
         icon: "ic:round-history",
-        to: "/history",
-      },
+        to: "/history"
+      }
     ],
     [
       {
@@ -89,9 +89,9 @@ const items = computed<NavigationMenuItem[][]>(() => {
           //   cartQuality.value = undefined
           //   navigateTo('/')
           // });
-        },
-      },
-    ],
+        }
+      }
+    ]
   ];
 
   if (userAuth.value?.role === UserRole.ADMIN.toString()) {
@@ -99,8 +99,8 @@ const items = computed<NavigationMenuItem[][]>(() => {
       {
         label: "Console",
         icon: "ic:baseline-admin-panel-settings",
-        to: "/console",
-      },
+        to: "/console"
+      }
     ]);
   }
 
@@ -120,7 +120,7 @@ onBeforeMount(() => {
             userAuth.value = response._data;
             authSession().set(userAuth.value!);
           }
-        },
+        }
       });
     }
   } else {
@@ -146,23 +146,30 @@ function initGoogle() {
       // console.log('Google OAuth Response:', response)
 
       isLoading.value = true;
-      await $fetch("/api/auth/google/verify-code", {
+      userAuth.value = await $fetch("/api/auth/google/verify-code", {
         method: "POST",
         body: <VerifyCodeRequest>{
-          code: response.code,
-        },
-        async onResponse({ response }) {
-          if (response.ok && response._data) {
-            userAuth.value = response._data;
-            authSession().set(userAuth.value!);
-            await nextTick();
-            cartCount();
-            useRouter().push(useRoute().fullPath);
-            // isLoading.value = false
-          }
-        },
+          code: response.code
+        }
+        // async onResponse({ response }) {
+        //   if (response.ok && response._data) {
+        //     userAuth.value = response._data;
+        //     authSession().set(userAuth.value!);
+        //     await nextTick();
+        //     cartCount();
+        //     useRouter().push(useRoute().fullPath);
+        //     // isLoading.value = false
+        //   }
+        // },
       }).finally(() => (isLoading.value = false));
-    },
+      if (!userAuth.value) {
+        return;
+      }
+      authSession().set(userAuth.value!);
+      await nextTick();
+      void cartCount();
+      await useRouter().push(useRoute().fullPath);
+    }
   });
 }
 

@@ -28,7 +28,7 @@
             <div class="relative group mb-10">
               <UCarousel v-slot="{ item }" dots :items="card.imageLinks">
                 <div class="flex flex-col items-center justify-center h-48">
-                  <img :src="item" class="rounded" />
+                  <img :src="item" class="rounded"  alt="image"/>
                 </div>
               </UCarousel>
               <div
@@ -48,7 +48,8 @@
             <div class="flex justify-between">
               <div class="flex items-center gap-2 text-gray-500">
                 <!-- <Icon name="ic:outline-payments" size="20" /> -->
-                <p class="font-medium"> {{ `${priceToUSD(card.price)} (≈${priceToVND(card.priceVND)})` }}</p>
+                <p class="font-medium"> {{ priceToUSD(card.price) }}</p>
+                <p class="text-gray-500 text-sm">{{ `(≈${priceToVND(card.priceVND)})` }}</p>
               </div>
               <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer"
                 @click="addProduct(card.publicId, card.name)" />
