@@ -1,10 +1,13 @@
-type SepayENV = "sandbox" | "production"
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["@nuxt/ui", "@nuxt/image", "@nuxt/content", "@nuxtjs/ngrok"],
+  modules: [
+    "@nuxt/ui",
+    "@nuxt/image",
+    "@nuxt/content",
+    // "@nuxtjs/ngrok"
+  ],
   css: ["~/assets/css/main.css"],
   // prisma: {
   //   runMigration: false,
@@ -19,7 +22,7 @@ export default defineNuxtConfig({
     nodeProduction: process.env.NODE_ENV === "production",
     google: {
       clientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
-      clientSecret: process.env.NUXT_GOOGLE_SECRET_KEY,
+      clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
       redirectURI: process.env.NUXT_GOOGLE_REDIRECT_URI,
     },
     s3: {
@@ -36,13 +39,13 @@ export default defineNuxtConfig({
       secure: process.env.NUXT_MAIL_SECURE,
       auth: {
         user: process.env.NUXT_MAIL_AUTH_USER,
-        pass: process.env.NUXT_MAIL_AUTH_PASSWORD,
+        pass: process.env.NUXT_MAIL_AUTH_PASS,
       },
     },
     sepay: {
-      id: process.env.SEPAY_ID,
-      key: process.env.SEPAY_KEY,
-      env: process.env.SEPAY_ENV
+      id: process.env.NUXT_SEPAY_ID,
+      key: process.env.NUXT_SEPAY_KEY,
+      env: process.env.NUXT_SEPAY_ENV
     }
   },
   content: {
@@ -71,11 +74,23 @@ export default defineNuxtConfig({
       allowedHosts: true
     }
   },
-  ngrok: {
-    authtoken_from_env: true,
-  },
+  // ngrok: {
+  //   authtoken_from_env: true,
+  // },
 
   // alias: {
   //   '@prisma/client/index-browser': '@prisma/client', // Alias for correct entry
   // },
+
+  // alias: {
+  //   '@prisma-generated': fileURLToPath(
+  //     new URL('./prisma/generated', import.meta.url)
+  //   )
+  // },
+  //
+  // nitro: {
+  //   externals: {
+  //     external: ['@prisma/client', '.prisma', 'process']
+  //   }
+  // }
 });

@@ -2,7 +2,7 @@ NODE_ENV=dev
 DATABASE_URL=postgresql://datnguyen:datnguyen@localhost:5432/htl-shop
 
 NUXT_PUBLIC_GOOGLE_ID=42322942739-tvp0ofrtrd7e97tnurm67nm8cadvv7bk.apps.googleusercontent.com
-NUXT_GOOGLE_SECRET_KEY=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
+NUXT_GOOGLE_CLIENT_SECRET=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
 NUXT_GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/google/callback
 
 NUXT_S3_HOST=localhost
@@ -16,8 +16,9 @@ NUXT_MAIL_HOST=smtp.gmail.com
 NUXT_MAIL_PORT=587
 NUXT_MAIL_SECURE=false
 NUXT_MAIL_AUTH_USER=
-NUXT_MAIL_AUTH_PASSWORD=ogzn xlkk ozsh vjdl
+NUXT_MAIL_AUTH_PASS=ogzn xlkk ozsh vjdl
 
-NGROK_AUTHTOKEN='your-authtoken-from-ngrok'
+NGROK_AUTHTOKEN=
 SEPAY_ID=SP-TEST-LHB32BB8
-SEPAY_KEY=
+SEPAY_KEY=spsk_test_ZL4TFQgguZMHdG47RpFvREV6c9wy6Dab
+SEPAY_ENV=sandbox

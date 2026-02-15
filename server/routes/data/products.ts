@@ -25,7 +25,8 @@ export default defineWrappedResponseHandler(async (event) => {
                 select: {
                     alias: true,
                     publicId: true,
-                    name: true
+                    name: true,
+                    type: true
                 }
             }
         }

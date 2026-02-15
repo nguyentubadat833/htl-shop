@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { AddProductSchema, DeleteFileRequestSchema, DeleteProductSchema, UpdateProductSchema, UploadFileRequestSchema } from '#shared/schemas/product'
-import type { TableColumn, TableRow } from '@nuxt/ui';
-import type z from 'zod';
-import { ProductPlan, type ProductStatus } from '~~/prisma/generated/browser';
+import {
+  AddProductSchema,
+  DeleteFileRequestSchema,
+  DeleteProductSchema,
+  UpdateProductSchema,
+  UploadFileRequestSchema
+} from "#shared/schemas/product";
+import type { TableColumn, TableRow } from "@nuxt/ui";
+import type z from "zod";
+import { ProductPlan, type ProductStatus } from "~~/prisma/generated/browser";
 
 type TechnicalOptions = {
   platform: string[]
@@ -62,7 +68,7 @@ type Product = {
 type FileUpload = {
   file: File
   percent: number
-  status: 'pending' | 'progress' | 'success' | 'error'
+  status: "pending" | "progress" | "success" | "error"
 }
 
 type UploadResource = {
@@ -83,7 +89,7 @@ interface State {
 const uploadResourceDefault: UploadResource = {
   thumbnails: [],
   productFile: undefined
-}
+};
 
 const technicalOptionsDefault: TechnicalOptions = {
   platform: [],
@@ -91,52 +97,52 @@ const technicalOptionsDefault: TechnicalOptions = {
   colors: [],
   style: [],
   materials: [],
-  formfactor: [],
-}
+  formfactor: []
+};
 
 const productCurrentDefault: Product = {
   publicId: undefined,
-  plan: 'PRO',
-  name: '',
+  plan: "PRO",
+  name: "",
   price: 0,
-  status: 'INACTIVE',
+  status: "INACTIVE",
   createdAt: undefined,
   updatedAt: undefined,
   info: {
-    platform: '',
-    render: '',
-    size: '',
-    colors: '',
-    style: '',
-    materials: '',
-    formfactor: '',
-    description: ''
+    platform: "",
+    render: "",
+    size: "",
+    colors: "",
+    style: "",
+    materials: "",
+    formfactor: "",
+    description: ""
   },
   resources: {
     thumbnails: [],
     productFile: null
   },
   categories: []
-}
+};
 
 const layout = {
   info: {
     ui: {
-      body: 'h-full space-y-5'
+      body: "h-full space-y-5"
     }
   },
   uploadImages: {
     ui: {
-      file: 'max-h-20',
-      files: 'max-h-72 overflow-y-auto'
+      file: "max-h-20",
+      files: "max-h-72 overflow-y-auto"
     }
   }
-}
+};
 
 const columns = [
   {
-    accessorKey: 'plan',
-    header: 'Plan'
+    accessorKey: "plan",
+    header: "Plan"
   },
   {
     id: "name",
@@ -144,32 +150,32 @@ const columns = [
     header: "Name"
   },
   {
-    id: 'status',
-    accessorKey: 'status',
+    id: "status",
+    accessorKey: "status",
     header: "Status"
   },
   {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
+    id: "createdAt",
+    accessorKey: "createdAt",
     header: "Created At"
-  },
-] satisfies TableColumn<ProductItemResponse>[]
+  }
+] satisfies TableColumn<ProductItemResponse>[];
 
-const planOptions = [ProductPlan.FREE, ProductPlan.PRO]
+const planOptions = [ProductPlan.FREE, ProductPlan.PRO];
 
 const categorySearchListToSelected = (categoryPublicIds: string[]) => {
   if (Array.isArray(categorySearchGroup.value)) {
-    const searchList = categorySearchGroup.value[0]
+    const searchList = categorySearchGroup.value[0];
     if (searchList) {
-      const categorySetPublicId = new Set(categoryPublicIds)
-      return searchList.items.filter(c => categorySetPublicId.has(c.publicId))
+      const categorySetPublicId = new Set(categoryPublicIds);
+      return searchList.items.filter(c => categorySetPublicId.has(c.publicId));
     }
   }
-  return []
-}
+  return [];
+};
 
 const productResponseToProduct = (input: ProductItemResponse): Product => {
-  const designFile = input.files.find(file => file.type === 'DESIGN')
+  const designFile = input.files.find(file => file.type === "DESIGN");
   return {
     publicId: input.publicId,
     plan: input.plan,
@@ -180,7 +186,7 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
     updatedAt: input.updatedAt,
     info: input.info,
     resources: {
-      thumbnails: input.files.filter(file => file.type === 'IMAGE')
+      thumbnails: input.files.filter(file => file.type === "IMAGE")
         .map(file => {
           const link = () => {
             // if (!file.publicId) {
@@ -188,136 +194,136 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
             // }
             const params = new URLSearchParams({
               publicId: file.publicId
-            })
-            return `/storage/image?${params.toString()}`
-          }
+            });
+            return `/storage/image?${params.toString()}`;
+          };
 
           return {
             publicId: file.publicId,
             link: link()
-          }
+          };
         }),
       productFile: designFile ? {
         publicId: designFile.publicId
       } : null
     },
     categories: categorySearchListToSelected(input.categories.map(c => c.publicId))
-  }
-}
+  };
+};
 
-const UButton = resolveComponent('UButton')
-const { createPresignedUploadTask } = useFile()
-const { $userApi } = useNuxtApp()
-const toast = new useAppToast()
+const UButton = resolveComponent("UButton");
+const { createPresignedUploadTask } = useFile();
+const { $userApi } = useNuxtApp();
+const toast = new useAppToast();
 const state = reactive<State>({
   metadata: {
-    currency: 'USD',
+    currency: "USD",
     technicalOptions: structuredClone(technicalOptionsDefault)
   },
   products: [],
   productCurrent: structuredClone(productCurrentDefault),
   uploadResource: structuredClone(uploadResourceDefault)
-})
+});
 
-const globalFilter = ref()
-const uploadProductThumbnailsSelected = ref<File[]>()
-const currency = toRef(state.metadata, 'currency')
-const technicalOptions = toRef(state.metadata, 'technicalOptions')
+const globalFilter = ref();
+const uploadProductThumbnailsSelected = ref<File[]>();
+const currency = toRef(state.metadata, "currency");
+const technicalOptions = toRef(state.metadata, "technicalOptions");
 const productCurrent = computed({
   get: () => state.productCurrent,
   set: (v) => {
-    state.productCurrent = v
+    state.productCurrent = v;
   }
-})
+});
 const productInfoCurrent = computed({
   get: () => productCurrent.value.info,
   set: (v) => {
-    productCurrent.value.info = v
+    productCurrent.value.info = v;
   }
-})
+});
 const productFileCurrent = computed({
   get: () => productCurrent.value.resources.productFile,
   set: (v) => {
-    productCurrent.value.resources.productFile = v
+    productCurrent.value.resources.productFile = v;
   }
-})
+});
 const productThumbnailsCurrent = computed({
   get: () => productCurrent.value.resources.thumbnails,
   set: (v) => {
-    productCurrent.value.resources.thumbnails = v
+    productCurrent.value.resources.thumbnails = v;
   }
-})
-const uploadProductFile = toRef(state.uploadResource, 'productFile')
-const uploadProductThumbnails = toRef(state.uploadResource, 'thumbnails')
+});
+const uploadProductFile = toRef(state.uploadResource, "productFile");
+const uploadProductThumbnails = toRef(state.uploadResource, "thumbnails");
 
 await useAsyncData(
-  () => $userApi('/api/option/all', {
+  () => $userApi("/api/option/all", {
     onResponse({ response }) {
       if (response.ok) {
-        state.metadata.technicalOptions = response._data
+        state.metadata.technicalOptions = response._data;
       }
     }
   })
-)
+);
 
-const { data: categorySearchGroup } = await useAsyncData(() => $userApi('/api/category/reference'), {
+const { data: categorySearchGroup } = await useAsyncData(() => $userApi("/api/category/reference"), {
   transform(value) {
     return [
       {
-        id: 'categories',
-        label: 'Categories',
+        id: "categories",
+        label: "Categories",
         items: value.map(item => {
           return {
             ...item,
-            label: `${item.type} — ${item.name} ${!item.active ? '— INACTIVE' : ''}`
-          } as CategoryItemSelected
+            label: `${item.type} — ${item.name} ${!item.active ? "— INACTIVE" : ""}`
+          } as CategoryItemSelected;
         })
       }
-    ]
+    ];
   }
-})
+});
 
-const { refresh: refreshProducts, pending } = await useAsyncData(() => $userApi('/api/product/list', {
+const { refresh: refreshProducts, pending } = await useAsyncData(() => $userApi("/api/product/list", {
   onResponse({ response }) {
     if (response.ok) {
       state.products = (response._data as unknown as ProductItemResponse[])
         .map(product => {
-          return productResponseToProduct(product)
-        })
+          return productResponseToProduct(product);
+        });
     }
   }
-}))
+}));
 
 function resetProductCurrent(publicId: string) {
   refreshProducts()
     .then(() => {
-      const product = state.products.find(prd => prd.publicId === publicId)
+      const product = state.products.find(prd => prd.publicId === publicId);
       if (product) {
-        state.productCurrent = product
+        state.productCurrent = product;
       }
-    })
+    });
 }
 
 function actionOnProductPublicIdOrReturn() {
   if (!state.productCurrent.publicId) {
-    return
+    return;
   }
 }
 
 function onSelect(row: TableRow<Product>, e?: Event) {
-  state.productCurrent = row.original
+  state.productCurrent = row.original;
 }
 
 function changeSelectImages(files: File[] | null | undefined) {
-  actionOnProductPublicIdOrReturn()
+  actionOnProductPublicIdOrReturn();
   if (files) {
     uploadProductThumbnails.value = files.map(file => {
       return {
         file: file,
         percent: 0,
-        status: 'pending'
-      }
-    })
+        status: "pending"
+      };
+    });
   }
 }
 
@@ -326,33 +332,33 @@ function changeSelectDesignFile(file: File | null | undefined) {
     uploadProductFile.value = {
       file: file,
       percent: 0,
-      status: 'pending'
-    }
+      status: "pending"
+    };
 
-    fileActions().uploadFiles('DESIGN')
+    fileActions().uploadFiles("DESIGN");
   }
 }
 
 function fileActions() {
-  async function uploadFiles(type: 'IMAGE' | 'DESIGN') {
-    actionOnProductPublicIdOrReturn()
+  async function uploadFiles(type: "IMAGE" | "DESIGN") {
+    actionOnProductPublicIdOrReturn();
 
-    let fileUploads: FileUpload[] = []
-    if (type === 'IMAGE') {
-      fileUploads = uploadProductThumbnails.value
+    let fileUploads: FileUpload[] = [];
+    if (type === "IMAGE") {
+      fileUploads = uploadProductThumbnails.value;
     } else {
       if (uploadProductFile.value) {
-        fileUploads = [uploadProductFile.value]
+        fileUploads = [uploadProductFile.value];
       }
     }
 
     if (fileUploads.length) {
       fileUploads.forEach(file => {
-        file.status = 'progress'
-      })
+        file.status = "progress";
+      });
 
       await Promise.all(fileUploads.map(fileUpload => {
-        return $userApi('/api/product/file/upload', {
+        return $userApi("/api/product/file/upload", {
           method: "POST",
           body: <z.infer<typeof UploadFileRequestSchema>>{
             publicId: productCurrent.value.publicId,
@@ -364,42 +370,43 @@ function fileActions() {
           },
           onResponse({ response }) {
             if (response.ok) {
-              const data = response._data
+              const data = response._data;
               createPresignedUploadTask(fileUpload.file, data.uploadLink, (percent) => {
-                fileUpload.percent = percent
+                fileUpload.percent = percent;
                 if (percent === 100) {
-                  fileUpload.status = 'success'
+                  fileUpload.status = "success";
                 }
               })
-                .catch(() => {
-                  fileUpload.status = 'error'
+                .then(() => {
+                  uploadProductFile.value = undefined;
+                  uploadProductThumbnails.value = [];
+                  uploadProductThumbnailsSelected.value = undefined;
+
+                  refreshProducts()
+                    .then(() => {
+                      resetProductCurrent(productCurrent.value.publicId!);
+                      toast.toast.add({
+                        title: "Uploaded"
+                      });
+                    });
                 })
+                .catch(() => {
+                  fileUpload.status = "error";
+                });
             }
           }
         }).catch(() => {
-          fileUpload.status = 'error'
-        })
-      }))
-        .then(() => {
-          uploadProductFile.value = undefined
-          uploadProductThumbnails.value = []
-          uploadProductThumbnailsSelected.value = undefined
+          fileUpload.status = "error";
+        });
+      }));
 
-          refreshProducts()
-            .then(() => {
-              resetProductCurrent(productCurrent.value.publicId!)
-              toast.toast.add({
-                title: "Uploaded"
-              })
-            })
-        })
     }
   }
 
   async function deleteFile(filePublicId: string) {
-    actionOnProductPublicIdOrReturn()
-    await $userApi('/api/product/file/delete', {
-      method: 'DELETE',
+    actionOnProductPublicIdOrReturn();
+    await $userApi("/api/product/file/delete", {
+      method: "DELETE",
       body: <z.infer<typeof DeleteFileRequestSchema>>{
         publicId: filePublicId
       },
@@ -407,47 +414,48 @@ function fileActions() {
         if (response.ok) {
           refreshProducts()
             .finally(() => {
-              resetProductCurrent(productCurrent.value.publicId!)
+              resetProductCurrent(productCurrent.value.publicId!);
               toast.toast.add({
                 title: "Deleted"
-              })
-            })
+              });
+            });
         }
       }
-    })
+    });
   }
 
   function downloadFile(filePublicId?: string) {
     if (!filePublicId) {
-      return
+      return;
     }
     $userApi(`/api/product/file/design/${filePublicId}`, {
       onResponse({ response }) {
         if (response.ok) {
-          const url = response._data
-          window.open(url, '_blank')
+          const url = response._data;
+          window.open(url, "_blank");
         }
       }
-    })
+    });
   }
 
   return {
     uploadFiles,
     deleteFile,
     downloadFile
-  }
+  };
 }
 
 function productActions() {
   function add() {
-    state.productCurrent = structuredClone(productCurrentDefault)
+    state.productCurrent = structuredClone(productCurrentDefault);
   }
+
   async function save() {
-    actionOnProductPublicIdOrReturn()
-    const data = state.productCurrent
+    actionOnProductPublicIdOrReturn();
+    const data = state.productCurrent;
     if (!data.publicId) {
-      await $userApi('/api/product/add', {
-        method: 'POST',
+      await $userApi("/api/product/add", {
+        method: "POST",
         body: {
           name: data.name,
           price: data.price,
@@ -457,16 +465,16 @@ function productActions() {
         } satisfies z.input<typeof AddProductSchema>,
         onResponse: ({ response }) => {
           if (response.ok) {
-            resetProductCurrent(response._data.publicId)
+            resetProductCurrent(response._data.publicId);
             toast.toast.add({
               title: "Created"
-            })
+            });
           }
         }
-      })
+      });
     } else {
-      await $userApi('/api/product/update', {
-        method: 'PUT',
+      await $userApi("/api/product/update", {
+        method: "PUT",
         body: {
           publicId: data.publicId,
           name: data.name,
@@ -479,42 +487,44 @@ function productActions() {
           if (response.ok) {
             refreshProducts()
               .then(() => {
-                resetProductCurrent(response._data.publicId)
+                resetProductCurrent(response._data.publicId);
                 toast.toast.add({
                   title: "Updated"
-                })
-              })
+                });
+              });
           }
         }
-      })
+      });
     }
   }
+
   async function del() {
-    actionOnProductPublicIdOrReturn()
-    await $userApi('/api/product/delete', {
-      method: 'DELETE',
+    actionOnProductPublicIdOrReturn();
+    await $userApi("/api/product/delete", {
+      method: "DELETE",
       body: <z.output<typeof DeleteProductSchema>>{
         publicId: state.productCurrent.publicId
       },
       onResponse: ({ response }) => {
         if (response.ok) {
-          refreshProducts()
+          refreshProducts();
           toast.toast.add({
             title: "Deleted"
-          })
+          });
         }
       }
-    })
+    });
   }
+
   return {
     add,
     save,
     del
-  }
+  };
 }
 
 function clickById(id: string) {
-  document.getElementById(id)?.click()
+  document.getElementById(id)?.click();
 }
 
 // function handleClickOutside(id: string, callback: () => void) {
@@ -549,7 +559,7 @@ function clickById(id: string) {
         <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
       </div>
       <UTable id="gridData" :loading="pending" :data="state.products" :columns="columns"
-        v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
+              v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
         <template #createdAt-cell="{ row }">
           <NuxtTime v-if="!row.original.createdAt" :datetime="row.original.createdAt!" />
         </template>
@@ -586,7 +596,7 @@ function clickById(id: string) {
         </UFormField>
         <UFormField label="Categories">
           <UCommandPalette v-model="state.productCurrent.categories" multiple selected-icon="i-lucide-circle-check"
-            :groups="categorySearchGroup" placeholder="Search category" class="flex-1 h-80" />
+                           :groups="categorySearchGroup" placeholder="Search category" class="flex-1 h-80" />
         </UFormField>
         <div v-if="productCurrent.publicId">
           <USeparator label="Resources" />
@@ -595,14 +605,14 @@ function clickById(id: string) {
               <div class="space-y-3">
                 <div class="flex items-center gap-3">
                   <UButton v-if="!productFileCurrent" icon="ic:outline-upload-file" color="neutral" variant="ghost"
-                    @click="clickById(`btnUDF${productCurrent.publicId}`)" />
+                           @click="clickById(`btnUDF${productCurrent.publicId}`)" />
                   <UButton v-if="productFileCurrent" icon="ic:baseline-download-for-offline" color="info"
-                    variant="ghost" @click="fileActions().downloadFile(productFileCurrent.publicId)" />
+                           variant="ghost" @click="fileActions().downloadFile(productFileCurrent.publicId)" />
                   <UButton v-if="productFileCurrent" icon="ic:baseline-delete-forever" color="error" variant="ghost"
-                    @click="fileActions().deleteFile(productFileCurrent.publicId)" />
+                           @click="fileActions().deleteFile(productFileCurrent.publicId)" />
                   <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button"
-                    @update:model-value="(file) => changeSelectDesignFile(file)" :ui="layout.uploadImages.ui"
-                    class="hidden" />
+                               @update:model-value="(file) => changeSelectDesignFile(file)" :ui="layout.uploadImages.ui"
+                               class="hidden" />
                   <p v-if="!productFileCurrent" class="text-[0.7rem] text-gray-500">
                     No design file available</p>
                 </div>
@@ -613,17 +623,17 @@ function clickById(id: string) {
                 <div v-for="img in productThumbnailsCurrent" class="relative group">
                   <img :key="img.publicId" :src="img.link" class="mb-4 w-full rounded-lg" />
                   <UButton v-if="img.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
-                    color="error" variant="link"
-                    class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    @click="fileActions().deleteFile(img.publicId)" />
+                           color="error" variant="link"
+                           class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                           @click="fileActions().deleteFile(img.publicId)" />
                 </div>
               </div>
               <div class="space-y-4 mt-3">
                 <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple
-                  @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
+                             @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
                 </UFileUpload>
                 <UButton icon="ic:outline-file-upload" label="Upload" block
-                  @click="fileActions().uploadFiles('IMAGE')" />
+                         @click="fileActions().uploadFiles('IMAGE')" />
               </div>
             </UFormField>
           </div>
@@ -691,23 +701,23 @@ function clickById(id: string) {
 </template>
 
 <style scoped>
-.info>div {
+.info > div {
   display: flex;
   gap: 12px;
   align-items: center;
 }
 
-.info>div>p {
+.info > div > p {
   width: 150px;
 }
 
 
-.info>div>*:not(p) {
+.info > div > *:not(p) {
   /* width: 300px; */
   width: 100%;
 }
 
-.info>div>div *+* {
+.info > div > div * + * {
   margin-left: 0.7rem;
 }
 </style>

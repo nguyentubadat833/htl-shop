@@ -1,7 +1,8 @@
 // export type OrderStatus = 'PENDING' | 'PAID' | 'SENDING' | 'DELIVERED' | 'CANCELLED'
 // export type PaymentMethod = 'STRIPE' | 'PAYPAL' | 'MOMO' | 'VNPAY' | 'MANUAL'
 // export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED'
-import { OrderStatus, PaymentMethod, PaymentStatus } from "~~/prisma/generated/browser";
+
+import type { OrderStatus, PaymentStatus }from "~~/prisma/generated/browser";
 
 export interface OrderWithProductsResponse {
   publicId: string;
@@ -23,7 +24,7 @@ export interface ProductOrderItemResponse {
 
 export interface PaymentOrderItemResponse {
   transactionId?: string;
-  method: PaymentMethod;
+  method: string;
   amount: number;
   status: PaymentStatus;
   createdAt: string;

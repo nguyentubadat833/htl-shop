@@ -1,0 +1,35 @@
+services:
+  web:
+    image: nguyentubadat/2d3ds:1.0.0
+    container_name: 2d3ds_con
+    ports:
+      - "3005:3000"
+    networks:
+      - infrastructure_default
+      - nginx-proxy-manager_default
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://datnguyen:datnguyen@postgres:5432/htl-shop
+      - NUXT_PUBLIC_GOOGLE_ID=${NUXT_PUBLIC_GOOGLE_ID}
+      - NUXT_GOOGLE_SECRET_KEY=${NUXT_GOOGLE_SECRET_KEY}
+      - NUXT_GOOGLE_REDIRECT_URI=https://2d3ds.htlarchitects.com/api/auth/google/callback
+      - NUXT_S3_HOST=minio
+      - NUXT_S3_PORT=9000
+      - NUXT_S3_ACCESS_KEY=datnguyen
+      - NUXT_S3_SECRET_KEY=datnguyen
+      - NUXT_S3_BUCKET_DEFAULT=htl
+      - NUXT_S3_USE_SSL=false
+      - NUXT_MAIL_HOST=smtp.gmail.com
+      - NUXT_MAIL_PORT=587
+      - NUXT_MAIL_SECURE=false
+      - NUXT_MAIL_AUTH_USER=${NUXT_MAIL_AUTH_USER}
+      - NUXT_MAIL_AUTH_PASSWORD=ogzn xlkk ozsh vjdl
+      - SEPAY_ID=SP-TEST-LHB32BB8
+      - SEPAY_KEY=spsk_test_ZL4TFQgguZMHdG47RpFvREV6c9wy6Dab
+      - SEPAY_ENV=sandbox
+
+networks:
+  infrastructure_default:
+    external: true
+  nginx-proxy-manager_default:
+    external: true

@@ -68,6 +68,12 @@ export class SepayService {
 
         const amount = await getAmountVND(order.amount)
 
+        if (!amount) {
+            throw createError({
+                statusCode: 409
+            })
+        }
+
         const checkoutURL = this.client.checkout.initCheckoutUrl();
         const checkoutForm = this.client.checkout.initOneTimePaymentFields({
             operation: 'PURCHASE',

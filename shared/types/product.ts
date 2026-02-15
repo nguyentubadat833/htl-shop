@@ -1,6 +1,6 @@
 import type z from "zod";
 import type { ProductInfoSchema } from "../schemas/product";
-import type { ProductPlan, ProductStatus } from "~~/prisma/generated/enums";
+import type { ProductPlan, ProductStatus } from "~~/prisma/generated/browser";
 
 export type FileType = "IMAGE" | "DESIGN";
 
@@ -52,5 +52,6 @@ export interface ProductSEOItemResponse {
     alias: string,
     publicId: string,
     name: string
+    type: string
   }[]
 }

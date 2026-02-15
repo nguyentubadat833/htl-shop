@@ -15,7 +15,7 @@ export default function () {
 
       xhr.onload = async () => {
         if (xhr.status === 200) {
-          resolve("sucess");
+          resolve("success");
         } else {
           reject(new Error(`Upload failed with status ${xhr.status}`));
         }

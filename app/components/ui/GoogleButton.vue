@@ -108,6 +108,27 @@ const items = computed<NavigationMenuItem[][]>(() => {
 });
 
 onBeforeMount(() => {
+  // const isLogin = useCookie(VarCookie.G_LOGIN);
+  // if (isLogin.value) {
+  //   userAuth.value = authSession().get();
+  //   if (!userAuth.value) {
+  //     $fetch("/api/auth/google/verify-id-token", {
+  //       method: "POST",
+  //       credentials: "include",
+  //       onResponse({ response }) {
+  //         if (response.ok && response._data) {
+  //           userAuth.value = response._data;
+  //           authSession().set(userAuth.value!);
+  //         }
+  //       }
+  //     });
+  //   }
+  // } else {
+  //   authSession().remove();
+  // }
+});
+
+onMounted(() => {
   const isLogin = useCookie(VarCookie.G_LOGIN);
   if (isLogin.value) {
     userAuth.value = authSession().get();
@@ -126,9 +147,6 @@ onBeforeMount(() => {
   } else {
     authSession().remove();
   }
-});
-
-onMounted(() => {
   const script = document.createElement("script");
   script.src = "https://accounts.google.com/gsi/client";
   script.async = true;

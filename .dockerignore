@@ -1,4 +1,7 @@
+.idea
 .nuxt
 .env
 .data
 node_modules
+keys
+#prisma/generated

@@ -12,15 +12,21 @@
         <UCheckbox :model-value="choosePlans.includes(ProductPlan.PRO)" label="PRO"
           @update:model-value="(value) => choosePlan(value, ProductPlan.PRO)" />
       </div>
-      <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI" />
+<!--      <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI" />-->
     </div>
     <UPageGrid>
-      <UPageCard v-for="(card, index) in products" :key="index" v-bind="card" :ui="cardUI">
+      <UPageCard v-for="(card, index) in products" :key="useId()" v-bind="card" :ui="cardUI">
         <template #leading>
-          <div class="flex justify-between w-full">
-            <span class="font-medium" :class="[card.plan === ProductPlan.PRO ? 'text-green-600' : 'text-gray-400']">{{
+          <div class="flex justify-between items-center w-full">
+            <!-- <span class="font-medium" :class="[card.plan === ProductPlan.PRO ? 'text-green-600' : 'text-gray-400']">{{
               card.plan.toUpperCase()
-            }}</span>
+            }}</span> -->
+            <Icon v-if="card.categories.some(ct => ct.type === CategoryType.THREE_D)" name="cuida:box-outline"
+              size="25" class="text-gray-400" />
+            <Icon v-else name="cuida:layers-outline"
+              size="25" class="text-gray-400"/>
+            <UBadge v-if="card.plan === ProductPlan.PRO" class="font-bold rounded-full">PRO</UBadge>
+            <UBadge v-else class="font-bold rounded-full" color="neutral" variant="outline">FREE</UBadge>
           </div>
         </template>
         <template #body>
@@ -28,7 +34,7 @@
             <div class="relative group mb-10">
               <UCarousel v-slot="{ item }" dots :items="card.imageLinks">
                 <div class="flex flex-col items-center justify-center h-48">
-                  <img :src="item" class="rounded"  alt="image"/>
+                  <img :src="item" class="rounded" alt="image" />
                 </div>
               </UCarousel>
               <div

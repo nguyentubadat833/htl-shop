@@ -9,33 +9,40 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403 });
   }
 
-  const googleService = new GoogleService();
-  const { tokens, payload } = await googleService.verifyCodeWithPostMessage(code);
+  try{
+    const googleService = new GoogleService();
+    const { tokens, payload } = await googleService.verifyCodeWithPostMessage(code);
 
-  if (!payload?.email) {
-    throw createError({ statusCode: 403, message: "Email not found in Google payload" });
+    if (!payload?.email) {
+      throw createError({ statusCode: 403, message: "Email not found in Google payload" });
+    }
+
+    const userService = new UserService();
+    const user = await userService.registerUserProvider("GOOGLE", payload.sub, payload.email, payload.name || "", payload.picture || undefined);
+
+    const response: UserAuthClient = {
+      email: payload.email,
+      name: payload?.name,
+      picture: payload?.picture,
+      role: user?.role?.toString() ?? undefined
+    };
+
+    const tokenExpiry = tokens.expiry_date ? (tokens.expiry_date - Date.now()) / 1000 : undefined;
+    setCookie(event, VarCookie.G_ID_TOKEN, tokens.id_token!, {
+      httpOnly: true,
+      secure: useRuntimeConfig(event).nodeProduction,
+      maxAge: tokenExpiry,
+    });
+
+    setCookie(event, VarCookie.G_LOGIN, "true", {
+      maxAge: tokenExpiry,
+    });
+
+    return response;
+  }catch (e){
+    console.error(e);
+    throw createError({
+      statusCode: 401
+    });
   }
-
-  const userService = new UserService();
-  const user = await userService.registerUserProvider("GOOGLE", payload.sub, payload.email, payload.name || "", payload.picture || undefined);
-
-  const response: UserAuthClient = {
-    email: payload.email,
-    name: payload?.name,
-    picture: payload?.picture,
-    role: user?.role?.toString() ?? undefined
-  };
-
-  const tokenExpiry = tokens.expiry_date ? (tokens.expiry_date - Date.now()) / 1000 : undefined;
-  setCookie(event, VarCookie.G_ID_TOKEN, tokens.id_token!, {
-    httpOnly: true,
-    secure: useRuntimeConfig(event).nodeProduction,
-    maxAge: tokenExpiry,
-  });
-
-  setCookie(event, VarCookie.G_LOGIN, "true", {
-    maxAge: tokenExpiry,
-  });
-
-  return response;
 });

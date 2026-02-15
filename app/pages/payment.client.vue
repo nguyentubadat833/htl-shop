@@ -42,7 +42,7 @@ enum Status {
   Cancel = 'cancel',
 }
 
-
+const toast = useToast()
 const route = useRoute()
 const { $userApi } = useNuxtApp()
 // const openQRModal = ref(false)
@@ -76,6 +76,13 @@ const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId
 
 async function payment() {
   // console.log(window.origin)
+  if(!amount){
+    toast.add({
+      color: 'warning',
+      title: 'Free products require at least one paid product in the order.'
+    })
+    return
+  }
   window.location.href = `/api/payment/sepay/bank?orderId=${orderId.value}&origin=${window.origin}`
 }
 

@@ -5,9 +5,10 @@ const { list, checkout: cartCheckout, removeProducts } = useCart()
 const router = useRouter()
 const data = ref<CartItemResponse[]>()
 const selectedItem = ref<CartItemResponse[]>([])
-const amount = ref(<number>0)
+const amount = ref<number>(0)
+const convertAmount = computed(() => convertMoney(amount.value))
 
-function chooseItem(value: boolean | "indeterminate", item: CartItemResponse) {
+async function chooseItem(value: boolean | "indeterminate", item: CartItemResponse) {
   if (value === true) {
     selectedItem.value.push(item)
     amount.value += item.product.price
@@ -15,12 +16,13 @@ function chooseItem(value: boolean | "indeterminate", item: CartItemResponse) {
     selectedItem.value = selectedItem.value.filter(i => i.cartId !== item.cartId)
     amount.value -= item.product.price
   }
+  await nextTick()
 }
 
 async function checkout() {
   const ids = selectedItem.value.map(item => item.cartId)
   const orderId = await cartCheckout(ids)
-  router.push({
+  await router.push({
     path: 'payment',
     query: {
       orderId: orderId,
@@ -29,8 +31,9 @@ async function checkout() {
   })
 }
 
-function removeProduct(publicId: string) {
-  removeProducts([publicId])
+function removeProduct(item: CartItemResponse) {
+  chooseItem(false, item)
+  removeProducts([item.product.publicId])
     .then(() => {
       list()
         .then(rs => {
@@ -58,11 +61,11 @@ onBeforeMount(() => {
       <UPageCard v-for="(item, index) in data" :key="index" variant="ghost" :ui="{body: 'w-full'}">
         <template #body>
           <div class="flex items-center gap-4">
-            <UCheckbox size="xl" @update:model-value="(value) => chooseItem(value, item)" />
+            <UCheckbox :key="useId()" size="xl" @update:model-value="(value) => chooseItem(value, item)" />
             <div class="w-full flex gap-4">
               <div
                 class="overflow-hidden border light:border-gray-200 dark:border-gray-700 rounded-lg min-h-20 max-h-20 min-w-20 max-w-20">
-                <img :src="item.product.imageLinks[0]" class="mx-auto" />
+                <img :src="item.product.imageLinks[0]" class="mx-auto"  alt="img"/>
               </div>
               <div class="flex flex-col justify-between p-1 w-full">
                 <p class="font-bold lg:text-base text-[0.8rem] line-clamp-1">{{ item.product.name }}</p>
@@ -71,7 +74,7 @@ onBeforeMount(() => {
                 <div class="flex justify-between">
                   <p class="font-semibold text-orange-500 text-lg"> {{ convertMoney(item.product.price) }}</p>
                   <UButton icon="ic:baseline-delete-sweep" color="error" variant="soft"
-                    @click="removeProduct(item.product.publicId)" />
+                    @click="removeProduct(item)" />
                 </div>
               </div>
             </div>
@@ -83,7 +86,7 @@ onBeforeMount(() => {
     <div v-if="selectedItem.length" class="flex justify-between items-center">
       <span class="text-lg font-bold">Total amount:</span>
       <div class="flex items-center justify-end gap-5">
-        <span class="text-lg">{{ convertMoney(amount) }}</span>
+        <span class="text-lg">{{ convertAmount }}</span>
         <UButton label="Checkout" color="warning" @click="checkout()" />
       </div>
     </div>
