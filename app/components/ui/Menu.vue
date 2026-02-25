@@ -13,8 +13,7 @@
 
 <script lang="ts" setup>
 import type { NavigationMenuItem } from '@nuxt/ui'
-
-const emits = defineEmits(['selectedItems'])
+import { useIndex } from '~/composables/pages'
 
 // type MenuItem = {
 //   code: string
@@ -34,7 +33,9 @@ const emits = defineEmits(['selectedItems'])
 //   }
 // })
 
-const selectedCategoryPublicId = ref<string[]>([])
+const { filterState: indexFilterState } = useIndex()
+const selectedCategoryPublicId = toRef(indexFilterState.value, 'categoryPublicIds')
+
 const { data: nav } = await useAsyncData(() => $fetch('/data/categories'), {
   transform(value) {
     return {
@@ -78,13 +79,16 @@ const items = ref<NavigationMenuItem[][]>([
 
 
 function onCheckboxChange(value: boolean | "indeterminate", publicId?: string) {
-  if(publicId){
+  if (!selectedCategoryPublicId.value) {
+    selectedCategoryPublicId.value = []
+  }
+
+  if (publicId) {
     if (value === true) {
       selectedCategoryPublicId.value.push(publicId)
     } else {
       selectedCategoryPublicId.value = selectedCategoryPublicId.value.filter(pId => pId !== publicId)
     }
-    emits('selectedItems', selectedCategoryPublicId.value)
   }
 }
 

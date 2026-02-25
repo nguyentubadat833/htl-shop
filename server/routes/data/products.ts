@@ -1,13 +1,38 @@
 import { ProductSEOItemResponse } from "#shared/types/product"
 import { changeRate, getAmountVND } from "~~/server/core/service/money"
 
+function toStringArray(value: unknown): string[] {
+    if (!value) return []
+
+    if (Array.isArray(value)) {
+        return value.filter((v): v is string => typeof v === 'string')
+    }
+
+    return typeof value === 'string' ? [value] : []
+}
+
 export default defineWrappedResponseHandler(async (event) => {
+    const queries = getQuery(event)
+
+    const categoryTypes = toStringArray(queries.categoryTypes)
+    const categoryPublicIds = toStringArray(queries.categoryPublicIds)
+
     const { get } = changeRate()
     const changeRateResult = await get()
 
     const data = await prisma.product.findMany({
         where: {
-            status: 'ACTIVE'
+            status: 'ACTIVE',
+            categories: {
+                some: {
+                    publicId: categoryPublicIds.length ? {
+                        in: categoryPublicIds
+                    } : undefined,
+                    type: categoryTypes.length ? {
+                        in: categoryTypes
+                    } : undefined
+                }
+            }
         },
         include: {
             files: {
@@ -26,7 +51,7 @@ export default defineWrappedResponseHandler(async (event) => {
                     alias: true,
                     publicId: true,
                     name: true,
-                    type: true
+                    type: true,
                 }
             }
         }

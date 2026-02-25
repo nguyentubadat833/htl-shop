@@ -2,29 +2,37 @@
   <UPage :ui="pageUI">
     <template #left>
       <UPageAside>
-        <UiMenu @selected-items="handlerSelectMenuItem" />
+        <UiMenu />
       </UPageAside>
     </template>
     <div class="flex justify-between">
+
       <div class="flex gap-4">
-        <UCheckbox :model-value="choosePlans.includes(ProductPlan.FREE)" label="FREE"
+        <UCheckbox :model-value="filterState.categoryTypes.includes(CategoryType.THREE_D)" :label="CategoryType.THREE_D"
+          @update:model-value="(value) => chooseCategoryType(value, CategoryType.THREE_D)" />
+        <UCheckbox :model-value="filterState.categoryTypes.includes(CategoryType.TWO_D)" :label="CategoryType.TWO_D"
+          @update:model-value="(value) => chooseCategoryType(value, CategoryType.TWO_D)" />
+      </div>
+
+      <div class="flex gap-4">
+        <UCheckbox :model-value="filterState.plans.includes(ProductPlan.FREE)" label="FREE"
           @update:model-value="(value) => choosePlan(value, ProductPlan.FREE)" />
-        <UCheckbox :model-value="choosePlans.includes(ProductPlan.PRO)" label="PRO"
+        <UCheckbox :model-value="filterState.plans.includes(ProductPlan.PRO)" label="PRO"
           @update:model-value="(value) => choosePlan(value, ProductPlan.PRO)" />
       </div>
-<!--      <USelect v-model="chooseSortType" :items="sortOptions" :ui="chooseSortTypeUI" />-->
+
+
     </div>
     <UPageGrid>
-      <UPageCard v-for="(card, index) in products" :key="useId()" v-bind="card" :ui="cardUI">
+      <UPageCard v-for="(card, index) in productList" :key="useId()" v-bind="card" :ui="cardUI">
         <template #leading>
           <div class="flex justify-between items-center w-full">
             <!-- <span class="font-medium" :class="[card.plan === ProductPlan.PRO ? 'text-green-600' : 'text-gray-400']">{{
               card.plan.toUpperCase()
             }}</span> -->
-            <Icon v-if="card.categories.some(ct => ct.type === CategoryType.THREE_D)" name="cuida:box-outline"
-              size="25" class="text-gray-400" />
-            <Icon v-else name="cuida:layers-outline"
-              size="25" class="text-gray-400"/>
+            <Icon v-if="card.categories.some(ct => ct.type === CategoryType.THREE_D)" name="cuida:box-outline" size="25"
+              class="text-gray-400" />
+            <Icon v-else name="cuida:layers-outline" size="25" class="text-gray-400" />
             <UBadge v-if="card.plan === ProductPlan.PRO" class="font-bold rounded-full">PRO</UBadge>
             <UBadge v-else class="font-bold rounded-full" color="neutral" variant="outline">FREE</UBadge>
           </div>
@@ -68,10 +76,8 @@
 </template>
 
 <script lang="ts" setup>
-import { type ProductSEOItemResponse } from '#shared/types/product'
+import { useIndex } from '~/composables/pages'
 import { ProductPlan } from '~~/prisma/generated/browser'
-
-type SortType = 'Popular' | 'Newest'
 
 const pageUI = {
   center: 'py-5 space-y-10',
@@ -90,78 +96,37 @@ const chooseSortTypeUI = {
 }
 
 const { addProduct } = useCart()
-const sortOptions = <SortType[]>['Newest', 'Popular']
-const products = useState<ProductSEOItemResponse[]>('products', () => [])
-const categoryPublicIds = ref<string[]>([])
-const chooseSortType = ref<SortType>('Popular')
-const choosePlans = useState<ProductPlan[]>(() => [ProductPlan.FREE, ProductPlan.PRO])
+const { filterState } = useIndex()
+const plans = toRef(filterState.value, 'plans')
+const categoryTypes = toRef(filterState.value, 'categoryTypes')
 
-const { data: productList } = await useAsyncData(() => $fetch('/data/products', {
-  onResponse({ response }) {
-    if (response.ok) {
-      products.value = response._data
+const { data: productList } = await useAsyncData(
+  () => $fetch('/data/products', {
+    query: filterState.value
+  }),
+  {
+    watch: [filterState.value],
+    transform(response) {
+      return response.filter(prd => filterState.value.plans.includes(prd.plan))
     }
   }
-}))
-
-function setProductsWithCategories(publicIds: string[]) {
-  if (publicIds.length) {
-    const setCategoryPublicIds = new Set(publicIds)
-    products.value = productList.value?.filter(prd =>
-      prd.categories.some(ctg =>
-        setCategoryPublicIds.has(ctg.publicId)
-      )
-    ) ?? []
-  } else {
-    products.value = productList.value ?? []
-  }
-
-  // if (!planValues.free) {
-  //   products.value = products.value.filter(prd => prd.plan !== ProductPlan.Free)
-  // }
-  // if (!planValues.pro) {
-  //   products.value = products.value.filter(prd => prd.plan !== ProductPlan.Pro)
-  // }
-}
-
-function handlerSelectMenuItem(publicIds: string[]) {
-  categoryPublicIds.value = publicIds
-  setProductsWithCategories(publicIds)
-}
-
-// function isProductPlan(value: unknown): value is ProductPlan {
-//   return Object.values(ProductPlan).includes(value as ProductPlan)
-// }
+)
 
 function choosePlan(value: boolean | "indeterminate", plan: ProductPlan) {
   if (value === true) {
-    setProductsWithCategories(categoryPublicIds.value)
-    choosePlans.value.push(plan)
+    plans.value.push(plan)
   } else {
-    products.value = products.value.filter(prd => prd.plan !== plan)
-    choosePlans.value = choosePlans.value.filter(pl => pl !== plan)
+    plans.value = plans.value.filter(pl => pl !== plan)
   }
 }
 
-// const planQueries = router.currentRoute.value.query['plans']
-// if (planQueries) {
-//   if (typeof planQueries === 'string') {
-//     if (isProductPlan(planQueries)) {
-//       choosePlans.value.push(planQueries)
-//     }
-//   } else if (Array.isArray(planQueries)) {
-//     choosePlans.value.push(
-//       ...planQueries.filter(isProductPlan)
-//     )
-//   }
-// } else {
-//   choosePlans.value = [ProductPlan.Free, ProductPlan.Pro]
-//   router.replace({
-//     query: {
-//       plans: choosePlans.value
-//     }
-//   })
-// }
+function chooseCategoryType(value: boolean | "indeterminate", type: CategoryType) {
+  if (value === true) {
+    categoryTypes.value.push(type)
+  } else {
+    categoryTypes.value = categoryTypes.value.filter(pl => pl !== type)
+  }
+}
 
 </script>
 
