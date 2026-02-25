@@ -41,7 +41,7 @@
           <div>
             <UButton label="Add to cart" icon="ic:outline-add-shopping-cart" color="secondary" variant="soft"
               :ui="btnAddToCartUI" block class="hover:cursor-pointer"
-              @click="() => { info?.id && addProduct(info.id) }" />
+              @click="() => { info?.id && addProduct(info.id, info.name) }" />
           </div>
         </div>
         <div class="space-y-2">

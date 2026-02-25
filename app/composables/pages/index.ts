@@ -26,9 +26,5 @@ export const useIndex = () => {
 
   return {
     filterState,
-
-    sortOptions,
-
-    sortSelected,
   }
 }

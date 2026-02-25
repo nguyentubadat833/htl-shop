@@ -91,9 +91,9 @@ const cardUI = {
   container: 'p-2 sm:p-4'
 }
 
-const chooseSortTypeUI = {
-  base: 'ring-0!'
-}
+// const chooseSortTypeUI = {
+//   base: 'ring-0!'
+// }
 
 const { addProduct } = useCart()
 const { filterState } = useIndex()
