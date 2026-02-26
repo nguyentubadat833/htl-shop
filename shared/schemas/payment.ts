@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const CreateSepayPaymentSchema = z.object({
+export const CreatePaymentSchema = z.object({
     orderId: z.string(),
     origin: z.string()
 })

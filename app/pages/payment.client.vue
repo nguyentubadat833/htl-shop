@@ -75,12 +75,8 @@ status.value = parseQuery.data.status
 const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId.value}`)
 
 async function payment() {
-  // console.log(window.origin)
   if(!amount){
-    toast.add({
-      color: 'warning',
-      title: 'Free products require at least one paid product in the order.'
-    })
+    window.location.href = `/api/payment/free?orderId=${orderId.value}&origin=${window.origin}`
     return
   }
   window.location.href = `/api/payment/sepay/bank?orderId=${orderId.value}&origin=${window.origin}`

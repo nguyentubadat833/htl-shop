@@ -1,9 +1,9 @@
-import { CreateSepayPaymentSchema } from '#shared/schemas/payment'
+import { CreatePaymentSchema } from '#shared/schemas/payment'
 import { SepayService } from '~~/server/core/service/sepay'
 
 export default defineWrappedRequiredAuthHandler(async (event) => {
   const { orderId, origin } = zodValidateRequestOrThrow(
-    CreateSepayPaymentSchema,
+    CreatePaymentSchema,
     getQuery(event)
   )
 
