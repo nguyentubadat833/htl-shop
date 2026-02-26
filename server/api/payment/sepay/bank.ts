@@ -12,7 +12,7 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
     await sepayService.createCheckoutBankTransfer(
       orderId,
       'VND',
-      `DH2D3DS ${orderId}`,
+      `DH3D2DS ${orderId}`,
       `${origin}/payment?orderId=${orderId}&status=success`,
       `${origin}/payment?orderId=${orderId}&status=error`,
       `${origin}/payment?orderId=${orderId}&status=cancel`,
