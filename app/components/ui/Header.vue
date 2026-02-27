@@ -6,9 +6,12 @@
       <UInput icon="i-lucide-search" variant="outline" placeholder="Search..." :ui="btnSearchUI" />
     </template>
     <template #right>
-      <UiCartButton class="lg:mr-3 mr-0"/>
+      <div class="lg:block hidden">
+        <UiCartButton class="lg:mr-3 mr-0" />
+      </div>
+      <UColorModeButton class="hover:scale-110 lg:hidden" />
       <div class="lg:flex gap-3 hidden">
-        <UColorModeButton class="hover:scale-110"/>
+        <UColorModeButton class="hover:scale-110" />
         <UiGoogleButton />
       </div>
     </template>

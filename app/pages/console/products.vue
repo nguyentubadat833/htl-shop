@@ -128,7 +128,7 @@ const productCurrentDefault: Product = {
 const layout = {
   info: {
     ui: {
-      body: "h-full space-y-5"
+      body: "h-[70vh] overflow-auto space-y-5"
     }
   },
   uploadImages: {
@@ -559,7 +559,7 @@ function clickById(id: string) {
         <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
       </div>
       <UTable id="gridData" :loading="pending" :data="state.products" :columns="columns"
-              v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
+        v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
         <template #createdAt-cell="{ row }">
           <NuxtTime v-if="!row.original.createdAt" :datetime="row.original.createdAt!" />
         </template>
@@ -568,156 +568,166 @@ function clickById(id: string) {
         </template>
       </UTable>
     </div>
-    <div class="space-y-5 overflow-y-auto p-3">
-      <UButton icon="ic:outline-plus" label="Add Product" block @click="productActions().add()" />
-      <UCard :ui="layout.info.ui">
-        <UFormField label="ID">
-          <UInput disabled :model-value="productCurrent.publicId" class="w-full" />
-        </UFormField>
-        <UFormField label="Plan">
-          <USelect v-model="productCurrent.plan" :items="planOptions" class="w-full" />
-        </UFormField>
-        <UFormField label="Name">
-          <UInput v-model="productCurrent.name" class="w-full" />
-        </UFormField>
-        <UFormField label="Price">
-          <div class="flex gap-2">
-            <UInputNumber v-model="productCurrent.price" :format-options="{
-              style: 'currency',
-              currency: currency,
-              currencyDisplay: 'code',
-              currencySign: 'accounting'
-            }" class="w-full" />
-            <UInput disabled :model-value="currency" />
-          </div>
-        </UFormField>
-        <UFormField v-if="productCurrent.publicId" label="Status">
-          <USelect v-model="productCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
-        </UFormField>
-        <UFormField label="Categories">
-          <UCommandPalette v-model="state.productCurrent.categories" multiple selected-icon="i-lucide-circle-check"
-                           :groups="categorySearchGroup" placeholder="Search category" class="flex-1 h-80" />
-        </UFormField>
-        <div v-if="productCurrent.publicId">
-          <USeparator label="Resources" />
-          <div class="space-y-5">
-            <UFormField label="Product file">
-              <div class="space-y-3">
-                <div class="flex items-center gap-3">
-                  <UButton v-if="!productFileCurrent" icon="ic:outline-upload-file" color="neutral" variant="ghost"
-                           @click="clickById(`btnUDF${productCurrent.publicId}`)" />
-                  <UButton v-if="productFileCurrent" icon="ic:baseline-download-for-offline" color="info"
-                           variant="ghost" @click="fileActions().downloadFile(productFileCurrent.publicId)" />
-                  <UButton v-if="productFileCurrent" icon="ic:baseline-delete-forever" color="error" variant="ghost"
-                           @click="fileActions().deleteFile(productFileCurrent.publicId)" />
-                  <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button"
-                               @update:model-value="(file) => changeSelectDesignFile(file)" :ui="layout.uploadImages.ui"
-                               class="hidden" />
-                  <p v-if="!productFileCurrent" class="text-[0.7rem] text-gray-500">
-                    No design file available</p>
-                </div>
-              </div>
-            </UFormField>
-            <UFormField label="Product thumbnails">
-              <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
-                <div v-for="img in productThumbnailsCurrent" class="relative group">
-                  <img :key="img.publicId" :src="img.link" class="mb-4 w-full rounded-lg" />
-                  <UButton v-if="img.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
-                           color="error" variant="link"
-                           class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                           @click="fileActions().deleteFile(img.publicId)" />
-                </div>
-              </div>
-              <div class="space-y-4 mt-3">
-                <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple
-                             @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
-                </UFileUpload>
-                <UButton icon="ic:outline-file-upload" label="Upload" block
-                         @click="fileActions().uploadFiles('IMAGE')" />
-              </div>
-            </UFormField>
-          </div>
-        </div>
-        <USeparator label="Technical information" />
-        <div class="info space-y-5">
-          <div class="">
-            <p>Platform</p>
-            <div class="flex gap-2">
-              <UInput v-model="productInfoCurrent.platform" class="w-full" />
-              <USelect v-model="productInfoCurrent.platform" :items="technicalOptions.platform" class="w-full" />
-            </div>
-          </div>
-          <div>
-            <p>Render</p>
-            <div class="flex gap-2">
-              <UInput v-model="productInfoCurrent.render" class="w-full" />
-              <USelect v-model="productInfoCurrent.render" :items="technicalOptions.render" class="w-full" />
-            </div>
-          </div>
-          <div>
-            <p>Colors</p>
-            <div class="flex gap-2">
-              <UInput v-model="productInfoCurrent.colors" class="w-full" />
-              <USelect v-model="productInfoCurrent.colors" :items="technicalOptions.colors" class="w-full" />
-            </div>
-          </div>
-          <div>
-            <p>Style</p>
-            <div class="flex gap-2">
-              <UInput v-model="productInfoCurrent.style" class="w-full" />
-              <USelect v-model="productInfoCurrent.style" :items="technicalOptions.style" class="w-full" />
-            </div>
-          </div>
-          <div>
-            <p>Materials</p>
-            <div class="flex gap-2">
-              <UInput v-model="productInfoCurrent.materials" class="w-full" />
-              <USelect v-model="productInfoCurrent.materials" :items="technicalOptions.materials" class="w-full" />
-            </div>
-          </div>
-          <div>
-            <p>Formfactor</p>
-            <div class="flex gap-2">
-              <UInput v-model="productInfoCurrent.formfactor" class="w-full" />
-              <USelect v-model="productInfoCurrent.formfactor" :items="technicalOptions.formfactor" class="w-full" />
-            </div>
-          </div>
-          <div>
-            <p>Size</p>
-            <UInput />
-          </div>
-          <div>
-            <p>Description</p>
-            <UTextarea />
-          </div>
-        </div>
-      </UCard>
-      <div class="flex justify-end gap-3">
-        <UButton icon="ic:sharp-delete-forever" label="Delete" color="error" @click="productActions().del()" />
-        <UButton icon="ic:baseline-save" label="Save" color="info" block @click="productActions().save()" />
+    <div class="flex flex-col p-3 space-y-5">
+      <div>
+        <UButton icon="ic:outline-plus" label="Add Product" block @click="productActions().add()" />
       </div>
+      <div class="flex-1">
+        <!-- <div class="h-full">
+          test
+        </div> -->
+        <UCard :ui="layout.info.ui">
+          <UFormField label="ID">
+            <UInput disabled :model-value="productCurrent.publicId" class="w-full" />
+          </UFormField>
+          <UFormField label="Plan">
+            <USelect v-model="productCurrent.plan" :items="planOptions" class="w-full" />
+          </UFormField>
+          <UFormField label="Name">
+            <UInput v-model="productCurrent.name" class="w-full" />
+          </UFormField>
+          <UFormField label="Price">
+            <div class="flex gap-2">
+              <UInputNumber v-model="productCurrent.price" :format-options="{
+                style: 'currency',
+                currency: currency,
+                currencyDisplay: 'code',
+                currencySign: 'accounting'
+              }" class="w-full" />
+              <UInput disabled :model-value="currency" />
+            </div>
+          </UFormField>
+          <UFormField v-if="productCurrent.publicId" label="Status">
+            <USelect v-model="productCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
+          </UFormField>
+          <UFormField label="Categories">
+            <UCommandPalette v-model="state.productCurrent.categories" multiple selected-icon="i-lucide-circle-check"
+              :groups="categorySearchGroup" placeholder="Search category" class="flex-1 h-80" />
+          </UFormField>
+          <div v-if="productCurrent.publicId">
+            <USeparator label="Resources" />
+            <div class="space-y-5">
+              <UFormField label="Product file">
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3">
+                    <UButton v-if="!productFileCurrent" icon="ic:outline-upload-file" color="neutral" variant="ghost"
+                      @click="clickById(`btnUDF${productCurrent.publicId}`)" />
+                    <UButton v-if="productFileCurrent" icon="ic:baseline-download-for-offline" color="info"
+                      variant="ghost" @click="fileActions().downloadFile(productFileCurrent.publicId)" />
+                    <UButton v-if="productFileCurrent" icon="ic:baseline-delete-forever" color="error" variant="ghost"
+                      @click="fileActions().deleteFile(productFileCurrent.publicId)" />
+                    <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button"
+                      @update:model-value="(file) => changeSelectDesignFile(file)" :ui="layout.uploadImages.ui"
+                      class="hidden" />
+                    <p v-if="!productFileCurrent" class="text-[0.7rem] text-gray-500">
+                      No design file available</p>
+                  </div>
+                </div>
+              </UFormField>
+              <UFormField label="Product thumbnails">
+                <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
+                  <div v-for="img in productThumbnailsCurrent" class="relative group">
+                    <img :key="img.publicId" :src="img.link" class="mb-4 w-full rounded-lg" />
+                    <UButton v-if="img.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
+                      color="error" variant="link"
+                      class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      @click="fileActions().deleteFile(img.publicId)" />
+                  </div>
+                </div>
+                <div class="space-y-4 mt-3">
+                  <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple
+                    @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
+                  </UFileUpload>
+                  <UButton icon="ic:outline-file-upload" label="Upload" block
+                    @click="fileActions().uploadFiles('IMAGE')" />
+                </div>
+              </UFormField>
+            </div>
+          </div>
+          <USeparator label="Technical information" />
+          <div class="info space-y-5">
+            <div class="">
+              <p>Platform</p>
+              <div class="flex gap-2">
+                <UInput v-model="productInfoCurrent.platform" class="w-full" />
+                <USelect v-model="productInfoCurrent.platform" :items="technicalOptions.platform" class="w-full" />
+              </div>
+            </div>
+            <div>
+              <p>Render</p>
+              <div class="flex gap-2">
+                <UInput v-model="productInfoCurrent.render" class="w-full" />
+                <USelect v-model="productInfoCurrent.render" :items="technicalOptions.render" class="w-full" />
+              </div>
+            </div>
+            <div>
+              <p>Colors</p>
+              <div class="flex gap-2">
+                <UInput v-model="productInfoCurrent.colors" class="w-full" />
+                <USelect v-model="productInfoCurrent.colors" :items="technicalOptions.colors" class="w-full" />
+              </div>
+            </div>
+            <div>
+              <p>Style</p>
+              <div class="flex gap-2">
+                <UInput v-model="productInfoCurrent.style" class="w-full" />
+                <USelect v-model="productInfoCurrent.style" :items="technicalOptions.style" class="w-full" />
+              </div>
+            </div>
+            <div>
+              <p>Materials</p>
+              <div class="flex gap-2">
+                <UInput v-model="productInfoCurrent.materials" class="w-full" />
+                <USelect v-model="productInfoCurrent.materials" :items="technicalOptions.materials" class="w-full" />
+              </div>
+            </div>
+            <div>
+              <p>Formfactor</p>
+              <div class="flex gap-2">
+                <UInput v-model="productInfoCurrent.formfactor" class="w-full" />
+                <USelect v-model="productInfoCurrent.formfactor" :items="technicalOptions.formfactor" class="w-full" />
+              </div>
+            </div>
+            <div>
+              <p>Size</p>
+              <UInput />
+            </div>
+            <div>
+              <p>Description</p>
+              <UTextarea />
+            </div>
+          </div>
+        </UCard>
+      </div>
+      <div>
+        <div class="flex justify-end gap-3">
+          <UButton icon="ic:sharp-delete-forever" label="Delete" color="error" @click="productActions().del()" />
+          <UButton icon="ic:baseline-save" label="Save" color="info" block @click="productActions().save()" />
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <style scoped>
-.info > div {
+.info>div {
   display: flex;
   gap: 12px;
   align-items: center;
 }
 
-.info > div > p {
+.info>div>p {
   width: 150px;
 }
 
 
-.info > div > *:not(p) {
+.info>div>*:not(p) {
   /* width: 300px; */
   width: 100%;
 }
 
-.info > div > div * + * {
+.info>div>div *+* {
   margin-left: 0.7rem;
 }
 </style>

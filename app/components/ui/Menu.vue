@@ -3,7 +3,7 @@
     <template #item-label="{ item }">
       <div class="flex gap-2">
         <ClientOnly>
-          <UCheckbox v-if="item.isMenuItem" @update:model-value="(value) => onCheckboxChange(value, item.publicId)" />
+          <UCheckbox v-if="item.isMenuItem" :model-value="selectedCategoryPublicId?.includes(item.publicId)" @update:model-value="(value) => onCheckboxChange(value, item.publicId)" />
         </ClientOnly>
         {{ item.label }}
       </div>
@@ -35,6 +35,7 @@ import { useIndex } from '~/composables/pages'
 
 const { filterState: indexFilterState } = useIndex()
 const selectedCategoryPublicId = toRef(indexFilterState.value, 'categoryPublicIds')
+
 
 const { data: nav } = await useAsyncData(() => $fetch('/data/categories'), {
   transform(value) {

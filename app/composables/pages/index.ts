@@ -1,11 +1,12 @@
 import { ProductPlan } from '~~/prisma/generated/browser'
+import { createSharedComposable } from "@vueuse/core";
 
 
 // Values
 const sortOptions = ['Newest', 'Popular'] as const
 
 // Types
-type SortOption = typeof sortOptions[number]
+// type SortOption = typeof sortOptions[number]
 
 type ProductListFilterState = {
   plans: ProductPlan[],
@@ -13,7 +14,7 @@ type ProductListFilterState = {
   categoryPublicIds: string[] | undefined
 }
 
-export const useIndex = () => {
+const _useIndex = () => {
 
   const filterState = useState(() => reactive<ProductListFilterState>({
     plans: [ProductPlan.FREE, ProductPlan.PRO],
@@ -22,9 +23,11 @@ export const useIndex = () => {
   }))
 
   // States
-  const sortSelected = useState(() => ref<SortOption>('Newest'))
+  // const sortSelected = useState(() => ref<SortOption>('Newest'))
 
   return {
     filterState,
   }
 }
+
+export const useIndex = createSharedComposable(_useIndex)
