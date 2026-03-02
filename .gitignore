@@ -28,3 +28,4 @@ logs
 prisma/generated
 
 keys
+docker-compose.yml

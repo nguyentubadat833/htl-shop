@@ -3,7 +3,7 @@
     <div class="p-4 h-screen w-full grid grid-cols-[2fr_11fr] gap-4">
       <div class="p-2 space-y-6">
         <div class="flex items-center gap-4">
-          <img src="/logo.png" class="h-10" />
+          <UiLogo/>
           <p class="text-xl font-medium">HTL Architects</p>
         </div>
         <UInput icon="i-lucide-search" size="xl" variant="outline" placeholder="Search..." class="w-full" />
