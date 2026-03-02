@@ -173,6 +173,13 @@ function select(index: number) {
 
   carousel.value?.emblaApi?.scrollTo(index)
 }
+
+useSeoMeta({
+  title: info.value.name,
+  description: info.value.description,
+  ogImage: info.value.images[0],
+  ogImageAlt: 'img'
+})
 </script>
 
 <style></style>

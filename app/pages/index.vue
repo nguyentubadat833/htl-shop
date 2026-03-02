@@ -79,6 +79,10 @@
 import { useIndex } from '~/composables/pages'
 import { ProductPlan } from '~~/prisma/generated/browser'
 
+useSeoMeta({
+  title: 'Home'
+})
+
 const pageUI = {
   center: 'py-5 space-y-10',
   left: 'px-4! py-1!'

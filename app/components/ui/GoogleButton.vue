@@ -54,24 +54,24 @@ const userAuth = ref<UserAuthClient | null>(null);
 
 const items = computed<NavigationMenuItem[][]>(() => {
   const rs = [
-    [
-      {
-        label: userAuth.value?.name ?? "",
-        icon: "ic:outline-account-circle",
-        to: "/profile"
-      }
-    ],
+    // [
+    //   {
+    //     label: userAuth.value?.name ?? "",
+    //     icon: "ic:outline-account-circle",
+    //     to: "/profile"
+    //   }
+    // ],
     [
       {
         label: "My cart",
         icon: "ic:outline-shopping-basket",
         to: "/cart"
       },
-      {
-        label: "History",
-        icon: "ic:round-history",
-        to: "/history"
-      }
+      // {
+      //   label: "History",
+      //   icon: "ic:round-history",
+      //   to: "/history"
+      // }
     ],
     [
       {
@@ -97,7 +97,7 @@ const items = computed<NavigationMenuItem[][]>(() => {
   if (userAuth.value?.role === UserRole.ADMIN.toString()) {
     rs.unshift([
       {
-        label: "Console",
+        label: "CMS Admin",
         icon: "ic:baseline-admin-panel-settings",
         to: "/console"
       }

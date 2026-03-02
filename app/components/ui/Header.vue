@@ -1,8 +1,8 @@
 <template>
   <UHeader :ui="ui" mode="slideover">
     <template #left>
-      <img src="/logo.png" class="h-10 lg:block hidden" />
-      <UiGoogleButton class="lg:hidden" />
+      <UiLogo/>
+      <!-- <UiGoogleButton class="lg:hidden" /> -->
       <UInput icon="i-lucide-search" variant="outline" placeholder="Search..." :ui="btnSearchUI" />
     </template>
     <template #right>

@@ -49,6 +49,10 @@ onBeforeMount(() => {
       data.value = rs
     })
 })
+
+useSeoMeta({
+  title: 'Cart'
+})
 </script>
 
 
