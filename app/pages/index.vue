@@ -100,13 +100,13 @@ const cardUI = {
 // }
 
 const { addProduct } = useCart()
-const { filterState } = useIndex()
+const { filterState, filterStatus } = useIndex()
 const plans = toRef(filterState.value, 'plans')
 const categoryTypes = toRef(filterState.value, 'categoryTypes')
 
-const { data: productList } = await useAsyncData(
+const { data: productList, pending } = await useAsyncData(
   () => $fetch('/data/products', {
-    query: filterState.value
+    query: filterState.value,
   }),
   {
     watch: [filterState.value],
@@ -132,6 +132,9 @@ function chooseCategoryType(value: boolean | "indeterminate", type: CategoryType
   }
 }
 
+watch(pending, (newValue) => {
+  filterStatus.value = newValue
+})
 </script>
 
 <style></style>

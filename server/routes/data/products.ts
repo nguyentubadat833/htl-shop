@@ -1,4 +1,5 @@
 import { ProductSEOItemResponse } from "#shared/types/product"
+import z from "zod"
 import { changeRate, getAmountVND } from "~~/server/core/service/money"
 
 function toStringArray(value: unknown): string[] {
@@ -14,6 +15,17 @@ function toStringArray(value: unknown): string[] {
 export default defineWrappedResponseHandler(async (event) => {
     const queries = getQuery(event)
 
+    let keyWorks: undefined | string[] = undefined
+    if (queries.keyWork) {
+        const parsedKeyWork = z.string().trim().min(2).safeParse(queries.keyWork)
+        if (parsedKeyWork.success) {
+            keyWorks = parsedKeyWork.data.split(' ')
+                .map(kw => kw.trim())
+                .filter(Boolean)
+                .map(kw => kw.toLowerCase())
+        }
+    }
+
     const categoryTypes = toStringArray(queries.categoryTypes)
     const categoryPublicIds = toStringArray(queries.categoryPublicIds)
 
@@ -22,17 +34,35 @@ export default defineWrappedResponseHandler(async (event) => {
 
     const data = await prisma.product.findMany({
         where: {
-            status: 'ACTIVE',
-            categories: {
-                some: {
-                    publicId: categoryPublicIds.length ? {
-                        in: categoryPublicIds
-                    } : undefined,
-                    type: categoryTypes.length ? {
-                        in: categoryTypes
-                    } : undefined
+            AND: [
+                {
+                    status: 'ACTIVE',
+                },
+                {
+                    OR: [
+                        {
+                            categories: {
+                                some: {
+                                    publicId: categoryPublicIds.length ? {
+                                        in: categoryPublicIds
+                                    } : undefined,
+                                    type: categoryTypes.length ? {
+                                        in: categoryTypes
+                                    } : undefined
+                                }
+                            },
+                        }
+                    ],
+                },
+                {
+                    OR: keyWorks?.map(k => ({
+                        name: {
+                            contains: k,
+                            mode: "insensitive"
+                        }
+                    }))
                 }
-            }
+            ]
         },
         include: {
             files: {

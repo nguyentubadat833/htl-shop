@@ -9,6 +9,7 @@ const sortOptions = ['Newest', 'Popular'] as const
 // type SortOption = typeof sortOptions[number]
 
 type ProductListFilterState = {
+  keyWork: string | undefined,
   plans: ProductPlan[],
   categoryTypes: CategoryType[],
   categoryPublicIds: string[] | undefined
@@ -16,7 +17,9 @@ type ProductListFilterState = {
 
 const _useIndex = () => {
 
+  const filterStatus = ref(false)
   const filterState = useState(() => reactive<ProductListFilterState>({
+    keyWork: undefined,
     plans: [ProductPlan.FREE, ProductPlan.PRO],
     categoryTypes: [CategoryType.TWO_D, CategoryType.THREE_D],
     categoryPublicIds: undefined
@@ -27,6 +30,7 @@ const _useIndex = () => {
 
   return {
     filterState,
+    filterStatus
   }
 }
 

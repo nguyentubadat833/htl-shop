@@ -1,9 +1,10 @@
 <template>
   <UHeader :ui="ui" mode="slideover">
     <template #left>
-      <UiLogo/>
+      <UiLogo />
       <!-- <UiGoogleButton class="lg:hidden" /> -->
-      <UInput icon="i-lucide-search" variant="outline" placeholder="Search..." :ui="btnSearchUI" />
+      <UInput v-model="input" :loading="filterStatus" icon="i-lucide-search" variant="outline"
+        placeholder="Search..." :ui="btnSearchUI" />
     </template>
     <template #right>
       <div class="lg:block hidden">
@@ -22,6 +23,9 @@
 </template>
 
 <script lang="ts" setup>
+import { refDebounced } from '@vueuse/core'
+import { useIndex } from '~/composables/pages';
+
 const ui = {
   left: "items-center gap-5"
 };
@@ -30,6 +34,18 @@ const btnSearchUI = {
   root: "w-full",
   base: "rounded-3xl h-10"
 };
+
+const input = ref<string>()
+const inputDebounced = refDebounced(input, 1000)
+
+const { filterState, filterStatus } = useIndex()
+
+watchEffect(() => {
+  if (typeof inputDebounced.value === 'string') {
+    filterState.value.keyWork = inputDebounced.value
+    // filterState.value.loading = true
+  }
+})
 
 // import type { NavigationMenuItem } from "@nuxt/ui";
 
