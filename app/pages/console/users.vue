@@ -37,6 +37,10 @@ const columns: TableColumn<SerializeObject<UserItem>>[] = [
     header: 'Avatar',
   },
 ]
+
+useSeoMeta({
+  title: 'Users'
+})
 </script>
 
 <template>

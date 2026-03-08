@@ -211,6 +211,10 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
   };
 };
 
+useSeoMeta({
+  title: 'Products'
+})
+
 const UButton = resolveComponent("UButton");
 const { createPresignedUploadTask } = useFile();
 const { $userApi } = useNuxtApp();

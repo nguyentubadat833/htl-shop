@@ -128,6 +128,10 @@ function pushToModel(alias: string) {
   window.open(routeData.href, "_blank")
 }
 
+useSeoMeta({
+  title: 'Orders'
+})
+
 </script>
 
 <template>

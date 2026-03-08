@@ -61,18 +61,18 @@ const items = computed<NavigationMenuItem[][]>(() => {
     //     to: "/profile"
     //   }
     // ],
-    [
-      {
-        label: "My cart",
-        icon: "ic:outline-shopping-basket",
-        to: "/cart"
-      },
-      // {
-      //   label: "History",
-      //   icon: "ic:round-history",
-      //   to: "/history"
-      // }
-    ],
+    // [
+    //   {
+    //     label: "My cart",
+    //     icon: "ic:outline-shopping-basket",
+    //     to: "/cart"
+    //   },
+    //   {
+    //     label: "History",
+    //     icon: "ic:round-history",
+    //     to: "/history"
+    //   }
+    // ],
     [
       {
         label: "Logout",

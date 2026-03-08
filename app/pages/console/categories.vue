@@ -236,6 +236,10 @@ function del() {
     }
   })
 }
+
+useSeoMeta({
+  title: 'Categories'
+})
 </script>
 
 <style></style>

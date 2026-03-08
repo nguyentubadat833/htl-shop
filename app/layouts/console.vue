@@ -107,4 +107,8 @@ async function navItemClick(data: NavigationMenuItem) {
   }
   navItemCurrent.value = data
 }
-</script>bg-orange-200'
+
+useSeoMeta({
+  title: 'Console'
+})
+</script>
