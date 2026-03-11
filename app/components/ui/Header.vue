@@ -1,37 +1,33 @@
 <template>
-  <UHeader :ui="ui" mode="slideover" :toggle="false">
+  <UHeader :ui="ui" mode="slideover">
     <template #left>
       <UiLogo />
       <!-- <UiGoogleButton class="lg:hidden" /> -->
       <UInput v-model="input" :loading="filterStatus" icon="i-lucide-search" variant="outline" placeholder="Search..."
         :ui="btnSearchUI" />
     </template>
-    <!-- <template #right>
-      <div class="lg:block hidden">
-        <UiCartButton class="lg:mr-3 mr-0" />
-      </div>
-      <UColorModeButton class="hover:scale-110 lg:hidden" />
-      <div class="lg:flex gap-3 hidden">
-        <UColorModeButton class="hover:scale-110" />
-        <UiGoogleButton />
-      </div>
-    </template> -->
     <template #right>
       <div class="lg:flex gap-3 hidden">
         <UColorModeButton class="hover:scale-110" />
-        <UiCartButton />
-        <UiGoogleButton />
+        <BtnCart />
+        <BtnGoogle />
       </div>
     </template>
     <template #body>
-      <UiFilterModels/> />
+      <div class="space-y-5 py-5">
+        <div class="flex justify-between">
+          <FilterModelTypes />
+          <FilterPlans />
+        </div>
+        <FilterModels />
+      </div>
     </template>
   </UHeader>
 </template>
 
 <script lang="ts" setup>
 import { refDebounced } from '@vueuse/core'
-import { useIndex } from '~/composables/pages';
+import { useFilter } from '~/composables/components/filter';
 
 const ui = {
   container: '',
@@ -47,7 +43,7 @@ const btnSearchUI = {
 const input = ref<string>()
 const inputDebounced = refDebounced(input, 1000)
 
-const { filterState, filterStatus } = useIndex()
+const { filterState, filterStatus } = useFilter()
 
 watchEffect(() => {
   if (typeof inputDebounced.value === 'string') {

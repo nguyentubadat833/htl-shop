@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 import type { NavigationMenuItem } from '@nuxt/ui'
-import { useIndex } from '~/composables/pages'
+import { useFilter } from '~/composables/components/filter'
 
 // type MenuItem = {
 //   code: string
@@ -40,7 +40,7 @@ import { useIndex } from '~/composables/pages'
 //   }
 // })
 
-const { filterState: indexFilterState } = useIndex()
+const { filterState: indexFilterState } = useFilter()
 const selectedCategoryPublicId = toRef(indexFilterState.value, 'categoryPublicIds')
 
 

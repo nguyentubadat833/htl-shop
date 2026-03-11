@@ -3,9 +3,9 @@
     <UiHeader />
     <UMain>
       <UContainer>
-        <div class="py-9 space-y-5">
-          <div class="lg:block hidden">
-            <UiNav />
+        <div class="py-5 space-y-5">
+          <div class="flex justify-center lg:justify-start">
+            <UiNav/>
           </div>
           <!-- <div class="flex md:justify-start justify-center gap-1">
             <UButton v-for="item in nav" :label="item.label" :icon="item.icon" color="neutral" variant="link"
@@ -16,7 +16,10 @@
       </UContainer>
     </UMain>
     <UiFooter />
-    <div class="lg:hidden fixed bottom-0 w-full p-2 bg-neutral-900 backdrop-blur border-t border-default z-50">
+    <div class="fixed lg:hidden bottom-0 w-full">
+      <UiStickyBar/>
+    </div>
+    <!-- <div class="lg:hidden fixed bottom-0 w-full p-2 bg-neutral-900 backdrop-blur border-t border-default z-50">
       <div class="[&_*]:text-gray-300 grid grid-cols-3">
         <div>
           <UiGoogleButton />
@@ -28,7 +31,7 @@
           <UColorModeButton class="hover:scale-110" />
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 

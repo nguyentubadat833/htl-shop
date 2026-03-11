@@ -2,25 +2,12 @@
   <UPage :ui="pageUI">
     <template #left>
       <UPageAside>
-        <UiFilterModels />
+        <FilterModels />
       </UPageAside>
     </template>
-    <div class="flex justify-between">
-
-      <div class="flex gap-4">
-        <UCheckbox :model-value="filterState.categoryTypes.includes(CategoryType.THREE_D)" :label="CategoryType.THREE_D"
-          @update:model-value="(value) => chooseCategoryType(value, CategoryType.THREE_D)" />
-        <UCheckbox :model-value="filterState.categoryTypes.includes(CategoryType.TWO_D)" :label="CategoryType.TWO_D"
-          @update:model-value="(value) => chooseCategoryType(value, CategoryType.TWO_D)" />
-      </div>
-
-      <div class="flex gap-4">
-        <UCheckbox :model-value="filterState.plans.includes(ProductPlan.FREE)" label="FREE"
-          @update:model-value="(value) => choosePlan(value, ProductPlan.FREE)" />
-        <UCheckbox :model-value="filterState.plans.includes(ProductPlan.PRO)" label="PRO"
-          @update:model-value="(value) => choosePlan(value, ProductPlan.PRO)" />
-      </div>
-
+    <div class="lg:flex justify-between  hidden">
+      <FilterModelTypes />
+      <FilterPlans />
     </div>
     <UPageGrid>
       <UPageCard v-for="(card, index) in productList" :key="useId()" v-bind="card" :ui="cardUI">
@@ -75,8 +62,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useIndex } from '~/composables/pages'
 import { ProductPlan } from '~~/prisma/generated/browser'
+import { useFilter } from '~/composables/components/filter'
 
 useSeoMeta({
   title: 'Home'
@@ -99,9 +86,7 @@ const cardUI = {
 // }
 
 const { addProduct } = useCart()
-const { filterState, filterStatus } = useIndex()
-const plans = toRef(filterState.value, 'plans')
-const categoryTypes = toRef(filterState.value, 'categoryTypes')
+const { filterState, filterStatus } = useFilter()
 
 const { data: productList, pending } = await useAsyncData(
   () => $fetch('/data/products', {
@@ -114,22 +99,6 @@ const { data: productList, pending } = await useAsyncData(
     }
   }
 )
-
-function choosePlan(value: boolean | "indeterminate", plan: ProductPlan) {
-  if (value === true) {
-    plans.value.push(plan)
-  } else {
-    plans.value = plans.value.filter(pl => pl !== plan)
-  }
-}
-
-function chooseCategoryType(value: boolean | "indeterminate", type: CategoryType) {
-  if (value === true) {
-    categoryTypes.value.push(type)
-  } else {
-    categoryTypes.value = categoryTypes.value.filter(pl => pl !== type)
-  }
-}
 
 watch(pending, (newValue) => {
   filterStatus.value = newValue

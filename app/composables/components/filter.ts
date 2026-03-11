@@ -15,7 +15,7 @@ type ProductListFilterState = {
   categoryPublicIds: string[] | undefined
 }
 
-const _useIndex = () => {
+const _useFilter = () => {
 
   const filterStatus = ref(false)
   const filterState = useState(() => reactive<ProductListFilterState>({
@@ -24,6 +24,13 @@ const _useIndex = () => {
     categoryTypes: [CategoryType.TWO_D, CategoryType.THREE_D],
     categoryPublicIds: undefined
   }))
+
+  const filterTags = computed<string[]>(() => {
+    return [
+      ...filterState.value.plans,
+      ...filterState.value.categoryTypes
+    ]
+  })
 
   // States
   // const sortSelected = useState(() => ref<SortOption>('Newest'))
@@ -34,4 +41,4 @@ const _useIndex = () => {
   }
 }
 
-export const useIndex = createSharedComposable(_useIndex)
+export const useFilter = createSharedComposable(_useFilter)
