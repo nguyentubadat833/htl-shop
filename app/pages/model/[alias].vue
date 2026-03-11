@@ -65,8 +65,9 @@ const btnAddToCartUI = {
   base: 'rounded-3xl h-10'
 }
 
-const { addProduct } = useCart()
+const requestUrl = useRequestURL()
 const route = useRoute()
+const { addProduct } = useCart()
 
 const { data: info } = await useFetch(`/data/product/${route.params.alias}`, {
   transform(value) {
@@ -174,10 +175,12 @@ function select(index: number) {
   carousel.value?.emblaApi?.scrollTo(index)
 }
 
+
+
 useSeoMeta({
   title: info.value.name,
   description: info.value.description,
-  ogImage: info.value.images[0],
+  ogImage: `${requestUrl.origin}${info.value.images[0]}`,
   ogImageAlt: 'img'
 })
 </script>

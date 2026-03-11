@@ -2,6 +2,7 @@
 .nuxt
 .env
 .data
+.output
 node_modules
 keys
 #prisma/generated

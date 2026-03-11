@@ -1,6 +1,6 @@
 import z from "zod"
 import { ProductSEOItemResponse } from "#shared/types/product"
-import { ProductPlan } from "~~/prisma/generated/enums"
+// import { ProductPlan } from "~~/prisma/generated/enums"
 
 export default defineWrappedResponseHandler(async (event) => {
     const { alias } = zodValidateRequestOrThrow(z.object({

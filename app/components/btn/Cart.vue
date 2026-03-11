@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts" setup>
-import { S } from 'vue-router/dist/router-CWoNjPRp.mjs'
 import session from '~/utils/session.ts'
 
 withDefaults(

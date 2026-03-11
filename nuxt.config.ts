@@ -46,7 +46,8 @@ export default defineNuxtConfig({
       id: process.env.NUXT_SEPAY_ID,
       key: process.env.NUXT_SEPAY_KEY,
       env: process.env.NUXT_SEPAY_ENV
-    }
+    },
+    siteUrl: ''
   },
   content: {
     experimental: {
