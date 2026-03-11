@@ -8,6 +8,11 @@ const sortOptions = ['Newest', 'Popular'] as const
 // Types
 // type SortOption = typeof sortOptions[number]
 
+type CategoryFilter = {
+  name: string
+  publicId: string
+}
+
 type ProductListFilterState = {
   keyWork: string | undefined,
   plans: ProductPlan[],
@@ -15,29 +20,46 @@ type ProductListFilterState = {
   categoryPublicIds: string[] | undefined
 }
 
+const defaultPlanFilter = [ProductPlan.FREE, ProductPlan.PRO]
+const defaultCategoryTypeFilter = [CategoryType.TWO_D, CategoryType.THREE_D]
+
 const _useFilter = () => {
 
   const filterStatus = ref(false)
+  const filterCategories = useState(() => ref<CategoryFilter[]>([]))
   const filterState = useState(() => reactive<ProductListFilterState>({
     keyWork: undefined,
-    plans: [ProductPlan.FREE, ProductPlan.PRO],
-    categoryTypes: [CategoryType.TWO_D, CategoryType.THREE_D],
+    plans: defaultPlanFilter,
+    categoryTypes: defaultCategoryTypeFilter,
     categoryPublicIds: undefined
   }))
 
   const filterTags = computed<string[]>(() => {
     return [
       ...filterState.value.plans,
-      ...filterState.value.categoryTypes
+      ...filterState.value.categoryTypes,
+      ...filterCategories.value.map(ftg => ftg.name)
     ]
   })
+
+  function resetFilter() {
+    filterState.value.keyWork = undefined
+    filterState.value.plans = defaultPlanFilter
+    filterState.value.categoryTypes = defaultCategoryTypeFilter
+    filterState.value.categoryPublicIds = undefined
+
+    filterCategories.value = []
+  }
 
   // States
   // const sortSelected = useState(() => ref<SortOption>('Newest'))
 
   return {
     filterState,
-    filterStatus
+    filterStatus,
+    filterCategories,
+    filterTags,
+    resetFilter
   }
 }
 

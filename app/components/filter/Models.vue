@@ -10,7 +10,8 @@
     <template #item-label="{ item }">
       <div class="flex gap-2">
         <ClientOnly>
-          <UCheckbox v-if="item.isMenuItem" :model-value="selectedCategoryPublicId?.includes(item.publicId)" @update:model-value="(value) => onCheckboxChange(value, item.publicId)" />
+          <UCheckbox v-if="item.isMenuItem" :model-value="selectedCategoryPublicId?.includes(item.publicId)"
+            @update:model-value="(value) => onCheckboxChange(value, item.publicId, item.label)" />
         </ClientOnly>
         {{ item.label }}
       </div>
@@ -40,8 +41,8 @@ import { useFilter } from '~/composables/components/filter'
 //   }
 // })
 
-const { filterState: indexFilterState } = useFilter()
-const selectedCategoryPublicId = toRef(indexFilterState.value, 'categoryPublicIds')
+const { filterState, filterCategories } = useFilter()
+const selectedCategoryPublicId = toRef(filterState.value, 'categoryPublicIds')
 
 
 const { data: nav } = await useAsyncData(() => $fetch('/data/categories'), {
@@ -86,17 +87,23 @@ const items = ref<NavigationMenuItem[][]>([
 ])
 
 
-function onCheckboxChange(value: boolean | "indeterminate", publicId?: string) {
+function onCheckboxChange(value: boolean | "indeterminate", publicId?: string, name?: string) {
   if (!selectedCategoryPublicId.value) {
     selectedCategoryPublicId.value = []
   }
 
-  if (publicId) {
+  if (publicId && name) {
     if (value === true) {
-      selectedCategoryPublicId.value.push(publicId)
+      filterCategories.value.push({
+        publicId,
+        name
+      })
+      // selectedCategoryPublicId.value.push(publicId)
     } else {
-      selectedCategoryPublicId.value = selectedCategoryPublicId.value.filter(pId => pId !== publicId)
+      filterCategories.value = filterCategories.value.filter(ftg => ftg.publicId !== publicId)
+      // selectedCategoryPublicId.value = selectedCategoryPublicId.value.filter(pId => pId !== publicId)
     }
+    selectedCategoryPublicId.value = filterCategories.value.map(ftg => ftg.publicId)
   }
 }
 

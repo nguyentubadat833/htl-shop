@@ -46,6 +46,10 @@ const inputDebounced = refDebounced(input, 1000)
 const { filterState, filterStatus } = useFilter()
 
 watchEffect(() => {
+  if (filterState.value.keyWork === undefined) {
+    input.value = ''
+  }
+
   if (typeof inputDebounced.value === 'string') {
     filterState.value.keyWork = inputDebounced.value
     // filterState.value.loading = true

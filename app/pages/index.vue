@@ -9,6 +9,13 @@
       <FilterModelTypes />
       <FilterPlans />
     </div>
+    <div class="space-y-3">
+      <UBadge label="Reset filter" icon="ic:outline-filter-alt-off" color="neutral" variant="soft"
+        class="rounded-full cursor-pointer" @click="resetFilter" />
+      <div class="space-x-3 space-y-2">
+        <UBadge v-for="item in filterTags" :label="item" color="neutral" variant="soft" class="rounded-full max-w-20" />
+      </div>
+    </div>
     <UPageGrid>
       <UPageCard v-for="(card, index) in productList" :key="useId()" v-bind="card" :ui="cardUI">
         <template #leading>
@@ -86,7 +93,7 @@ const cardUI = {
 // }
 
 const { addProduct } = useCart()
-const { filterState, filterStatus } = useFilter()
+const { filterState, filterStatus, filterTags, resetFilter } = useFilter()
 
 const { data: productList, pending } = await useAsyncData(
   () => $fetch('/data/products', {
