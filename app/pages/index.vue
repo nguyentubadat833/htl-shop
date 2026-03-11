@@ -2,7 +2,7 @@
   <UPage :ui="pageUI">
     <template #left>
       <UPageAside>
-        <UiMenu />
+        <UiFilterModels />
       </UPageAside>
     </template>
     <div class="flex justify-between">
@@ -20,7 +20,6 @@
         <UCheckbox :model-value="filterState.plans.includes(ProductPlan.PRO)" label="PRO"
           @update:model-value="(value) => choosePlan(value, ProductPlan.PRO)" />
       </div>
-
 
     </div>
     <UPageGrid>

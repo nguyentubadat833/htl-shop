@@ -33,6 +33,7 @@
     "rimraf": "^6.0.1",
     "sepay-pg-node": "^1.0.0",
     "slug": "^11.0.1",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3",
     "vue": "^3.5.22",
     "vue-router": "^4.5.1",

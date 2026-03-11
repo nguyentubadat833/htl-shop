@@ -1,21 +1,31 @@
 <template>
   <ClientOnly @click="click()">
     <UChip v-if="quality" :text="quality" size="3xl" color="warning" inset class="hover:scale-110">
-      <UButton icon="ic:outline-shopping-cart" color="neutral" variant="ghost"/>
+      <UButton icon="ic:outline-shopping-cart" color="neutral" variant="ghost" :size="size"/>
     </UChip>
     <UButton v-else icon="ic:outline-shopping-cart" color="neutral" variant="ghost" />
   </ClientOnly>
 </template>
 
 <script lang="ts" setup>
+import { S } from 'vue-router/dist/router-CWoNjPRp.mjs'
 import session from '~/utils/session.ts'
+
+withDefaults(
+  defineProps<{
+    size?: any
+  }>(),
+  {
+    size: undefined
+  }
+)
 
 const { authSession } = session()
 const { count, quality } = useCart()
 const getAuthSession = computed(() => !!authSession().get())
 
 function click() {
-  if(!getAuthSession.value){
+  if (!getAuthSession.value) {
     document.getElementById('googleSigninButton')?.click()
     return
   }

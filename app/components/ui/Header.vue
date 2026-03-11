@@ -1,12 +1,12 @@
 <template>
-  <UHeader :ui="ui" mode="slideover">
+  <UHeader :ui="ui" mode="slideover" :toggle="false">
     <template #left>
       <UiLogo />
       <!-- <UiGoogleButton class="lg:hidden" /> -->
-      <UInput v-model="input" :loading="filterStatus" icon="i-lucide-search" variant="outline"
-        placeholder="Search..." :ui="btnSearchUI" />
+      <UInput v-model="input" :loading="filterStatus" icon="i-lucide-search" variant="outline" placeholder="Search..."
+        :ui="btnSearchUI" />
     </template>
-    <template #right>
+    <!-- <template #right>
       <div class="lg:block hidden">
         <UiCartButton class="lg:mr-3 mr-0" />
       </div>
@@ -15,9 +15,16 @@
         <UColorModeButton class="hover:scale-110" />
         <UiGoogleButton />
       </div>
+    </template> -->
+    <template #right>
+      <div class="lg:flex gap-3 hidden">
+        <UColorModeButton class="hover:scale-110" />
+        <UiCartButton />
+        <UiGoogleButton />
+      </div>
     </template>
     <template #body>
-      <UiMenu />
+      <UiFilterModels/> />
     </template>
   </UHeader>
 </template>
@@ -27,12 +34,14 @@ import { refDebounced } from '@vueuse/core'
 import { useIndex } from '~/composables/pages';
 
 const ui = {
-  left: "items-center gap-5"
+  container: '',
+  left: "items-center w-full lg:space-x-2",
+  right: 'space-x-1'
 };
 
 const btnSearchUI = {
   root: "w-full",
-  base: "rounded-3xl h-10"
+  base: "rounded-3xl h-9"
 };
 
 const input = ref<string>()

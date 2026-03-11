@@ -1,5 +1,12 @@
 <template>
   <UNavigationMenu orientation="vertical" :items="items" class="data-[orientation=vertical]">
+    <!-- <template #item-leading="{ item }">
+      <ClientOnly>
+        <UCheckbox v-if="item.isMenuItem" :model-value="selectedCategoryPublicId?.includes(item.publicId)"
+          @update:model-value="(value) => onCheckboxChange(value, item.publicId)" />
+      </ClientOnly>
+    </template> -->
+
     <template #item-label="{ item }">
       <div class="flex gap-2">
         <ClientOnly>

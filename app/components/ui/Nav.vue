@@ -4,10 +4,6 @@
       <UButton v-for="item in nav" :label="item.label" :icon="item.icon" color="neutral" variant="link"
         @click="navigateTo(item.to)" />
     </div>
-    <div class="flex gap-3">
-      <UiCartButton class="lg:hidden"/>
-      <UiGoogleButton class="lg:hidden" />
-    </div>
   </div>
 </template>
 
