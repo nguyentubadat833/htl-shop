@@ -3,9 +3,9 @@
     <UiHeader />
     <UMain>
       <UContainer>
-        <div class="py-5 space-y-5">
+        <div class="py-5 flex flex-col gap-10">
           <div class="flex justify-center lg:justify-start">
-            <UiNav/>
+            <UiNav />
           </div>
           <!-- <div class="flex md:justify-start justify-center gap-1">
             <UButton v-for="item in nav" :label="item.label" :icon="item.icon" color="neutral" variant="link"
@@ -17,7 +17,7 @@
     </UMain>
     <UiFooter />
     <div class="fixed lg:hidden bottom-0 w-full">
-      <UiStickyBar/>
+      <UiStickyBar />
     </div>
     <!-- <div class="lg:hidden fixed bottom-0 w-full p-2 bg-neutral-900 backdrop-blur border-t border-default z-50">
       <div class="[&_*]:text-gray-300 grid grid-cols-3">

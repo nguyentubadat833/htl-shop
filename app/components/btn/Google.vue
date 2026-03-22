@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <UPopover v-if="userAuth!== null" :ui="popoverUI">
+    <UPopover v-if="userAuth !== null" :ui="popoverUI">
       <UUser
         :avatar="{
           src: userAuth.picture,
@@ -13,17 +13,9 @@
         <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
       </template>
     </UPopover>
-    <UButton
-      v-else
-      id="googleSigninButton"
-      :loading="isLoading"
-      label="Sign in"
-      color="neutral"
-      variant="ghost"
-      icon="ic:baseline-log-in"
-      size="md"
-      @click="signInWithGoogle"
-    />
+    <UButton v-else id="googleSigninButton" :loading="isLoading" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md" @click="signInWithGoogle">
+      <p class="hidden lg:block">Sign in</p>
+    </UButton>
   </ClientOnly>
 </template>
 
@@ -38,10 +30,10 @@ import { useGoogleButton } from "~/composables/components/googleButton";
 
 type VerifyCodeRequest = z.infer<typeof VerifyCodeRequestSchema>;
 const userUI = {
-  name: "lg:block hidden"
+  name: "lg:block hidden",
 };
 const popoverUI = {
-  content: "p-2"
+  content: "p-2",
 };
 
 const { logout } = useAuth();
@@ -89,9 +81,9 @@ const items = computed<NavigationMenuItem[][]>(() => {
           //   cartQuality.value = undefined
           //   navigateTo('/')
           // });
-        }
-      }
-    ]
+        },
+      },
+    ],
   ];
 
   if (userAuth.value?.role === UserRole.ADMIN.toString()) {
@@ -99,8 +91,8 @@ const items = computed<NavigationMenuItem[][]>(() => {
       {
         label: "CMS Admin",
         icon: "ic:baseline-admin-panel-settings",
-        to: "/console"
-      }
+        to: "/console",
+      },
     ]);
   }
 
@@ -141,7 +133,7 @@ onMounted(() => {
             userAuth.value = response._data;
             authSession().set(userAuth.value!);
           }
-        }
+        },
       });
     }
   } else {
@@ -167,8 +159,8 @@ function initGoogle() {
       userAuth.value = await $fetch("/api/auth/google/verify-code", {
         method: "POST",
         body: <VerifyCodeRequest>{
-          code: response.code
-        }
+          code: response.code,
+        },
         // async onResponse({ response }) {
         //   if (response.ok && response._data) {
         //     userAuth.value = response._data;
@@ -187,7 +179,7 @@ function initGoogle() {
       await nextTick();
       void cartCount();
       await useRouter().push(useRoute().fullPath);
-    }
+    },
   });
 }
 

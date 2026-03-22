@@ -5,9 +5,10 @@ import type { AddProductToCartSchema, CheckoutInCartSchema, RemoveProductsInCart
 const quality = ref();
 
 export default function () {
-  const { $userApi } = useNuxtApp();
+  const router = useRouter();
   const appToast = new useAppToast();
   const { authSession } = session();
+  const { $userApi } = useNuxtApp();
 
   async function count() {
     if (authSession().get()) {
@@ -25,12 +26,12 @@ export default function () {
     return await $userApi("/api/shopping/cart/data/list");
   }
 
-  function addProduct(id: string, name?: string) {
+  async function addProduct(id: string, name?: string, isToast = true) {
     if (!authSession().get()) {
       document.getElementById("googleSigninButton")?.click();
       return;
     }
-    $userApi("/api/shopping/cart/add", {
+    const { id: cartdId } = await $userApi("/api/shopping/cart/add", {
       method: "POST",
       body: <z.infer<typeof AddProductToCartSchema>>{
         product_publicId: id,
@@ -38,13 +39,16 @@ export default function () {
       onResponse({ response }) {
         if (response.ok) {
           count();
-          appToast.success({
-            title: 'Added to cart',
-            description: name
-          });
+          if (isToast) {
+            appToast.success({
+              title: 'Added to cart',
+              description: name
+            });
+          }
         }
       },
     });
+    return cartdId
   }
 
   async function removeProducts(ids: string[]) {
@@ -78,6 +82,27 @@ export default function () {
     return orderId;
   }
 
+  async function buyNow(publicId: string) {
+    try {
+      const cardId = await addProduct(publicId, undefined, false)
+      if (cardId) {
+        const orderId = await checkout([cardId]);
+        await router.push({
+          path: "payment",
+          query: {
+            orderId: orderId,
+            status: "confirm",
+          },
+        });
+      }
+    } catch (err) {
+      appToast.toast.add({
+        title: 'Error',
+        color: 'error'
+      })
+    }
+  }
+
   return {
     quality,
     count,
@@ -85,5 +110,6 @@ export default function () {
     addProduct,
     removeProducts,
     checkout,
+    buyNow
   };
 }

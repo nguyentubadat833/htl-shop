@@ -1,10 +1,22 @@
 <template>
   <div class="space-y-5">
-    <UPricingPlan :title="cardState.title" :description="cardState.description" :price="convertMoney(amount)"
-      :features="products.map(prd => prd.name)" orientation="horizontal" :tagline="cardState.tagline">
+    <UPricingPlan
+      :title="cardState.title"
+      :description="cardState.description"
+      :price="convertMoney(amount)"
+      :features="products.map((prd) => prd.name)"
+      orientation="horizontal"
+      :tagline="cardState.tagline"
+    >
       <template #button>
-        <UButton :disabled="orderIsPaid" :label="cardState.paymentButtonLabel" icon="ic:outline-payments"
-          :color="(cardState.paymentButtonColor as any)" block @click="payment()" />
+        <UButton
+          :disabled="orderIsPaid"
+          :label="cardState.paymentButtonLabel"
+          icon="ic:outline-payments"
+          :color="cardState.paymentButtonColor as any"
+          block
+          @click="payment()"
+        />
       </template>
     </UPricingPlan>
     <!-- <UModal v-model:open="openQRModal">
@@ -17,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import z from 'zod'
+import z from "zod";
 
 // interface PricePlan {
 //   products: {
@@ -36,60 +48,62 @@ import z from 'zod'
 //   checkoutForm: object
 // }
 enum Status {
-  Confirm = 'confirm',
-  Success = 'success',
-  Error = 'error',
-  Cancel = 'cancel',
+  Confirm = "confirm",
+  Success = "success",
+  Error = "error",
+  Cancel = "cancel",
 }
 
-const toast = useToast()
-const route = useRoute()
-const { $userApi } = useNuxtApp()
+// const toast = useToast()
+const route = useRoute();
+const { $userApi } = useNuxtApp();
 // const openQRModal = ref(false)
 // const finalAmount = ref<number>()
-const status = ref<Status>()
-const orderId = ref<string>()
+const status = ref<Status>();
+const orderId = ref<string>();
 const cardState = reactive({
-  title: 'Payment',
-  description: 'Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email.',
-  tagline: 'Pay once, own it forever',
-  paymentButtonLabel: 'Continue to Payment',
-  paymentButtonColor: 'warning'
-})
-const orderIsPaid = computed(() => paid || status.value === Status.Success)
+  title: "Payment",
+  description: "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email.",
+  tagline: "Pay once, own it forever",
+  paymentButtonLabel: "Continue to Payment",
+  paymentButtonColor: "warning",
+});
+const orderIsPaid = computed(() => paid || status.value === Status.Success);
 
-const queryRaw = route.query
-const parseQuery = z.object({
-  status: z.enum(Status),
-  orderId: z.string()
-}).safeParse(queryRaw)
+const queryRaw = route.query;
+const parseQuery = z
+  .object({
+    status: z.enum(Status),
+    orderId: z.string(),
+  })
+  .safeParse(queryRaw);
 if (!parseQuery.success) {
   throw createError({
-    statusCode: 404
-  })
+    statusCode: 404,
+  });
 }
 
-orderId.value = parseQuery.data.orderId
-status.value = parseQuery.data.status
+orderId.value = parseQuery.data.orderId;
+status.value = parseQuery.data.status;
 
-const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId.value}`)
+const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId.value}`);
 
 async function payment() {
-  if(!amount){
-    window.location.href = `/api/payment/free?orderId=${orderId.value}&origin=${window.origin}`
-    return
+  if (!amount) {
+    window.location.href = `/api/payment/free?orderId=${orderId.value}&origin=${window.origin}`;
+    return;
   }
-  window.location.href = `/api/payment/sepay/bank?orderId=${orderId.value}&origin=${window.origin}`
+  window.location.href = `/api/payment/sepay/bank?orderId=${orderId.value}&origin=${window.origin}`;
 }
 
 onBeforeMount(() => {
   if (orderIsPaid.value) {
-    cardState.description = 'The product will be delivered directly to your email shortly. Please check your inbox (and spam folder) for the download details.'
-    cardState.tagline = 'Payment Successful'
-    cardState.paymentButtonLabel = 'Paid'
-    cardState.paymentButtonColor = 'info'
+    cardState.description = "The product will be delivered directly to your email shortly. Please check your inbox (and spam folder) for the download details.";
+    cardState.tagline = "Payment Successful";
+    cardState.paymentButtonLabel = "Paid";
+    cardState.paymentButtonColor = "info";
   }
-})
+});
 
 // async function getAmountVND(){
 //   const {get, convert} = changeRate()
@@ -113,6 +127,9 @@ onBeforeMount(() => {
 //   return false
 // })
 
+useSeoMeta({
+  title: "Payment",
+});
 </script>
 
 <style></style>

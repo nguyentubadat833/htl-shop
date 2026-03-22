@@ -1,36 +1,47 @@
 <template>
-  <div class="space-y-5">
+  <div class="flex flex-col gap-5">
     <div class="lg:grid grid-cols-[7fr_3fr] space-y-5">
       <div class="flex-1 w-full lg:px-20">
-        <UCarousel ref="carousel" v-slot="{ item }" arrows :items="info?.images" :prev="{ onClick: onClickPrev }"
-          :next="{ onClick: onClickNext }" class="w-full" @select="onSelect">
+        <UCarousel
+          ref="carousel"
+          v-slot="{ item }"
+          arrows
+          :items="info?.images"
+          :prev="{ onClick: onClickPrev }"
+          :next="{ onClick: onClickNext }"
+          class="w-full"
+          @select="onSelect"
+        >
           <!-- <img :src="item" class="w-full"> -->
           <div class="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl">
             <div class="relative rounded-lg overflow-hidden">
-              <img :src="item" class="w-full">
+              <img :src="item" class="w-full" />
               <div class="hidden dark:block absolute inset-0 bg-black/10"></div>
             </div>
           </div>
         </UCarousel>
 
         <div class="flex gap-1 justify-between pt-4 max-w-xs mx-auto">
-          <div v-for="(item, index) in info?.images" :key="index"
+          <div
+            v-for="(item, index) in info?.images"
+            :key="index"
             class="size-11 opacity-25 hover:opacity-100 transition-opacity"
-            :class="{ 'opacity-100': activeIndex === index }" @click="select(index)">
-            <img :src="item" width="44" height="44" class="rounded-lg">
+            :class="{ 'opacity-100': activeIndex === index }"
+            @click="select(index)"
+          >
+            <img :src="item" width="44" height="44" class="rounded-lg" />
           </div>
         </div>
       </div>
-      <div class="space-y-10">
-        <div class="pb-2">
+      <div class="flex flex-col gap-6">
+        <div class="pb-2 lg:mt-0 mt-10">
           <span class="text-gray-600 font-bold text-xl">{{ info?.name }}</span>
         </div>
 
-        <div class="space-y-5">
+        <div class="flex flex-col gap-5">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
-              <UBadge :label="info?.plan.toUpperCase()"
-                :color="info?.plan === ProductPlan.FREE ? 'neutral' : 'success'" />
+              <UBadge :label="info?.plan.toUpperCase()" :color="info?.plan === ProductPlan.FREE ? 'neutral' : 'success'" />
               <span class="text-gray-500 font-bold text-xl">{{ info?.price }}</span>
             </div>
             <div class="text-gray-400 font-medium">
@@ -39,9 +50,33 @@
             </div>
           </div>
           <div>
-            <UButton label="Add to cart" icon="ic:outline-add-shopping-cart" color="secondary" variant="soft"
-              :ui="btnAddToCartUI" block class="hover:cursor-pointer"
-              @click="() => { info?.id && addProduct(info.id, info.name) }" />
+            <!-- <UButton
+              label="Add to cart"
+              icon="ic:outline-add-shopping-cart"
+              color="secondary"
+              variant="soft"
+              :ui="btnAddToCartUI"
+              block
+              class="hover:cursor-pointer"
+              @click="
+                () => {
+                  info?.id && addProduct(info.id, info.name);
+                }
+              "
+            /> -->
+            <UButton
+              label="Add to cart"
+              icon="ic:outline-add-shopping-cart"
+              color="secondary"
+              :ui="btnAddToCartUI"
+              block
+              class="hover:cursor-pointer"
+              @click="
+                () => {
+                  info?.id && addProduct(info.id, info.name);
+                }
+              "
+            />
           </div>
         </div>
         <div class="space-y-2">
@@ -57,65 +92,65 @@
 </template>
 
 <script lang="ts" setup>
-import { ProductPlan } from '~~/prisma/generated/browser'
-
+import { ProductPlan } from "~~/prisma/generated/browser";
 
 const btnAddToCartUI = {
-  root: 'w-full',
-  base: 'rounded-3xl h-10'
-}
+  root: "w-full",
+  base: "rounded-3xl h-10",
+};
 
-const requestUrl = useRequestURL()
-const route = useRoute()
-const { addProduct } = useCart()
+const requestUrl = useRequestURL();
+const route = useRoute();
+const { addProduct } = useCart();
 
 const { data: info } = await useFetch(`/data/product/${route.params.alias}`, {
   transform(value) {
     return {
       id: value.publicId,
       name: value.name,
-      price: value.price + ' $',
+      price: value.price + " $",
       plan: value.plan,
       images: value.imageLinks,
       specs: [
         {
           name: "Platform",
-          value: "3dsMax 2016 + obj"
+          value: "3dsMax 2016 + obj",
         },
         {
           name: "Render",
-          value: "V-Ray"
+          value: "V-Ray",
         },
         {
           name: "Size",
-          value: "44 MB"
+          value: "44 MB",
         },
         {
           name: "Colors",
-          value: "White"
+          value: "White",
         },
         {
           name: "Style",
-          value: "Modern"
+          value: "Modern",
         },
         {
           name: "Materials",
-          value: "Fabric"
+          value: "Fabric",
         },
         {
           name: "Formfactor",
-          value: "none"
-        }
+          value: "none",
+        },
       ],
-      description: "Soft and adorable eagle plush toy designed especially for kids – perfect for cozy bedrooms, nurseries, and playful interior scenes. High-quality 3D model with realistic fabric details and cute proportions."
-    }
-  }
-})
+      description:
+        "Soft and adorable eagle plush toy designed especially for kids – perfect for cozy bedrooms, nurseries, and playful interior scenes. High-quality 3D model with realistic fabric details and cute proportions.",
+    };
+  },
+});
 
 if (!info.value) {
   throw createError({
-    statusCode: 404
-  })
+    statusCode: 404,
+  });
 }
 
 // const info = reactive({
@@ -156,33 +191,31 @@ if (!info.value) {
 //   description: "Soft and adorable eagle plush toy designed especially for kids – perfect for cozy bedrooms, nurseries, and playful interior scenes. High-quality 3D model with realistic fabric details and cute proportions."
 // })
 
-const carousel = useTemplateRef('carousel')
-const activeIndex = ref(0)
+const carousel = useTemplateRef("carousel");
+const activeIndex = ref(0);
 
 function onClickPrev() {
-  activeIndex.value--
+  activeIndex.value--;
 }
 function onClickNext() {
-  activeIndex.value++
+  activeIndex.value++;
 }
 function onSelect(index: number) {
-  activeIndex.value = index
+  activeIndex.value = index;
 }
 
 function select(index: number) {
-  activeIndex.value = index
+  activeIndex.value = index;
 
-  carousel.value?.emblaApi?.scrollTo(index)
+  carousel.value?.emblaApi?.scrollTo(index);
 }
-
-
 
 useSeoMeta({
   title: info.value.name,
   description: info.value.description,
   ogImage: `${requestUrl.origin}${info.value.images[0]}`,
-  ogImageAlt: 'img'
-})
+  ogImageAlt: "img",
+});
 </script>
 
 <style></style>

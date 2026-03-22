@@ -67,15 +67,19 @@ export class CartService {
       }
     });
     if (exists) {
-      return
+      return exists.id
     } else {
-      await prisma.cart.create({
+      const data = await prisma.cart.create({
         data: {
           userId: this.userId,
           productId: product.id,
           price: finalPrice
+        },
+        select: {
+          id: true
         }
       })
+      return data.id
     }
   }
 
