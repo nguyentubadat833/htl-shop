@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   modules: [
     "@nuxt/ui",
     "@nuxt/image",
@@ -68,6 +68,11 @@ export default defineNuxtConfig({
     "/cart": {
       ssr: false,
     },
+  },
+
+  devServer: {
+    port: 4002,
+    host: '0.0.0.0'
   },
 
   vite: {

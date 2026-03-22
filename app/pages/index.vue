@@ -5,14 +5,19 @@
         <FilterModels />
       </UPageAside>
     </template>
-    <div class="lg:flex justify-between  hidden">
+    <div class="lg:flex justify-between hidden">
       <FilterModelTypes />
       <FilterPlans />
     </div>
-    <div class="space-y-3">
-      <UBadge label="Reset filter" icon="ic:outline-filter-alt-off" color="neutral" variant="soft"
-        class="rounded-full cursor-pointer" @click="resetFilter" />
-      <div class="space-x-3 space-y-2">
+    <div class="flex flex-col gap-5">
+      <div class="flex gap-3 lg:hidden"">
+        <FilterOptions/>
+        <FilterReset/>
+      </div>
+      <div class="hidden lg:block">
+       <FilterReset/>
+      </div>      
+      <div class="flex flex-wrap gap-3">
         <UBadge v-for="item in filterTags" :label="item" color="neutral" variant="soft" class="rounded-full max-w-20" />
       </div>
     </div>
@@ -77,7 +82,7 @@ useSeoMeta({
 })
 
 const pageUI = {
-  center: 'py-5 space-y-10',
+  center: 'py-5 flex flex-col gap-10',
   left: 'px-4! py-1!'
 }
 
@@ -93,7 +98,7 @@ const cardUI = {
 // }
 
 const { addProduct } = useCart()
-const { filterState, filterStatus, filterTags, resetFilter } = useFilter()
+const { filterState, filterStatus, filterTags } = useFilter()
 
 const { data: productList, pending } = await useAsyncData(
   () => $fetch('/data/products', {

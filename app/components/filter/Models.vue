@@ -8,20 +8,25 @@
     </template> -->
 
     <template #item-label="{ item }">
-      <div class="flex gap-2">
-        <ClientOnly>
-          <UCheckbox v-if="item.isMenuItem" :model-value="selectedCategoryPublicId?.includes(item.publicId)"
-            @update:model-value="(value) => onCheckboxChange(value, item.publicId, item.label)" />
-        </ClientOnly>
-        {{ item.label }}
-      </div>
+      <label>
+        <div class="flex gap-2">
+          <ClientOnly>
+            <UCheckbox
+              v-if="item.isMenuItem"
+              :model-value="selectedCategoryPublicId?.includes(item.publicId)"
+              @update:model-value="(value) => onCheckboxChange(value, item.publicId, item.label)"
+            />
+          </ClientOnly>
+          {{ item.label }}
+        </div>
+      </label>
     </template>
   </UNavigationMenu>
 </template>
 
 <script lang="ts" setup>
-import type { NavigationMenuItem } from '@nuxt/ui'
-import { useFilter } from '~/composables/components/filter'
+import type { NavigationMenuItem } from "@nuxt/ui";
+import { useFilter } from "~/composables/components/filter";
 
 // type MenuItem = {
 //   code: string
@@ -41,73 +46,71 @@ import { useFilter } from '~/composables/components/filter'
 //   }
 // })
 
-const { filterState, filterCategories } = useFilter()
-const selectedCategoryPublicId = toRef(filterState.value, 'categoryPublicIds')
+const { filterState, filterCategories } = useFilter();
+const selectedCategoryPublicId = toRef(filterState.value, "categoryPublicIds");
 
-
-const { data: nav } = await useAsyncData(() => $fetch('/data/categories'), {
+const { data: nav } = await useAsyncData(() => $fetch("/data/categories"), {
   transform(value) {
     return {
-      threeD: value.filter(i => i.type === CategoryType.THREE_D),
-      twoD: value.filter(i => i.type === CategoryType.TWO_D),
-    }
-  }
-})
+      threeD: value.filter((i) => i.type === CategoryType.THREE_D),
+      twoD: value.filter((i) => i.type === CategoryType.TWO_D),
+    };
+  },
+});
 
 const items = ref<NavigationMenuItem[][]>([
   [
     { label: "Models", type: "label" },
     {
       label: "3D",
-      icon: 'cuida:box-outline',
+      icon: "cuida:box-outline",
       open: true,
-      children: nav.value?.threeD?.map(item => {
-        return {
-          isMenuItem: true,
-          publicId: item.publicId,
-          label: item.name,
-          badge: item.products.count
-        }
-      }) ?? [],
+      children:
+        nav.value?.threeD?.map((item) => {
+          return {
+            isMenuItem: true,
+            publicId: item.publicId,
+            label: item.name,
+            badge: item.products.count,
+          };
+        }) ?? [],
     },
     {
       label: "2D",
-      icon: 'cuida:layers-outline',
+      icon: "cuida:layers-outline",
       open: true,
-      children: nav.value?.twoD?.map(item => {
-        return {
-          isMenuItem: true,
-          publicId: item.publicId,
-          label: item.name,
-          badge: item.products.count
-        }
-      }) ?? [],
+      children:
+        nav.value?.twoD?.map((item) => {
+          return {
+            isMenuItem: true,
+            publicId: item.publicId,
+            label: item.name,
+            badge: item.products.count,
+          };
+        }) ?? [],
     },
   ],
-])
-
+]);
 
 function onCheckboxChange(value: boolean | "indeterminate", publicId?: string, name?: string) {
   if (!selectedCategoryPublicId.value) {
-    selectedCategoryPublicId.value = []
+    selectedCategoryPublicId.value = [];
   }
 
   if (publicId && name) {
     if (value === true) {
       filterCategories.value.push({
         publicId,
-        name
-      })
+        name,
+      });
       // selectedCategoryPublicId.value.push(publicId)
     } else {
-      filterCategories.value = filterCategories.value.filter(ftg => ftg.publicId !== publicId)
+      filterCategories.value = filterCategories.value.filter((ftg) => ftg.publicId !== publicId);
       // selectedCategoryPublicId.value = selectedCategoryPublicId.value.filter(pId => pId !== publicId)
     }
-    selectedCategoryPublicId.value = filterCategories.value.map(ftg => ftg.publicId)
+    selectedCategoryPublicId.value = filterCategories.value.map((ftg) => ftg.publicId);
   }
 }
-
-
 </script>
 
 <style></style>

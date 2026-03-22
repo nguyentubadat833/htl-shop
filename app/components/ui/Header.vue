@@ -1,10 +1,9 @@
 <template>
-  <UHeader :ui="ui" mode="slideover">
+  <UHeader :ui="ui" mode="slideover" :toggle="false" :open="openToogleStatus">
     <template #left>
       <UiLogo />
       <!-- <UiGoogleButton class="lg:hidden" /> -->
-      <UInput v-model="input" :loading="filterStatus" icon="i-lucide-search" variant="outline" placeholder="Search..."
-        :ui="btnSearchUI" />
+      <UInput v-model="input" :loading="filterStatus" icon="i-lucide-search" variant="outline" placeholder="Search..." :ui="btnSearchUI" />
     </template>
     <template #right>
       <div class="lg:flex gap-3 hidden">
@@ -14,47 +13,52 @@
       </div>
     </template>
     <template #body>
-      <div class="space-y-5 py-5">
-        <div class="flex justify-between">
-          <FilterModelTypes />
-          <FilterPlans />
-        </div>
+      <div class="flex justify-between">
+        <FilterModelTypes />
+        <FilterPlans />
+      </div>
+      <div class="flex-1 overflow-y-auto">
         <FilterModels />
+      </div>
+      <div>
+        <UButton label="View Results" icon="ic:twotone-playlist-add-check" class="font-bold rounded-full" block @click="openToogleStatus = false" />
       </div>
     </template>
   </UHeader>
 </template>
 
 <script lang="ts" setup>
-import { refDebounced } from '@vueuse/core'
-import { useFilter } from '~/composables/components/filter';
+import { refDebounced } from "@vueuse/core";
+import { useFilter } from "~/composables/components/filter";
 
 const ui = {
-  container: '',
-  left: "items-center w-full lg:space-x-2",
-  right: 'space-x-1'
+  container: "lg:gap-3 gap-0",
+  left: "items-center w-full flex lg:gap-4 gap-2",
+  right: "space-x-1",
+  body: "h-full flex flex-col gap-5 py-5",
 };
 
 const btnSearchUI = {
   root: "w-full",
-  base: "rounded-3xl h-9"
+  base: "rounded-3xl h-9",
 };
 
-const input = ref<string>()
-const inputDebounced = refDebounced(input, 1000)
+const { openToogleStatus } = useFilter();
+const input = ref<string>();
+const inputDebounced = refDebounced(input, 1000);
 
-const { filterState, filterStatus } = useFilter()
+const { filterState, filterStatus } = useFilter();
 
 watchEffect(() => {
   if (filterState.value.keyWork === undefined) {
-    input.value = ''
+    input.value = "";
   }
 
-  if (typeof inputDebounced.value === 'string') {
-    filterState.value.keyWork = inputDebounced.value
+  if (typeof inputDebounced.value === "string") {
+    filterState.value.keyWork = inputDebounced.value;
     // filterState.value.loading = true
   }
-})
+});
 
 // import type { NavigationMenuItem } from "@nuxt/ui";
 

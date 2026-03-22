@@ -16,7 +16,7 @@
       <UCard :ui="layout.orderItems.ui">
         <UButton icon="ic:outline-plus" label="Add Category" block @click="add()" />
         <UFormField label="ID">
-          <UInput v-model="state.current.publicId" class="w-full" />
+          <UInput disabled v-model="state.current.publicId" class="w-full" />
         </UFormField>
         <UFormField label="Name">
           <UInput v-model="state.current.name" class="w-full" />
