@@ -215,6 +215,7 @@ useSeoMeta({
   description: info.value.description,
   ogImage: `${requestUrl.origin}${info.value.images[0]}`,
   ogImageAlt: "img",
+  ogDescription: info.value.description,
 });
 </script>
 

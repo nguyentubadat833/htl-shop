@@ -147,18 +147,18 @@ export class OrderService {
       .join('\n')
 
     const textMail = `
-    Dear ${order.orderByUser.name ?? 'Customer'},
+Dear ${order.orderByUser.name ?? 'Customer'},
     
-    Thank you for trusting and purchasing from HTL Architects.
+Thank you for trusting and purchasing from 3D2DS.
     
-    Below is the list of products you have purchased:
-    ${productListText}
+Below is the list of products you have purchased:
+${productListText}
     
-    Please find the attached files related to your order.
-    If you have any questions or need further assistance, feel free to contact us.
+Please find the attached files related to your order.
+If you have any questions or need further assistance, feel free to contact us.
     
-    Best regards,
-    HTL Architects
+Best regards,
+3D2DS
     `
 
     const attachments: Attachment[] = []
@@ -184,9 +184,9 @@ export class OrderService {
     }
 
     await Mail.client.sendMail({
-      from: `"HTL Architects" <${Mail.userAuth}>`,
+      from: `"3D2DS" <${Mail.userAuth}>`,
       to: order.orderByUser.email,
-      subject: 'Thank you for your purchase at HTL Architects',
+      subject: 'Thank you for your purchase at 3D2DS',
       text: textMail,
       attachments: attachments,
     })
