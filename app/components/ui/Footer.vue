@@ -23,7 +23,6 @@
               <div>
                 <UButton
                   type="submit"
-                  size="xs"
                   color="neutral"
                   :label="authSession().get() ? 'You are already registered' : 'Subscribe'"
                   @click="googleButtonClick"
