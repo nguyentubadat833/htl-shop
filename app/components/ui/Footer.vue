@@ -27,7 +27,7 @@
                   color="neutral"
                   :label="authSession().get() ? 'You are already registered' : 'Subscribe'"
                   @click="googleButtonClick"
-                  class="xl:w-full w-56 flex justify-center"
+                  class="xl:w-full sm:w-64 w-full flex justify-center"
                 />
               </div>
             </div>
