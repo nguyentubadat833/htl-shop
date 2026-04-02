@@ -1,6 +1,7 @@
 import type z from "zod";
 import session from "~/utils/session.ts";
 import type { AddProductToCartSchema, CheckoutInCartSchema, RemoveProductsInCartSchema } from "#shared/schemas/cart";
+import { useGoogleButton } from "./components/googleButton";
 
 const quality = ref();
 
@@ -9,6 +10,7 @@ export default function () {
   const appToast = new useAppToast();
   const { authSession } = session();
   const { $userApi } = useNuxtApp();
+  const { click: googleButtonClick } = useGoogleButton()
 
   async function count() {
     if (authSession().get()) {
@@ -27,10 +29,12 @@ export default function () {
   }
 
   async function addProduct(id: string, name?: string, isToast = true) {
-    if (!authSession().get()) {
-      document.getElementById("googleSigninButton")?.click();
-      return;
-    }
+
+    // if (!authSession().get()) {
+    //   document.getElementById("googleSigninButton")?.click();
+    //   return;
+    // }
+    googleButtonClick()
     const { id: cartdId } = await $userApi("/api/shopping/cart/add", {
       method: "POST",
       body: <z.infer<typeof AddProductToCartSchema>>{
