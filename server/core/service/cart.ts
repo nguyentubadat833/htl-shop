@@ -1,7 +1,7 @@
 import { OrderService } from "./order";
 import { ProductService } from "./product";
 import { CartItemResponse } from "#shared/types/cart";
-import { ProductPlan } from "~~/prisma/generated/client";
+import { ProductPlan, ProductStatus } from "~~/prisma/generated/client";
 
 export class CartService {
   constructor(private readonly userId: number) { }
@@ -56,6 +56,9 @@ export class CartService {
 
   async addProduct(product_publicId: string) {
     const { product, finalPrice } = await new ProductService().withPublicId(product_publicId)
+    if (product.status !== ProductStatus.ACTIVE) {
+      throw new ServerError("Product required active", 409)
+    }
     const exists = await prisma.cart.findFirst({
       where: {
         userId: this.userId,

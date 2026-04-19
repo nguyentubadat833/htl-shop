@@ -576,33 +576,40 @@ function clickById(id: string) {
           test
         </div> -->
         <UCard :ui="layout.info.ui">
-          <UFormField label="ID">
-            <UInput disabled :model-value="productCurrent.publicId" class="w-full" />
-          </UFormField>
-          <UFormField label="Plan">
-            <USelect v-model="productCurrent.plan" :items="planOptions" class="w-full" />
-          </UFormField>
           <UFormField label="Name">
             <UInput v-model="productCurrent.name" class="w-full" />
           </UFormField>
-          <UFormField label="Price">
-            <div class="flex gap-2">
-              <UInputNumber
-                v-model="productCurrent.price"
-                :format-options="{
-                  style: 'currency',
-                  currency: currency,
-                  currencyDisplay: 'code',
-                  currencySign: 'accounting',
-                }"
-                class="w-full"
-              />
-              <UInput disabled :model-value="currency" />
-            </div>
-          </UFormField>
-          <UFormField v-if="productCurrent.publicId" label="Status">
-            <USelect v-model="productCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
-          </UFormField>
+          <div class="flex gap-3 w-full">
+            <UFormField label="ID" class="w-full">
+              <UInput disabled :model-value="productCurrent.publicId" class="w-full" />
+            </UFormField>
+            <UFormField label="Plan" class="w-full">
+              <USelect v-model="productCurrent.plan" :items="planOptions" class="w-full" />
+            </UFormField>
+          </div>
+          <div class="flex gap-3 w-full">
+            <UFormField label="Price" class="w-full">
+              <div class="flex gap-2">
+                <UInputNumber
+                  v-model="productCurrent.price"
+                  :locale="'en-US'"
+                  :step="0.001"
+                  :format-options="{
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 3,
+                    roundingMode: 'halfExpand',
+                  }"
+                  class="w-full"
+                />
+              </div>
+            </UFormField>
+            <UFormField v-if="productCurrent.publicId" label="Status" class="w-full">
+              <USelect v-model="productCurrent.status" :items="['ACTIVE', 'INACTIVE']" class="w-full" />
+            </UFormField>
+          </div>
+
           <UFormField label="Categories">
             <UCommandPalette
               v-model="state.productCurrent.categories"

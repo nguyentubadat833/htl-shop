@@ -4,11 +4,9 @@
       <div class="flex px-4 py-3.5 border-b border-accented">
         <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
       </div>
-      <UTable id="gridData" :loading="pending" :data="state.data" :columns="columns"
-        v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
+      <UTable id="gridData" :loading="pending" :data="state.data" :columns="columns" v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
         <template #active-cell="{ row }">
-          <UBadge :label="generateStatus(row.original.active).label"
-            :color="generateStatus(row.original.active).color" />
+          <UBadge :label="generateStatus(row.original.active).label" :color="generateStatus(row.original.active).color" />
         </template>
       </UTable>
     </div>
@@ -40,110 +38,118 @@
 </template>
 
 <script lang="ts" setup>
-import type { TableColumn, TableRow } from '@nuxt/ui';
-import { CategoryType, type CategoryItemResponse, type CategoryProductItemResponse } from '#shared/types/category';
+import type { TableColumn, TableRow } from "@nuxt/ui";
+import { CategoryType, type CategoryItemResponse, type CategoryProductItemResponse } from "#shared/types/category";
 
-type CategoryStatus = 'ACTIVE' | 'INACTIVE'
+type CategoryStatus = "ACTIVE" | "INACTIVE";
 type Category = {
-  publicId: string | undefined
-  name: string
-  type: CategoryType
-  status: CategoryStatus
+  publicId: string | undefined;
+  name: string;
+  type: CategoryType;
+  status: CategoryStatus;
   products: {
-    publicId: string
-    name: string
-  }[]
-}
+    publicId: string;
+    name: string;
+  }[];
+};
 
 interface State {
-  data: CategoryItemResponse[],
-  current: Category
+  data: CategoryItemResponse[];
+  current: Category;
 }
 
 const layout = {
   orderItems: {
     ui: {
-      body: 'h-full space-y-5'
-    }
+      body: "h-full space-y-5",
+    },
   },
-}
+};
 
-const statusValues: CategoryStatus[] = ['ACTIVE', 'INACTIVE']
-const groupValues: CategoryType[] = [CategoryType.THREE_D, CategoryType.TWO_D]
+const statusValues: CategoryStatus[] = ["ACTIVE", "INACTIVE"];
+const groupValues: CategoryType[] = [CategoryType.THREE_D, CategoryType.TWO_D];
 
 const columns = [
   {
     accessorKey: "name",
-    header: "Name"
+    header: "Name",
   },
   {
-    accessorKey: 'type',
-    header: "Group"
+    accessorKey: "type",
+    header: "Group",
   },
   {
-    accessorKey: 'active',
-    header: 'Status'
+    accessorKey: "active",
+    header: "Status",
   },
   {
-    id: 'action'
-  }
-] satisfies TableColumn<CategoryItemResponse>[]
+    header: "Products",
+    cell(props) {
+      return props.row.original.products.length;
+    },
+  },
+  {
+    id: "action",
+  },
+] satisfies TableColumn<CategoryItemResponse>[];
 
 const productColumns = [
   {
     accessorKey: "publicId",
-    header: "ID"
+    header: "ID",
   },
   {
     accessorKey: "name",
-    header: "Name"
+    header: "Name",
   },
-] satisfies TableColumn<CategoryProductItemResponse>[]
+] satisfies TableColumn<CategoryProductItemResponse>[];
 
 const categoryDefaultState: Category = {
   publicId: undefined,
-  name: '',
+  name: "",
   type: CategoryType.THREE_D,
-  status: 'INACTIVE',
-  products: []
-}
+  status: "INACTIVE",
+  products: [],
+};
 
-const globalFilter = ref()
+const globalFilter = ref();
 const state = reactive<State>({
   data: [],
-  current: structuredClone(categoryDefaultState)
-})
+  current: structuredClone(categoryDefaultState),
+});
 
-const appToast = new useAppToast()
-const { $userApi } = useNuxtApp()
-const { refresh, pending } = await useAsyncData(() => $userApi('/api/category/list', {
-  onResponse({ response }) {
-    if (response.ok) {
-      state.data = response._data
-    }
-  }
-}))
+const appToast = new useAppToast();
+const { $userApi } = useNuxtApp();
+const { refresh, pending } = await useAsyncData(() =>
+  $userApi("/api/category/list", {
+    onResponse({ response }) {
+      if (response.ok) {
+        state.data = response._data;
+      }
+    },
+  }),
+);
 
 function categoryRowToProduct(category: CategoryItemResponse) {
-  state.current.publicId = category.publicId
-  state.current.name = category.name
-  state.current.type = category.type as CategoryType
-  state.current.status = category.active ? 'ACTIVE' : "INACTIVE"
-  state.current.products = category.products
+  state.current.publicId = category.publicId;
+  state.current.name = category.name;
+  state.current.type = category.type as CategoryType;
+  state.current.status = category.active ? "ACTIVE" : "INACTIVE";
+  state.current.products = category.products;
 }
 
 function onSelect(row: TableRow<CategoryItemResponse>, e?: Event) {
-  categoryRowToProduct(row.original)
+  categoryRowToProduct(row.original);
 }
 
 function generateStatus(value: boolean): {
-  label: CategoryStatus,
-  color: any
+  label: CategoryStatus;
+  color: any;
 } {
   return {
-    label: value ? 'ACTIVE' : 'INACTIVE',
-    color: (value ? 'success' : 'neutral') as any
-  }
+    label: value ? "ACTIVE" : "INACTIVE",
+    color: (value ? "success" : "neutral") as any,
+  };
 }
 
 // function selectStatus(input: string) {
@@ -155,91 +161,88 @@ function generateStatus(value: boolean): {
 // }
 
 function add() {
-  state.current = structuredClone(categoryDefaultState)
+  state.current = structuredClone(categoryDefaultState);
 }
 
 async function save() {
   if (state.current.publicId) {
-    await $userApi('/api/category/update', {
-      method: 'PUT',
+    await $userApi("/api/category/update", {
+      method: "PUT",
       body: {
         publicId: state.current.publicId,
         data: {
           name: state.current.name,
           type: state.current.type,
-          active: state.current.status === 'ACTIVE'
-        }
+          active: state.current.status === "ACTIVE",
+        },
       },
       onResponse({ response }) {
         if (response.ok) {
-          refresh()
-            .then(() => {
-              const publicId = response._data.publicId
-              const category = state.data.find(c => c.publicId === publicId)
-              if (category) {
-                categoryRowToProduct(category)
-              }
-            })
+          refresh().then(() => {
+            const publicId = response._data.publicId;
+            const category = state.data.find((c) => c.publicId === publicId);
+            if (category) {
+              categoryRowToProduct(category);
+            }
+          });
           appToast.toast.add({
-            title: "Updated"
-          })
+            title: "Updated",
+          });
         }
-      }
-    })
+      },
+    });
   } else {
-    await $userApi('/api/category/add', {
-      method: 'POST',
+    await $userApi("/api/category/add", {
+      method: "POST",
       body: {
         name: state.current.name,
         type: state.current.type,
-        active: state.current.status === 'ACTIVE'
+        active: state.current.status === "ACTIVE",
       },
       onResponse({ response }) {
         if (response.ok) {
-          refresh()
-            .then(() => {
-              const publicId = response._data.publicId
-              const category = state.data.find(c => c.publicId === publicId)
-              if (category) {
-                categoryRowToProduct(category)
-              }
-            })
+          refresh().then(() => {
+            const publicId = response._data.publicId;
+            const category = state.data.find((c) => c.publicId === publicId);
+            if (category) {
+              categoryRowToProduct(category);
+            }
+          });
           appToast.toast.add({
-            title: "Created"
-          })
+            title: "Created",
+          });
         }
-      }
-    })
+      },
+    });
   }
 }
 
 function del() {
   if (!state.current.publicId) {
-    return
+    return;
   }
 
-  $userApi('/api/category/delete', {
-    method: 'DELETE',
+  $userApi("/api/category/delete", {
+    method: "DELETE",
     query: {
-      publicId: state.current.publicId
+      publicId: state.current.publicId,
     },
     onResponse({ response }) {
       if (response.ok) {
-        refresh()
-          .then(() => {
-            state.current = structuredClone(categoryDefaultState)
-          })
+        refresh().then(() => {
+          state.current = structuredClone(categoryDefaultState);
+        });
         appToast.toast.add({
-          title: "Deleted"
-        })
+          title: "Deleted",
+        });
       }
-    }
-  })
+    },
+  });
 }
 
 useSeoMeta({
-  title: 'Categories'
-})
+  title: "Categories",
+});
 </script>
 
 <style></style>

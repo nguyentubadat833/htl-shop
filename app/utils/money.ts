@@ -5,21 +5,35 @@ type ChangeRate = {
 }
 
 export function priceToVND(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "VND",
-  }).format(value);
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "VND",
+    }).format(value);
 }
 
+// export function priceToUSD(value: number) {
+//   const hasDecimal = !Number.isInteger(value);
+
+//   return new Intl.NumberFormat("en-US", {
+//     style: "currency",
+//     currency: "USD",
+//     minimumFractionDigits: hasDecimal ? 2 : 0,
+//     maximumFractionDigits: 2,
+//   }).format(value);
+// }
+
 export function priceToUSD(value: number) {
-  const hasDecimal = !Number.isInteger(value);
- 
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: hasDecimal ? 2 : 0,
-    maximumFractionDigits: 2,
-  }).format(value);
+    const fractionLength = Math.min(
+        value.toString().split('.')[1]?.length || 0,
+        3
+    )
+
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: fractionLength,
+        maximumFractionDigits: 3,
+    }).format(value)
 }
 
 
