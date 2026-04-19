@@ -1,5 +1,6 @@
 import z from "zod"
 import { ProductSEOItemResponse } from "#shared/types/product"
+import { ProductStatus } from "~~/prisma/generated/enums"
 // import { ProductPlan } from "~~/prisma/generated/enums"
 
 export default defineWrappedResponseHandler(async (event) => {
@@ -25,11 +26,12 @@ export default defineWrappedResponseHandler(async (event) => {
                 select: {
                     publicId: true
                 }
-            }
+            },
+            status: true
         }
     })
 
-    if (!product) {
+    if (!product || product.status !== ProductStatus.INACTIVE) {
         throw new ServerError("Not found", 404)
     }
 
