@@ -30,7 +30,7 @@ export class ProductService {
   }
 
   static async create(plan: ProductPlan, name: string, price: number, info: ProductInfo, createdByUserId: number, categoryPublicIds: string[]) {
-    const alias = slug(name)
+    let alias = slug(name)
     const findWithAlias = await prisma.product.findUnique({
       where: {
         alias: alias
@@ -41,7 +41,9 @@ export class ProductService {
     })
 
     if (findWithAlias) {
-      throw new ServerError('Product name must be unique', 409, 'logic')
+      // throw new ServerError('Product name must be unique', 409, 'logic')
+      const last6 = Date.now().toString().slice(-5);
+      alias = `${alias}-${last6}`
     }
 
     let categoryIds: number[] = []
@@ -91,13 +93,18 @@ export class ProductService {
               not: this.product.id
             }
           }
+        },
+        select: {
+          status: true
         }
       })
 
       if (findWithAlias) {
+        if (findWithAlias.status === ProductStatus.SOFT_DELETE) {
+          return undefined
+        }
         throw new ServerError('Product name must be unique', 409, 'logic')
       }
-
       return alias
     }
 
@@ -138,7 +145,6 @@ export class ProductService {
         }
       }).then(data => data.map(i => i.id))
     }
-
     return prisma.product.update({
       where: {
         id: this.product.id,
