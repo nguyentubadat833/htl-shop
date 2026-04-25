@@ -31,7 +31,7 @@ export default defineWrappedResponseHandler(async (event) => {
         }
     })
 
-    if (!product || product.status !== ProductStatus.INACTIVE) {
+    if (!product || product.status !== ProductStatus.ACTIVE) {
         throw new ServerError("Not found", 404)
     }
 
