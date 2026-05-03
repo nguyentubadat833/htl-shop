@@ -7,7 +7,8 @@
     </template>
     <template #right>
       <div class="lg:flex gap-3 hidden">
-        <UColorModeButton class="hover:scale-110" />
+        <!-- <UColorModeButton class="hover:scale-110" /> -->
+        <BtnColorMode class="hover:scale-110" />
         <BtnCart />
         <BtnGoogle />
       </div>
