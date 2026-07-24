@@ -1,22 +1,10 @@
 <template>
   <div class="space-y-5">
-    <UPricingPlan
-      :title="cardState.title"
-      :description="cardState.description"
-      :price="convertMoney(amount)"
-      :features="products.map((prd) => prd.name)"
-      orientation="horizontal"
-      :tagline="cardState.tagline"
-    >
+    <UPricingPlan :title="cardState.title" :description="cardState.description" :price="convertMoney(amount)"
+      :features="products.map((prd) => prd.name)" orientation="horizontal" :tagline="cardState.tagline">
       <template #button>
-        <UButton
-          :disabled="orderIsPaid"
-          :label="cardState.paymentButtonLabel"
-          icon="ic:outline-payments"
-          :color="cardState.paymentButtonColor as any"
-          block
-          @click="payment()"
-        />
+        <UButton :disabled="orderIsPaid" :label="cardState.paymentButtonLabel" icon="ic:outline-payments"
+          :color="cardState.paymentButtonColor as any" block @click="payment()" />
       </template>
     </UPricingPlan>
     <!-- <UModal v-model:open="openQRModal">
@@ -89,11 +77,38 @@ status.value = parseQuery.data.status;
 const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId.value}`);
 
 async function payment() {
-  if (!amount) {
-    window.location.href = `/api/payment/free?orderId=${orderId.value}&origin=${window.origin}`;
-    return;
-  }
-  window.location.href = `/api/payment/sepay/bank?orderId=${orderId.value}&origin=${window.origin}`;
+
+  if (!orderId.value) return
+
+  const origin = window.location.origin
+  const baseUrl = !amount ? '/api/payment/free' : '/api/payment/sepay/bank'
+
+  const urlObject = new URL(
+    `${baseUrl}`,
+    origin,
+  );
+
+  urlObject.searchParams.set(
+    'order_id',
+    orderId.value
+  )
+
+  urlObject.searchParams.set(
+    "success_url",
+    `${origin}/payment?orderId=${orderId.value}&status=success`
+  )
+  urlObject.searchParams.set(
+    "error_url",
+    `${origin}/payment?orderId=${orderId.value}&status=error`
+  )
+
+  urlObject.searchParams.set(
+    "cancel_url",
+    `${origin}/payment?orderId=${orderId.value}&status=cancel`
+  )
+
+  window.location.href = urlObject.toString()
+  // window.open(urlObject.toString());
 }
 
 onBeforeMount(() => {
