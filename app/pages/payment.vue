@@ -1,7 +1,7 @@
 <template>
     <div>
         <ClientOnly>
-            <PaymentCard :data="data"/>
+            <PaymentCard :data="data" mode="payment"/>
         </ClientOnly>
     </div>
 </template>

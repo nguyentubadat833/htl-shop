@@ -3,7 +3,7 @@
         <ClientOnly>
             <div class="space-y-6">
                 <div v-for="item in items">
-                    <PaymentCard :data="item"/>
+                    <PaymentCard :data="item" mode="info"/>
                 </div>
             </div>
         </ClientOnly>

@@ -26,8 +26,8 @@ const stats = computed(() => {
       label: "Orders",
       icon: "i-lucide-shopping-cart",
       total: data.value.order_total,
-      subLabel: "Paid",
-      subValue: data.value.order_paid_total,
+      subLabel: "Completed",
+      subValue: data.value.order_success_total,
       color: "warning",
     },
   ];
@@ -77,6 +77,30 @@ const topCartColumns = [
     header: "Added",
   },
 ];
+
+const revenueColumns = [
+  {
+    accessorKey: "period",
+    header: "Period",
+  },
+  {
+    accessorKey: "total_orders",
+    header: "Orders",
+  },
+  {
+    accessorKey: "total_customers",
+    header: "Customers",
+  },
+  {
+    accessorKey: "total_products",
+    header: "Products",
+  },
+  {
+    accessorKey: "total_revenue",
+    header: "Revenue",
+  },
+];
+
 </script>
 
 <template>
@@ -110,6 +134,25 @@ const topCartColumns = [
           </div>
         </UCard>
       </div>
+
+      <UCard>
+        <template #header>
+          <div class="font-semibold">
+            Revenue
+          </div>
+        </template>
+
+        <UTable :columns="revenueColumns" :data="data?.revenue_by_month">
+          <template #period-cell="{ row }">
+            {{ String(row.original.month).padStart(2, "0") }}/{{ row.original.year }}
+          </template>
+          <template #total_revenue-cell="{ row }">
+            {{
+              priceToUSD(row.original.total_revenue)
+            }}
+          </template>
+        </UTable>
+      </UCard>
 
       <!-- Tables -->
 

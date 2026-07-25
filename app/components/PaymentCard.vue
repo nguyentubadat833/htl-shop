@@ -1,78 +1,83 @@
 <template>
-  <div class="space-y-5">
+    <div class="space-y-5">
 
-    <UPricingPlan :title="cardState.title" :description="cardState.description" :price="priceToUSD(amount)"
-      :features="products.map((prd) => prd.name)" orientation="horizontal" :tagline="cardState.tagline">
-      <template #button>
-        <UButton :disabled="paid" :label="cardState.paymentButtonLabel" icon="ic:outline-payments"
-          :color="(cardState.paymentButtonColor as any)" block @click="payment()" />
-      </template>
-    </UPricingPlan>
+        <UPricingPlan :title="cardState.title" :description="cardState.description" :price="priceToUSD(amount)"
+            :features="products.map((prd) => prd.name)" orientation="horizontal" :tagline="cardState.tagline">
+            <template #button>
+                <UButton :disabled="paid" :label="cardState.paymentButtonLabel" icon="ic:outline-payments"
+                    :color="(cardState.paymentButtonColor as any)" block @click="payment()" />
+            </template>
+        </UPricingPlan>
 
-    <!-- <UModal v-model:open="openQRModal">
+        <!-- <UModal v-model:open="openQRModal">
       <template #content>
         <img
           :src="`https://img.vietqr.io/image/970422-0971168578-print.png?amount=${finalAmount}&accountName=Le%20Huu%20Thien&addInfo=TT%20DH%20${orderId}`" />
       </template>
     </UModal> -->
 
-  </div>
+    </div>
 </template>
 <script lang="ts" setup>
 
 const props = defineProps<{
+    mode: 'info' | 'payment'
     data: OrderWithProductsResponse
 }>()
 
 const { publicId: orderId, amount, products, paid } = props.data
-  
+
+const isPaymentMode = computed(() => props.mode === 'payment')
+
 const cardState = reactive({
-  title: "Payment",
-  description: "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email.",
-  tagline: "Pay once, own it forever",
-  paymentButtonLabel: "Continue to Payment",
-  paymentButtonColor: "warning",
+    title: isPaymentMode.value ? "Payment" : 'Awaiting Payment',
+    description: isPaymentMode.value ?
+        "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email."
+        : "Complete your payment to process this order. Once payment is confirmed, your product will be delivered to your email.",
+    tagline: "Pay once, own it forever",
+    paymentButtonLabel: "Continue to Payment",
+    paymentButtonColor: "warning",
 });
 
 async function payment() {
 
-  const origin = window.location.origin
-  const baseUrl = !amount ? '/api/payment/free' : '/api/payment/sepay/bank'
+    const origin = window.location.origin
+    const baseUrl = !amount ? '/api/payment/free' : '/api/payment/sepay/bank'
 
-  const urlObject = new URL(
-    `${baseUrl}`,
-    origin,
-  );
+    const urlObject = new URL(
+        `${baseUrl}`,
+        origin,
+    );
 
-  urlObject.searchParams.set(
-    'order_id',
-    orderId
-  )
+    urlObject.searchParams.set(
+        'order_id',
+        orderId
+    )
 
-  urlObject.searchParams.set(
-    "success_url",
-    `${origin}/payment?orderId=${orderId}&status=success`
-  )
-  urlObject.searchParams.set(
-    "error_url",
-    `${origin}/payment?orderId=${orderId}&status=error`
-  )
+    urlObject.searchParams.set(
+        "success_url",
+        `${origin}/payment?orderId=${orderId}&status=success`
+    )
+    urlObject.searchParams.set(
+        "error_url",
+        `${origin}/payment?orderId=${orderId}&status=error`
+    )
 
-  urlObject.searchParams.set(
-    "cancel_url",
-    `${origin}/payment?orderId=${orderId}&status=cancel`
-  )
+    urlObject.searchParams.set(
+        "cancel_url",
+        `${origin}/payment?orderId=${orderId}&status=cancel`
+    )
 
-  window.location.href = urlObject.toString()
+    window.location.href = urlObject.toString()
 }
 
 onBeforeMount(() => {
-  if (paid) {
-    cardState.description = "The product will be delivered directly to your email shortly. Please check your inbox (and spam folder) for the download details.";
-    cardState.tagline = "Payment Successful";
-    cardState.paymentButtonLabel = "Paid";
-    cardState.paymentButtonColor = "info";
-  }
+    if (paid) {
+        cardState.description = "The product will be delivered directly to your email shortly. Please check your inbox (and spam folder) for the download details.";
+        cardState.tagline = "Payment Successful";
+        cardState.paymentButtonLabel = "Paid";
+        cardState.paymentButtonColor = "info";
+    }
 });
 
 // async function getAmountVND(){

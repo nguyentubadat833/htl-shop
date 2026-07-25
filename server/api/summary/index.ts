@@ -1,17 +1,56 @@
+import { OrderStatus } from "~~/prisma/generated/enums";
+
+const SUCCESS_ORDER_STATUSES: OrderStatus[] = ["PAID", "SENDING", "DELIVERED"] as const;
+
 export default defineWrappedRequiredAdminHandler(async () => {
+  const revenueByMonth = prisma.$queryRaw<
+    {
+      year: number;
+      month: number;
+      total_orders: bigint;
+      total_customers: bigint;
+      total_products: bigint;
+      total_revenue: number;
+    }[]
+  >`
+SELECT
+    EXTRACT(YEAR FROM o.order_at)::int  AS year,
+    EXTRACT(MONTH FROM o.order_at)::int AS month,
+
+    COUNT(DISTINCT o.id)                  AS total_orders,
+    COUNT(DISTINCT o.order_by_user_id)    AS total_customers,
+    COUNT(c.id)                           AS total_products,
+    COALESCE(SUM(o.amount), 0)            AS total_revenue
+
+FROM "order" o
+JOIN cart c
+    ON c.order_id = o.id
+
+WHERE o.status IN ('PAID', 'SENDING', 'DELIVERED')
+
+GROUP BY
+    year,
+    month
+
+ORDER BY
+    year,
+    month;
+`;
+
   const [
+    revenue_by_month,
     user_total,
     user_active_total,
     topUsersRaw,
-
     product_total,
     product_active_total,
     topPaidProductsRaw,
     topAddCartProductsRaw,
-
     order_total,
-    order_paid_total,
+    order_success_total,
   ] = await Promise.all([
+    revenueByMonth,
+
     prisma.user.count(),
 
     prisma.user.count({
@@ -24,7 +63,9 @@ export default defineWrappedRequiredAdminHandler(async () => {
       by: ["userId"],
       where: {
         order: {
-          status: "PAID",
+          status: {
+            in: SUCCESS_ORDER_STATUSES,
+          },
         },
       },
       _count: {
@@ -50,7 +91,9 @@ export default defineWrappedRequiredAdminHandler(async () => {
       by: ["productId"],
       where: {
         order: {
-          status: "PAID",
+          status: {
+            in: SUCCESS_ORDER_STATUSES,
+          },
         },
       },
       _count: {
@@ -81,7 +124,9 @@ export default defineWrappedRequiredAdminHandler(async () => {
 
     prisma.order.count({
       where: {
-        status: "PAID",
+        status: {
+          in: SUCCESS_ORDER_STATUSES,
+        },
       },
     }),
   ]);
@@ -90,7 +135,7 @@ export default defineWrappedRequiredAdminHandler(async () => {
     prisma.user.findMany({
       where: {
         id: {
-          in: topUsersRaw.map((x) => x.userId),
+          in: topUsersRaw.map((row) => row.userId),
         },
       },
       select: {
@@ -105,12 +150,7 @@ export default defineWrappedRequiredAdminHandler(async () => {
     prisma.product.findMany({
       where: {
         id: {
-          in: [
-            ...new Set([
-              ...topPaidProductsRaw.map((x) => x.productId),
-              ...topAddCartProductsRaw.map((x) => x.productId),
-            ]),
-          ],
+          in: [...new Set([...topPaidProductsRaw.map((row) => row.productId), ...topAddCartProductsRaw.map((row) => row.productId)])],
         },
       },
       select: {
@@ -126,21 +166,30 @@ export default defineWrappedRequiredAdminHandler(async () => {
   ]);
 
   const top_users = topUsersRaw.map((row) => ({
-    ...users.find((u) => u.id === row.userId)!,
+    ...users.find((user) => user.id === row.userId)!,
     purchaseCount: row._count.id,
   }));
 
   const top_paid_products = topPaidProductsRaw.map((row) => ({
-    ...products.find((p) => p.id === row.productId)!,
+    ...products.find((product) => product.id === row.productId)!,
     purchaseCount: row._count.id,
   }));
 
   const top_add_cart_products = topAddCartProductsRaw.map((row) => ({
-    ...products.find((p) => p.id === row.productId)!,
+    ...products.find((product) => product.id === row.productId)!,
     addToCartCount: row._count.id,
   }));
 
   return {
+    revenue_by_month: revenue_by_month.map((x) => ({
+      year: Number(x.year),
+      month: Number(x.month),
+      total_orders: Number(x.total_orders),
+      total_customers: Number(x.total_customers),
+      total_products: Number(x.total_products),
+      total_revenue: Number(x.total_revenue),
+    })),
+    //
     user_total,
     user_active_total,
     top_users,
@@ -151,6 +200,6 @@ export default defineWrappedRequiredAdminHandler(async () => {
     top_add_cart_products,
 
     order_total,
-    order_paid_total,
+    order_success_total,
   };
 });
