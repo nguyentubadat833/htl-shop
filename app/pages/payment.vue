@@ -1,7 +1,7 @@
 <template>
     <div>
         <ClientOnly>
-            <PaymentCard :data="data" mode="payment"/>
+            <PaymentCard :data="data" mode="payment" />
         </ClientOnly>
     </div>
 </template>
@@ -14,7 +14,7 @@ const { $userApi } = useNuxtApp();
 const queryRaw = route.query;
 const parseQuery = z
     .object({
-        // status: z.enum(OrderCardStatus),
+        status: z.enum(['success', 'cancel', 'error', 'confirm']).optional(),
         orderId: z.string(),
     })
     .safeParse(queryRaw);
@@ -25,6 +25,17 @@ if (!parseQuery.success) {
 }
 
 const orderIdQuery = parseQuery.data.orderId;
+const statusQuery = parseQuery.data.status
 
 const data = await $userApi(`/api/shopping/order/${orderIdQuery}`)
+    .then(rs => {
+        if (statusQuery !== 'success') {
+            return rs
+        } else {
+            return {
+                ...rs,
+                paid: rs.paid || true
+            }
+        }
+    })
 </script>

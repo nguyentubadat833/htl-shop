@@ -5,7 +5,7 @@ const Schema = z.object({
   id: z.string()
 })
 
-export default defineEventHandler(async (event) => {
+export default defineWrappedResponseHandler(async (event) => {
   const {id} = zodValidateRequestOrThrow(Schema, getRouterParams(event))
 
   return await OrderService.getWithProducts(id)

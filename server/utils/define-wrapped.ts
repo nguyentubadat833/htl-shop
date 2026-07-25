@@ -8,8 +8,8 @@ export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(h
       // return { response };
       return response;
     } catch (err) {
-      console.error(err)
       if (err instanceof ServerError) {
+        console.error('test');
         throw createError({
           statusCode: err.code,
           statusMessage: getStatusMessage(err.code),
@@ -24,11 +24,11 @@ export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(h
 
 export const defineWrappedRequiredAuthHandler = <T extends EventHandlerRequest, D>(handler: EventHandler<T, D>): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
-    const userContextService = new UserAuthContext(event)
+    const userContextService = new UserAuthContext(event);
     if (!userContextService.userAuth) {
       throw createError({
-        statusCode: 401
-      })
+        statusCode: 401,
+      });
     }
     try {
       const response = await handler(event);
@@ -48,26 +48,25 @@ export const defineWrappedRequiredAuthHandler = <T extends EventHandlerRequest, 
     }
   });
 
-
 export const defineWrappedRequiredAdminHandler = <T extends EventHandlerRequest, D>(handler: EventHandler<T, D>): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
-    const userContextService = new UserAuthContext(event)
+    const userContextService = new UserAuthContext(event);
     if (!userContextService.userAuth) {
       throw createError({
-        statusCode: 401
-      })
+        statusCode: 401,
+      });
     }
     try {
-      userContextService.hasAdminOrThrow()
+      userContextService.hasAdminOrThrow();
       const response = await handler(event);
       return response;
     } catch (err) {
-      console.error(err)
+      console.error(err);
       if (err instanceof ServerError) {
         throw createError({
           statusCode: err.code,
           statusMessage: err.message ?? getStatusMessage(err.code),
-          statusText: err.message
+          statusText: err.message,
         });
       }
       throw createError({
@@ -76,4 +75,3 @@ export const defineWrappedRequiredAdminHandler = <T extends EventHandlerRequest,
       });
     }
   });
-
