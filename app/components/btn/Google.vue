@@ -1,22 +1,22 @@
 <template>
-  <ClientOnly>
-    <UPopover v-if="userAuth !== null" :ui="popoverUI">
-      <UUser
-        :avatar="{
+  <div>
+    <ClientOnly>
+      <UPopover v-if="userAuth !== null" :ui="popoverUI">
+        <UUser :avatar="{
           src: userAuth.picture,
           icon: 'i-lucide-image',
-        }"
-        :ui="userUI"
-      />
+        }" :ui="userUI" />
 
-      <template #content>
-        <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
-      </template>
-    </UPopover>
-    <UButton v-else id="googleSigninButton" :loading="isLoading" color="neutral" variant="ghost" icon="ic:baseline-log-in" size="md" @click="signInWithGoogle">
-      <p class="hidden lg:block">Sign in</p>
-    </UButton>
-  </ClientOnly>
+        <template #content>
+          <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
+        </template>
+      </UPopover>
+      <UButton v-else id="googleSigninButton" :loading="isLoading" color="neutral" variant="ghost"
+        icon="ic:baseline-log-in" size="md" @click="signInWithGoogle">
+        <p class="hidden lg:block">Sign in</p>
+      </UButton>
+    </ClientOnly>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -91,7 +91,9 @@ const items = computed<NavigationMenuItem[][]>(() => {
       {
         label: "CMS Admin",
         icon: "ic:baseline-admin-panel-settings",
-        to: "/console",
+        onSelect() {
+          navigateTo('/console')
+        },
       },
     ]);
   }

@@ -20,7 +20,7 @@
             </UFormField> -->
             <div class="flex flex-col gap-4">
               <div class="text-sm font-semibold">Subscribe to get the latest updates</div>
-              <div>
+              <ClientOnly>
                 <UButton
                   type="submit"
                   color="neutral"
@@ -28,7 +28,7 @@
                   @click="googleButtonClick"
                   class="xl:w-full sm:w-64 w-full flex justify-center"
                 />
-              </div>
+              </ClientOnly>
             </div>
           </template>
         </UFooterColumns>

@@ -3,7 +3,8 @@
     <template #left>
       <UiLogo />
       <!-- <UiGoogleButton class="lg:hidden" /> -->
-      <UInput v-model="input" :loading="filterStatus" icon="i-lucide-search" variant="outline" placeholder="Search..." :ui="btnSearchUI" />
+      <UInput v-model="input" :loading="filterStatus" icon="i-lucide-search" variant="outline" placeholder="Search..."
+        :ui="btnSearchUI" />
     </template>
     <template #right>
       <div class="lg:flex gap-3 hidden">
@@ -22,7 +23,8 @@
         <FilterModels />
       </div>
       <div>
-        <UButton label="View Results" icon="ic:twotone-playlist-add-check" class="font-bold rounded-full" block @click="openToogleStatus = false" />
+        <UButton label="View Results" icon="ic:twotone-playlist-add-check" class="font-bold rounded-full" block
+          @click="() => { openToogleStatus = false }" />
       </div>
     </template>
   </UHeader>

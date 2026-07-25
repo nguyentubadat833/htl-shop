@@ -66,7 +66,8 @@ export const defineWrappedRequiredAdminHandler = <T extends EventHandlerRequest,
       if (err instanceof ServerError) {
         throw createError({
           statusCode: err.code,
-          statusMessage: getStatusMessage(err.code),
+          statusMessage: err.message ?? getStatusMessage(err.code),
+          statusText: err.message
         });
       }
       throw createError({

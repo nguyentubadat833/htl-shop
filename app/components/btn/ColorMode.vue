@@ -14,17 +14,14 @@ const { colorMode, isDark } = useLayout();
 </script>
 
 <template>
-  <ClientOnly v-if="!colorMode?.forced">
-    <UButton
-      :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-      color="neutral"
-      variant="ghost"
-      :aria-label="`Switch to ${isDark ? 'light' : 'dark'} mode`"
-      @click="isDark = !isDark"
-    />
+  <div>
+    <ClientOnly v-if="!colorMode?.forced">
+      <UButton :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" color="neutral" variant="ghost"
+        :aria-label="`Switch to ${isDark ? 'light' : 'dark'} mode`" @click="() => { isDark = !isDark }" />
 
-    <template #fallback>
-      <div class="size-8" />
-    </template>
-  </ClientOnly>
+      <template #fallback>
+        <div class="size-8" />
+      </template>
+    </ClientOnly>
+  </div>
 </template>

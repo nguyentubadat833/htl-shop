@@ -1,102 +1,106 @@
-  // https://nuxt.com/docs/api/configuration/nuxt-config
-  export default defineNuxtConfig({
-    compatibilityDate: "2025-07-15",
-    devtools: { enabled: true },
-    modules: [
-      "@nuxt/ui",
-      "@nuxt/image",
-      "@nuxt/content",
-      // "@nuxtjs/ngrok"
-    ],
-    css: ["~/assets/css/main.css"],
-    // prisma: {
-    //   runMigration: false,
-    //   installStudio: false,
-    //   generateClient: false,
-    //   autoSetupPrisma: false,
-    // },
-    runtimeConfig: {
-      public: {
-        googleClientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
-      },
-      nodeProduction: process.env.NODE_ENV === "production",
-      google: {
-        clientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
-        clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
-        redirectURI: process.env.NUXT_GOOGLE_REDIRECT_URI,
-      },
-      s3: {
-        host: process.env.NUXT_S3_HOST,
-        port: process.env.NUXT_S3_PORT,
-        accessKey: process.env.NUXT_S3_ACCESS_KEY,
-        secretKey: process.env.NUXT_S3_SECRET_KEY,
-        bucketDefault: process.env.NUXT_S3_BUCKET_DEFAULT,
-        useSSL: process.env.NUXT_S3_USE_SSL,
-      },
-      mail: {
-        host: process.env.NUXT_MAIL_HOST,
-        port: process.env.NUXT_MAIL_PORT,
-        secure: process.env.NUXT_MAIL_SECURE,
-        auth: {
-          user: process.env.NUXT_MAIL_AUTH_USER,
-          pass: process.env.NUXT_MAIL_AUTH_PASS,
-        },
-      },
-      sepay: {
-        id: process.env.NUXT_SEPAY_ID,
-        key: process.env.NUXT_SEPAY_KEY,
-        env: process.env.NUXT_SEPAY_ENV
-      },
-      siteUrl: ''
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: "2025-07-15",
+  devtools: { enabled: true },
+  modules: [
+    "@nuxt/ui",
+    "@nuxt/image",
+    "@nuxt/content",
+    // "@nuxtjs/ngrok"
+  ],
+  css: ["~/assets/css/main.css"],
+  // prisma: {
+  //   runMigration: false,
+  //   installStudio: false,
+  //   generateClient: false,
+  //   autoSetupPrisma: false,
+  // },
+  runtimeConfig: {
+    public: {
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
     },
-    content: {
-      experimental: {
-        sqliteConnector: "native",
+    nodeProduction: process.env.NODE_ENV === "production",
+    google: {
+      clientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
+      clientSecret: process.env.NUXT_GOOGLE_CLIENT_SECRET,
+      redirectURI: process.env.NUXT_GOOGLE_REDIRECT_URI,
+    },
+    s3: {
+      host: process.env.NUXT_S3_HOST,
+      port: process.env.NUXT_S3_PORT,
+      accessKey: process.env.NUXT_S3_ACCESS_KEY,
+      secretKey: process.env.NUXT_S3_SECRET_KEY,
+      bucketDefault: process.env.NUXT_S3_BUCKET_DEFAULT,
+      useSSL: process.env.NUXT_S3_USE_SSL,
+    },
+    mail: {
+      host: process.env.NUXT_MAIL_HOST,
+      port: process.env.NUXT_MAIL_PORT,
+      secure: process.env.NUXT_MAIL_SECURE,
+      auth: {
+        user: process.env.NUXT_MAIL_AUTH_USER,
+        pass: process.env.NUXT_MAIL_AUTH_PASS,
       },
     },
-
-    routeRules: {
-      "/console/**": {
-        ssr: false,
-      },
-      "/auth/**": {
-        ssr: false,
-      },
-      "/profile": {
-        ssr: false,
-      },
-      "/cart": {
-        ssr: false,
-      },
+    sepay: {
+      id: process.env.NUXT_SEPAY_ID,
+      key: process.env.NUXT_SEPAY_KEY,
+      env: process.env.NUXT_SEPAY_ENV,
     },
-
-    devServer: {
-      port: 4002,
-      host: '0.0.0.0',
+    siteUrl: "",
+  },
+  content: {
+    experimental: {
+      sqliteConnector: "native",
     },
+  },
 
-    vite: {
-      server: {
-        allowedHosts: true
-      }
+  routeRules: {
+    "/console/**": {
+      ssr: false,
     },
-    // ngrok: {
-    //   authtoken_from_env: true,
-    // },
+    "/auth/**": {
+      ssr: false,
+    },
+    "/profile": {
+      ssr: false,
+    },
+    "/cart": {
+      ssr: false,
+    },
+  },
 
-    // alias: {
-    //   '@prisma/client/index-browser': '@prisma/client', // Alias for correct entry
-    // },
+  devServer: {
+    port: 4002,
+    host: "0.0.0.0",
+  },
 
-    // alias: {
-    //   '@prisma-generated': fileURLToPath(
-    //     new URL('./prisma/generated', import.meta.url)
-    //   )
-    // },
-    //
-    // nitro: {
-    //   externals: {
-    //     external: ['@prisma/client', '.prisma', 'process']
-    //   }
-    // }
-  });
+  vite: {
+    server: {
+      allowedHosts: true,
+    },
+  },
+
+  app: {
+    pageTransition: { name: "page", mode: "out-in" },
+  },
+  // ngrok: {
+  //   authtoken_from_env: true,
+  // },
+
+  // alias: {
+  //   '@prisma/client/index-browser': '@prisma/client', // Alias for correct entry
+  // },
+
+  // alias: {
+  //   '@prisma-generated': fileURLToPath(
+  //     new URL('./prisma/generated', import.meta.url)
+  //   )
+  // },
+  //
+  // nitro: {
+  //   externals: {
+  //     external: ['@prisma/client', '.prisma', 'process']
+  //   }
+  // }
+});

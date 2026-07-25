@@ -1,35 +1,37 @@
 <template>
-  <ClientOnly>
-    <div class="p-4 h-screen w-full grid grid-cols-[2fr_11fr] gap-4">
-      <div class="p-2 space-y-6">
-        <div class="flex items-center gap-4">
-          <UiLogo/>
-          <p class="text-xl font-medium">HTL Architects</p>
-        </div>
-        <UInput icon="i-lucide-search" size="xl" variant="outline" placeholder="Search..." class="w-full" />
-        <div>
-          <div v-for="(array, index) in navItems">
-            <div class="space-y-4">
-              <div v-for="item in array">
-                <UButton :label="item.label" :icon="item.icon" color="neutral" variant="ghost" class="w-full" size="xl"
-                  @click="async () => await navItemClick(item)" />
+  <div>
+    <ClientOnly>
+      <div class="p-4 h-screen w-full grid grid-cols-[2fr_11fr] gap-4">
+        <div class="p-2 space-y-6">
+          <div class="flex items-center gap-4">
+            <UiLogo />
+            <p class="text-xl font-medium">HTL Architects</p>
+          </div>
+          <!-- <UInput icon="i-lucide-search" size="xl" variant="outline" placeholder="Search..." class="w-full" /> -->
+          <div>
+            <div v-for="(array, index) in navItems">
+              <div class="space-y-4">
+                <div v-for="item in array">
+                  <UButton :label="item.label" :icon="item.icon" color="neutral" variant="ghost" class="w-full"
+                    size="xl" @click="async () => await navItemClick(item)" />
+                </div>
               </div>
+              <USeparator v-if="index < navItems.length - 1" class="my-4" />
             </div>
-            <USeparator v-if="index < navItems.length - 1" class="my-4" />
           </div>
         </div>
+        <UCard :ui="layout.main.ui">
+          <div class="p-2 text-2xl">
+            <UBreadcrumb :items="breadItems" :ui="layout.breadItems.ui" />
+          </div>
+          <USeparator />
+          <div class="flex-1 overflow-hidden">
+            <NuxtPage class="h-full" />
+          </div>
+        </UCard>
       </div>
-      <UCard :ui="layout.main.ui">
-        <div class="p-2 text-2xl">
-          <UBreadcrumb :items="breadItems" :ui="layout.breadItems.ui" />
-        </div>
-        <USeparator />
-        <div class="flex-1 overflow-hidden">
-          <NuxtPage class="h-full" />
-        </div>
-      </UCard>
-    </div>
-  </ClientOnly>
+    </ClientOnly>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -59,7 +61,7 @@ const breadItems = computed(() => routePaths.value.split('/').slice(1).map(item 
 const navItems: NavigationMenuItem[][] = [
   [
     {
-      label: 'Console',
+      label: 'Overview',
       icon: 'ic:sharp-view-comfy-alt',
       to: '/console'
     },
@@ -109,6 +111,6 @@ async function navItemClick(data: NavigationMenuItem) {
 }
 
 useSeoMeta({
-  title: 'Console'
+  title: 'Overview'
 })
 </script>

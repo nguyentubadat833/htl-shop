@@ -49,7 +49,7 @@ const { $userApi } = useNuxtApp();
 
 const status = ref<Status>();
 const orderId = ref<string>();
-
+  
 const cardState = reactive({
   title: "Payment",
   description: "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email.",
@@ -76,6 +76,7 @@ orderId.value = parseQuery.data.orderId;
 status.value = parseQuery.data.status;
 
 const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId.value}`)
+
 async function payment() {
 
   if (!orderId.value) return

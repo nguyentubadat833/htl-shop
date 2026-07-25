@@ -1,10 +1,10 @@
 <template>
-      <div class="flex gap-4">
-        <UCheckbox :model-value="filterState.plans.includes(ProductPlan.FREE)" label="FREE"
-          @update:model-value="(value) => choosePlan(value, ProductPlan.FREE)" />
-        <UCheckbox :model-value="filterState.plans.includes(ProductPlan.PRO)" label="PRO"
-          @update:model-value="(value) => choosePlan(value, ProductPlan.PRO)" />
-      </div>
+  <div class="flex gap-4">
+    <UCheckbox :model-value="filterState.plans.includes(ProductPlan.FREE)" label="FREE"
+      @update:model-value="(value) => choosePlan(value, ProductPlan.FREE)" />
+    <UCheckbox :model-value="filterState.plans.includes(ProductPlan.PRO)" label="PRO"
+      @update:model-value="(value) => choosePlan(value, ProductPlan.PRO)" />
+  </div>
 
 </template>
 
@@ -25,6 +25,4 @@ function choosePlan(value: boolean | "indeterminate", plan: ProductPlan) {
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

@@ -11,8 +11,6 @@
 </template>
 
 <script lang="ts" setup>
-// import { GoogleVerifyTokenRequestSchema } from '#shared/schemas/auth'
-import z from 'zod';
 
 definePageMeta({
   middleware: () => {
