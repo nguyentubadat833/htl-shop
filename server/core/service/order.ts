@@ -1,7 +1,8 @@
 import { OrderWithProductsResponse } from "#shared/types/order";
-import { Order } from "~~/prisma/generated/client";
+import { Order, OrderStatus } from "~~/prisma/generated/client";
 import { Mail } from "~~/server/core/service/mail";
 import { S3 } from "~~/server/core/service/s3";
+import { orderPaidValues } from "~~/shared/constants/order.constants";
 import type { Attachment } from "nodemailer/lib/mailer";
 import type { Readable } from "stream";
 
@@ -38,15 +39,15 @@ export class OrderService {
             },
           },
         },
-        _count: {
-          select: {
-            payments: {
-              where: {
-                status: "SUCCESS",
-              },
-            },
-          },
-        },
+        // _count: {
+        //   select: {
+        //     payments: {
+        //       where: {
+        //         status: "SUCCESS",
+        //       },
+        //     },
+        //   },
+        // },
       },
     });
 
@@ -54,7 +55,7 @@ export class OrderService {
       throw new ServerError(HttpStatus[404], 404);
     }
 
-    const { publicId, status, amount, items, _count } = data;
+    const { publicId, status, amount, items } = data;
     return {
       publicId,
       status,
@@ -65,7 +66,7 @@ export class OrderService {
           price: item.product.price,
         };
       }),
-      paid: _count.payments > 0,
+      paid: orderPaidValues.includes(status),
     };
   }
 
@@ -92,19 +93,19 @@ export class OrderService {
             },
           },
         },
-        _count: {
-          select: {
-            payments: {
-              where: {
-                status: "SUCCESS",
-              },
-            },
-          },
-        },
+        // _count: {
+        //   select: {
+        //     payments: {
+        //       where: {
+        //         status: "SUCCESS",
+        //       },
+        //     },
+        //   },
+        // },
       },
     });
 
-    return orders.map(({ publicId, status, amount, items, _count }) => ({
+    return orders.map(({ publicId, status, amount, items }) => ({
       publicId,
       status,
       amount,
@@ -113,7 +114,8 @@ export class OrderService {
         name: item.product.name,
         price: item.product.price,
       })),
-      paid: _count.payments > 0,
+      // paid: _count.payments > 0,
+      paid: orderPaidValues.includes(status),
     }));
   }
 
