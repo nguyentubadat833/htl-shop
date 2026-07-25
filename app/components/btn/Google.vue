@@ -67,20 +67,17 @@ const items = computed<NavigationMenuItem[][]>(() => {
     // ],
     [
       {
-        label: "Logout",
+        label: "Order History",
+        icon: "ic:baseline-shopify",
+        to: '/orders'
+      },
+      {
+        label: "Sign Out",
         icon: "ic:outline-log-out",
         onSelect() {
           logout().finally(() => {
             userAuth.value = null;
           });
-          // $fetch("/api/auth/google/logout", {
-          //   method: "DELETE"
-          // }).finally(() => {
-          //   authSession().remove();
-          //   userAuth.value = null;
-          //   cartQuality.value = undefined
-          //   navigateTo('/')
-          // });
         },
       },
     ],

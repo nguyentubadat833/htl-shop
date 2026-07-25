@@ -2,7 +2,14 @@
 // export type PaymentMethod = 'STRIPE' | 'PAYPAL' | 'MOMO' | 'VNPAY' | 'MANUAL'
 // export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED'
 
-import type { OrderStatus, PaymentStatus }from "~~/prisma/generated/browser";
+import type { OrderStatus, PaymentStatus } from "~~/prisma/generated/browser";
+
+// export enum OrderCardStatus {
+//   Confirm = "confirm",
+//   Success = "success",
+//   Error = "error",
+//   Cancel = "cancel",
+// }
 
 export interface OrderWithProductsResponse {
   publicId: string;
@@ -12,11 +19,11 @@ export interface OrderWithProductsResponse {
     name: string;
     price: number;
   }[];
-  paid: boolean
+  paid: boolean;
 }
 
 export interface ProductOrderItemResponse {
-  productAlias: string
+  productAlias: string;
   productPublicId: string;
   productName: string;
   price: number;
