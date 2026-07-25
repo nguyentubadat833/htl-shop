@@ -33,8 +33,8 @@ GROUP BY
     month
 
 ORDER BY
-    year,
-    month;
+    year DESC,
+    month DESC;
 `;
 
   const [

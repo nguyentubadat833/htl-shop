@@ -142,7 +142,7 @@ const revenueColumns = [
           </div>
         </template>
 
-        <UTable :columns="revenueColumns" :data="data?.revenue_by_month">
+        <UTable :columns="revenueColumns" :data="data?.revenue_by_month" sticky class="flex-1 max-h-96 min-h-48">
           <template #period-cell="{ row }">
             {{ String(row.original.month).padStart(2, "0") }}/{{ row.original.year }}
           </template>
