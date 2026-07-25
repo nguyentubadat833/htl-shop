@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-5">
 
-    <UPricingPlan :title="cardState.title" :description="cardState.description" :price="convertMoney(amount)"
+    <UPricingPlan :title="cardState.title" :description="cardState.description" :price="priceToUSD(amount)"
       :features="products.map((prd) => prd.name)" orientation="horizontal" :tagline="cardState.tagline">
       <template #button>
         <UButton :disabled="orderIsPaid" :label="cardState.paymentButtonLabel" icon="ic:outline-payments"

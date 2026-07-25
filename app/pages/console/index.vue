@@ -80,96 +80,66 @@ const topCartColumns = [
 </script>
 
 <template>
-  <div class="p-1 py-5">
-    <UPage>
-      <template #header>
-        <div>
-          <h1 class="text-3xl font-bold">
-            Dashboard
-          </h1>
+  <div class="py-5 h-full flex flex-col overflow-hidden">
+    <div v-if="pending" class="flex justify-center py-24">
+      <UIcon name="i-lucide-loader-circle" class="size-10 animate-spin" />
+    </div>
 
-          <p class="text-muted">
-            Overview of your store.
-          </p>
-        </div>
-      </template>
+    <div v-else class="space-y-6 overflow-y-auto p-2">
 
-      <div v-if="pending" class="flex justify-center py-24">
-        <UIcon name="i-lucide-loader-circle" class="size-10 animate-spin" />
+      <div class="grid gap-4 md:grid-cols-3">
+        <UCard v-for="item in stats" :key="item.label">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm text-muted">
+                {{ item.label }}
+              </div>
+
+              <div class="mt-2 text-4xl font-bold">
+                {{ item.total }}
+              </div>
+
+              <UBadge :color="(item.color as any)" variant="soft" class="mt-3">
+                {{ item.subLabel }} {{ item.subValue }}
+              </UBadge>
+            </div>
+
+            <div class="rounded-xl bg-muted p-4">
+              <UIcon :name="item.icon" class="size-8" />
+            </div>
+          </div>
+        </UCard>
       </div>
 
-      <div v-else class="space-y-6">
-        <!-- KPI -->
+      <!-- Tables -->
 
-        <div class="grid gap-4 md:grid-cols-3">
-          <UCard v-for="item in stats" :key="item.label">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm text-muted">
-                  {{ item.label }}
-                </div>
-
-                <div class="mt-2 text-4xl font-bold">
-                  {{ item.total }}
-                </div>
-
-                <UBadge :color="(item.color as any)" variant="soft" class="mt-3">
-                  {{ item.subLabel }} {{ item.subValue }}
-                </UBadge>
-              </div>
-
-              <div class="rounded-xl bg-muted p-4">
-                <UIcon :name="item.icon" class="size-8" />
-              </div>
+      <div class="grid gap-6 xl:grid-cols-2">
+        <UCard>
+          <template #header>
+            <div class="font-semibold">
+              Top Customers
             </div>
-          </UCard>
-        </div>
+          </template>
 
-        <!-- Tables -->
+          <UTable :columns="topUserColumns" :data="data?.top_users" sticky class="flex-1 max-h-96 min-h-44">
+            <template #name-cell="{ row }">
+              <div class="flex items-center gap-3">
+                <UAvatar :src="row.original.image ?? undefined" :alt="row.original.name" />
 
-        <div class="grid gap-6 xl:grid-cols-2">
-          <UCard>
-            <template #header>
-              <div class="font-semibold">
-                Top Customers
+                <span>{{ row.original.name }}</span>
               </div>
             </template>
-
-            <UTable :columns="topUserColumns" :data="data?.top_users">
-              <template #name-cell="{ row }">
-                <div class="flex items-center gap-3">
-                  <UAvatar :src="row.original.image ?? undefined" :alt="row.original.name" />
-
-                  <span>{{ row.original.name }}</span>
-                </div>
-              </template>
-            </UTable>
-          </UCard>
-
-          <UCard>
-            <template #header>
-              <div class="font-semibold">
-                Top Purchased Products
-              </div>
-            </template>
-
-            <UTable :columns="topProductColumns" :data="data?.top_paid_products">
-              <template #price-cell="{ row }">
-                {{ row.original.price }}
-                {{ row.original.currency }}
-              </template>
-            </UTable>
-          </UCard>
-        </div>
+          </UTable>
+        </UCard>
 
         <UCard>
           <template #header>
             <div class="font-semibold">
-              Most Added To Cart
+              Top Purchased Products
             </div>
           </template>
 
-          <UTable :columns="topCartColumns" :data="data?.top_add_cart_products">
+          <UTable :columns="topProductColumns" :data="data?.top_paid_products" sticky class="flex-1 max-h-96 min-h-44">
             <template #price-cell="{ row }">
               {{ row.original.price }}
               {{ row.original.currency }}
@@ -177,6 +147,21 @@ const topCartColumns = [
           </UTable>
         </UCard>
       </div>
-    </UPage>
+
+      <UCard>
+        <template #header>
+          <div class="font-semibold">
+            Most Added To Cart
+          </div>
+        </template>
+
+        <UTable :columns="topCartColumns" :data="data?.top_add_cart_products" sticky class="flex-1 max-h-96 min-h-44">
+          <template #price-cell="{ row }">
+            {{ row.original.price }}
+            {{ row.original.currency }}
+          </template>
+        </UTable>
+      </UCard>
+    </div>
   </div>
 </template>

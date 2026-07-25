@@ -6,7 +6,6 @@ const router = useRouter()
 const data = ref<CartItemResponse[]>()
 const selectedItem = ref<CartItemResponse[]>([])
 const amount = ref<number>(0)
-const convertAmount = computed(() => convertMoney(amount.value))
 
 async function chooseItem(value: boolean | "indeterminate", item: CartItemResponse) {
   if (value === true) {
@@ -76,7 +75,7 @@ useSeoMeta({
                 <p class="lg:text-[0.8rem] text-[0.7rem] font-medium" :class="[{'text-green-600': item.product.plan === ProductPlan.PRO}]">{{ item.product.plan.toUpperCase()
                   }}</p>
                 <div class="flex justify-between">
-                  <p class="font-semibold text-orange-500 text-lg"> {{ convertMoney(item.product.price) }}</p>
+                  <p class="font-semibold text-orange-500 text-lg"> {{ priceToUSD(item.product.price) }}</p>
                   <UButton icon="ic:baseline-delete-sweep" color="error" variant="soft"
                     @click="removeProduct(item)" />
                 </div>
@@ -90,7 +89,7 @@ useSeoMeta({
     <div v-if="selectedItem.length" class="flex justify-between items-center">
       <span class="text-lg font-bold">Total amount:</span>
       <div class="flex items-center justify-end gap-5">
-        <span class="text-lg">{{ convertAmount }}</span>
+        <span class="text-lg">{{ priceToUSD(amount) }}</span>
         <UButton label="Checkout" color="warning" @click="checkout()" />
       </div>
     </div>

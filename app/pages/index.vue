@@ -65,7 +65,7 @@
             </div>
             <div class="flex gap-2">
               <UButton label="Buy now" icon="ic:outline-payments" color="warning" block @click="buyNow(card.publicId)" />
-              <UButton icon="ic:baseline-add-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="addProduct(card.publicId, card.name)" />
+              <UButton icon="ic:baseline-add-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="() => void addProduct(card.publicId, card.name)" />
             </div>
           </div>
         </template>

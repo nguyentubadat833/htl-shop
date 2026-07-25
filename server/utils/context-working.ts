@@ -54,4 +54,8 @@ export class UserAuthContext {
     userAuthContext.hasAdminOrThrow();
     return userAuthContext;
   }
+
+  static unwrapUserAuthContext(event: H3Event<EventHandlerRequest>){
+    return event.context.userAuth as UserAuth
+  }
 }

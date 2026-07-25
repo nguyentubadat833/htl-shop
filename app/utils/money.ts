@@ -37,11 +37,11 @@ export function priceToUSD(value: number) {
 }
 
 
-export function convertMoney(value: number, locale = 'us') {
-    if (locale === 'us') {
-        return `$${value}`
-    }
-}
+// export function convertMoney(value: number, locale = 'us') {
+//     if (locale === 'us') {
+//         return `$${value}`
+//     }
+// }
 
 export function changeRate() {
     const LOCAL_STORAGE_KEY = 'RATE_DATA'

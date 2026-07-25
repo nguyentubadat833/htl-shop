@@ -69,6 +69,54 @@ export class OrderService {
     };
   }
 
+  static async getWithUserId(userId: number): Promise<OrderWithProductsResponse[]> {
+    const orders = await prisma.order.findMany({
+      where: {
+        orderByUserId: userId,
+      },
+      orderBy: {
+        orderAt: "desc",
+      },
+      select: {
+        publicId: true,
+        status: true,
+        amount: true,
+        items: {
+          select: {
+            product: {
+              select: {
+                alias: true,
+                name: true,
+                price: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            payments: {
+              where: {
+                status: "SUCCESS",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return orders.map(({ publicId, status, amount, items, _count }) => ({
+      publicId,
+      status,
+      amount,
+      products: items.map((item) => ({
+        alias: item.product.alias,
+        name: item.product.name,
+        price: item.product.price,
+      })),
+      paid: _count.payments > 0,
+    }));
+  }
+
   static async create(orderByUserId: number, cardIds: string[], currency: "VND" | "USD" = "USD") {
     // const products = await Promise.all(
     //   product_publicIds.map(async (id) => {
@@ -185,7 +233,7 @@ Best regards,
         attachments: attachments,
       })
       .catch((err) => {
-          console.error("Send mail error: ", err)
+        console.error("Send mail error: ", err);
       });
 
     await prisma.order.update({
