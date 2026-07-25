@@ -10,5 +10,6 @@ export interface CartItemResponse {
     price: number;
     createdAt: string;
     imageLinks: string[]
+    purchased: boolean
   }
 }

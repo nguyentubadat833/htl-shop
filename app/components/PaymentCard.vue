@@ -7,6 +7,14 @@
                 <UButton :disabled="paid" :label="cardState.paymentButtonLabel" icon="ic:outline-payments"
                     :color="(cardState.paymentButtonColor as any)" block @click="payment()" />
             </template>
+            <template #terms>
+                <div class="flex items-center justify-center gap-1.5 text-xs text-muted">
+                    <span>Order ID:</span>
+                    <span class="font-mono" :title="orderId">{{ orderId }}</span>
+                    <UButton icon="ic:outline-content-copy" color="neutral" variant="ghost" size="xs" square
+                        aria-label="Copy order ID" @click="copyOrderId" />
+                </div>
+            </template>
         </UPricingPlan>
 
         <!-- <UModal v-model:open="openQRModal">
@@ -30,7 +38,7 @@ const { publicId: orderId, amount, products, paid } = props.data
 const isPaymentMode = computed(() => props.mode === 'payment')
 
 const cardState = reactive({
-    title: isPaymentMode.value ? "Payment" : 'Awaiting Payment',
+    title: paid ? "Payment" : 'Awaiting Payment',
     description: isPaymentMode.value ?
         "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email."
         : "Complete your payment to process this order. Once payment is confirmed, your product will be delivered to your email.",
@@ -69,6 +77,15 @@ async function payment() {
     )
 
     window.location.href = urlObject.toString()
+}
+
+async function copyOrderId() {
+    await navigator.clipboard.writeText(orderId)
+    useToast().add({
+        title: 'Order ID copied',
+        description: 'You can now paste it when contacting support.',
+        color: 'success',
+    })
 }
 
 onBeforeMount(() => {

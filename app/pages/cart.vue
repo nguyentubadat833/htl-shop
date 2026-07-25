@@ -58,26 +58,33 @@ useSeoMeta({
 <template>
   <div class="space-y-5">
     <div class="flex justify-end">
-      <span v-if="!data?.length" class="italic text-gray-600 text-sm">Your cart is empty. Let’s find something you’ll love!</span>
+      <span v-if="!data?.length" class="italic text-gray-600 text-sm">Your cart is empty. Let’s find something you’ll
+        love!</span>
     </div>
     <UPageList divide>
-      <UPageCard v-for="(item, index) in data" :key="index" variant="ghost" :ui="{body: 'w-full'}">
+      <UPageCard v-for="(item, index) in data" :key="index" variant="ghost" :ui="{ body: 'w-full' }">
         <template #body>
           <div class="flex items-center gap-4">
             <UCheckbox :key="useId()" size="xl" @update:model-value="(value) => chooseItem(value, item)" />
             <div class="w-full flex gap-4">
               <div
                 class="overflow-hidden border light:border-gray-200 dark:border-gray-700 rounded-lg min-h-20 max-h-20 min-w-20 max-w-20">
-                <img :src="item.product.imageLinks[0]" class="mx-auto"  alt="img"/>
+                <img :src="item.product.imageLinks[0]" class="mx-auto" alt="img" />
               </div>
               <div class="flex flex-col justify-between p-1 w-full">
-                <p class="font-bold lg:text-base text-[0.8rem] line-clamp-1">{{ item.product.name }}</p>
-                <p class="lg:text-[0.8rem] text-[0.7rem] font-medium" :class="[{'text-green-600': item.product.plan === ProductPlan.PRO}]">{{ item.product.plan.toUpperCase()
-                  }}</p>
-                <div class="flex justify-between">
+                <NuxtLink :to="`/model/${item.product.alias}`">
+                  <p class="font-bold lg:text-base text-[0.8rem] line-clamp-1">{{ item.product.name }}</p>
+                </NuxtLink>
+                <div class="flex justify-between items-center">
+                  <p class="lg:text-[0.8rem] text-[0.7rem] font-medium"
+                    :class="[{ 'text-green-600': item.product.plan === ProductPlan.PRO }]">{{
+                      item.product.plan.toUpperCase()
+                    }}</p>
+                  <p v-if="item.product.purchased" class="text-[0.7rem] text-gray-400 italic">Already purchased</p>
+                </div>
+                <div class="flex justify-between items-center">
                   <p class="font-semibold text-orange-500 text-lg"> {{ priceToUSD(item.product.price) }}</p>
-                  <UButton icon="ic:baseline-delete-sweep" color="error" variant="soft"
-                    @click="removeProduct(item)" />
+                  <UButton icon="ic:baseline-delete-sweep" color="error" variant="soft" @click="removeProduct(item)" />
                 </div>
               </div>
             </div>

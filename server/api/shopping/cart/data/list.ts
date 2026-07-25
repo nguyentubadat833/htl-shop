@@ -5,6 +5,6 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
     const cartService = new CartService(new UserAuthContext(event).getUserIdOrThrow())
     return await cartService.list()
   } catch (e) {
-    console.log(e)
+    console.error(e)
   }
 })

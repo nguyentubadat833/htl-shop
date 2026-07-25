@@ -1,9 +1,12 @@
 <template>
     <div>
         <ClientOnly>
+            <div class="flex justify-end">
+                <span v-if="!items.length" class="italic text-gray-600 text-sm">You don't have any orders yet. Start shopping to see your orders here.</span>
+            </div>
             <div class="space-y-6">
                 <div v-for="item in items">
-                    <PaymentCard :data="item" mode="info"/>
+                    <PaymentCard :data="item" mode="info" />
                 </div>
             </div>
         </ClientOnly>
