@@ -20,7 +20,7 @@ const stats = computed(() => {
       total: data.value.product_total,
       subLabel: "Active",
       subValue: data.value.product_active_total,
-      color: "succeo" classs",
+      color: "success",
     },
     {
       label: "Orders",
@@ -40,7 +40,7 @@ const topUserColumns = [
   },
   {
     accessorKey: "email",
-    header: "Email"o" clas,
+    header: "Email",
   },
   {
     accessorKey: "purchaseCount",
