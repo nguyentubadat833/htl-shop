@@ -10,7 +10,7 @@
             <template #terms>
                 <div class="flex items-center justify-center gap-1.5 text-xs text-muted">
                     <span>Order ID:</span>
-                    <span class="font-mono" :title="orderId">{{ orderId }}</span>
+                    <span class="font-mono truncate max-w-[160px]" :title="orderId">{{ orderId }}</span>
                     <UButton icon="ic:outline-content-copy" color="neutral" variant="ghost" size="xs" square
                         aria-label="Copy order ID" @click="copyOrderId" />
                 </div>
