@@ -1,4 +1,4 @@
-import { S3 } from "../core/service/s3";
+// import { S3 } from "../core/service/s3";
 
 export default defineNitroPlugin(async (nitroApp) => {
   const runtimeConfig = useRuntimeConfig();
@@ -26,5 +26,5 @@ export default defineNitroPlugin(async (nitroApp) => {
   //   await S3.CLIENT.makeBucket(runtimeConfig.s3.bucketDefault);
   // }
 
-  console.info(`✅ ${runtimeConfig.s3.bucketDefault} bucket created`);
+  // console.info(`✅ ${runtimeConfig.s3.bucketDefault} bucket created`);
 });
