@@ -44,11 +44,11 @@ useSeoMeta({
 </script>
 
 <template>
-  <div>
+  <div class="h-full flex flex-col overflow-hidden">
     <div class="flex px-4 py-3.5 border-b border-accented">
       <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
     </div>
-    <UTable :data="users" :columns="columns" v-model:global-filter="globalFilter">
+    <UTable :data="users" :columns="columns" v-model:global-filter="globalFilter" sticky class="flex-1 full">
       <template #image-cell="{ row }">
         <UAvatar :src="row.original.image ?? undefined" :alt="row.original.name" />
       </template>

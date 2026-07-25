@@ -135,13 +135,14 @@ useSeoMeta({
 </script>
 
 <template>
-  <div :class="[{ 'grid grid-cols-[6fr_4fr] gap-4': state.orderCurrent }]">
-    <div>
-      <div class="flex px-4 py-3.5 border-b border-accented">
+  <div class="h-full" :class="[{ 'grid grid-cols-[6fr_4fr] gap-4': state.orderCurrent }]">
+    <div class="h-full flex flex-col overflow-hidden">
+      <div class="flex px-4 py-3.5 border-b border-accented shrink-0">
         <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
       </div>
-      <UTable id="gridData" :loading="pending" :data="orders" :columns="columns" v-model:global-filter="globalFilter"
-        @select="(row, e) => onSelect(row, e)">
+
+      <UTable :loading="pending" :data="orders" :columns="columns" v-model:global-filter="globalFilter"
+        sticky class="flex-1 full" @select="(row, e) => onSelect(row, e)">
         <template #status-cell="{ row }">
           <UBadge :label="row.original.status" :color="getStatusColor(row.original.status)" />
         </template>
@@ -157,6 +158,7 @@ useSeoMeta({
         <template #amount-cell="{ row }"> {{ row.original.amount }} {{ state.currency }} </template>
       </UTable>
     </div>
+
     <div v-if="state.orderCurrent" class="space-y-5 overflow-y-auto p-3">
       <UCard :ui="layout.orderItems.ui">
         <div class="flex justify-end gap-4">
@@ -166,8 +168,8 @@ useSeoMeta({
         <UFormField label="Order items">
           <UTable :data="state.orderCurrent?.items ?? []" :columns="orderItemsColumns">
             <template #productName-cell="{ row }">
-              <span class="hover:underline hover:cursor-pointer"
-                @click="pushToModel(row.original.productAlias)">{{ row.original.productName }}</span>
+              <span class="hover:underline hover:cursor-pointer" @click="pushToModel(row.original.productAlias)">{{
+                row.original.productName }}</span>
             </template>
             <template #price-cell="{ row }"> {{ row.original.price }} {{ state.currency }} </template>
           </UTable>
@@ -176,6 +178,7 @@ useSeoMeta({
       </UCard>
     </div>
   </div>
+
 </template>
 
 <style scoped></style>

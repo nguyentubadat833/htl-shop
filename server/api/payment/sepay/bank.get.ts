@@ -2,7 +2,6 @@ import { CreatePaymentSchema } from '#shared/schemas/payment'
 import { SepayService } from '~~/server/core/service/sepay'
 
 export default defineWrappedRequiredAuthHandler(async (event) => {
-  console.log('tet')
   
   const { order_id, success_url, cancel_url, error_url } = zodValidateRequestOrThrow(
     CreatePaymentSchema,

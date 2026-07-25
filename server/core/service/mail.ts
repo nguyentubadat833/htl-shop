@@ -9,7 +9,7 @@ const mailENV = runtimeConfig.mail;
 const MailEnvSchema = z.object({
   host: z.string(),
   port: z.number(),
-  secure: z.boolean(),
+  secure: z.preprocess((value) => value === "true", z.boolean()),
   auth: z.object({
     user: z.string(),
     pass: z.string(),
@@ -32,8 +32,19 @@ const client = nodemailer.createTransport({
   },
 });
 
+async function testConnection() {
+  try {
+    await client.verify();
+    console.info("✅ SMTP connection successful");
+  } catch (error) {
+    console.info("❌ SMTP connection failed:", error);
+  }
+}
+
+testConnection();
+
 export class Mail {
   static userAuth = auth.user;
-  static client = client
+  static client = client;
   constructor() {}
 }

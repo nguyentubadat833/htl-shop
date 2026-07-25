@@ -1,21 +1,23 @@
 <template>
   <div class="space-y-5">
+
     <UPricingPlan :title="cardState.title" :description="cardState.description" :price="convertMoney(amount)"
       :features="products.map((prd) => prd.name)" orientation="horizontal" :tagline="cardState.tagline">
       <template #button>
         <UButton :disabled="orderIsPaid" :label="cardState.paymentButtonLabel" icon="ic:outline-payments"
-          :color="cardState.paymentButtonColor as any" block @click="payment()" />
+          :color="(cardState.paymentButtonColor as any)" block @click="payment()" />
       </template>
     </UPricingPlan>
+
     <!-- <UModal v-model:open="openQRModal">
       <template #content>
         <img
           :src="`https://img.vietqr.io/image/970422-0971168578-print.png?amount=${finalAmount}&accountName=Le%20Huu%20Thien&addInfo=TT%20DH%20${orderId}`" />
       </template>
     </UModal> -->
+
   </div>
 </template>
-
 <script lang="ts" setup>
 import z from "zod";
 
@@ -42,13 +44,12 @@ enum Status {
   Cancel = "cancel",
 }
 
-// const toast = useToast()
 const route = useRoute();
 const { $userApi } = useNuxtApp();
-// const openQRModal = ref(false)
-// const finalAmount = ref<number>()
+
 const status = ref<Status>();
 const orderId = ref<string>();
+
 const cardState = reactive({
   title: "Payment",
   description: "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email.",
@@ -74,8 +75,7 @@ if (!parseQuery.success) {
 orderId.value = parseQuery.data.orderId;
 status.value = parseQuery.data.status;
 
-const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId.value}`);
-
+const { amount, products, paid } = await $userApi(`/api/shopping/order/${orderId.value}`)
 async function payment() {
 
   if (!orderId.value) return
@@ -145,6 +145,7 @@ onBeforeMount(() => {
 useSeoMeta({
   title: "Payment",
 });
+
 </script>
 
 <style></style>

@@ -1,9 +1,9 @@
 import { OrderWithProductsResponse } from "#shared/types/order";
-import { Order } from '~~/prisma/generated/client'
+import { Order } from "~~/prisma/generated/client";
 import { Mail } from "~~/server/core/service/mail";
 import { S3 } from "~~/server/core/service/s3";
-import type { Attachment } from 'nodemailer/lib/mailer'
-import type { Readable } from 'stream'
+import type { Attachment } from "nodemailer/lib/mailer";
+import type { Readable } from "stream";
 
 export class OrderService {
   order!: Order;
@@ -33,43 +33,43 @@ export class OrderService {
               select: {
                 alias: true,
                 name: true,
-                price: true
-              }
-            }
-          }
+                price: true,
+              },
+            },
+          },
         },
         _count: {
           select: {
             payments: {
               where: {
-                status: 'SUCCESS'
-              }
-            }
-          }
-        }
-      }
-    })
+                status: "SUCCESS",
+              },
+            },
+          },
+        },
+      },
+    });
 
     if (!data) {
-      throw new ServerError(HttpStatus[404], 404)
+      throw new ServerError(HttpStatus[404], 404);
     }
 
-    const { publicId, status, amount, items, _count } = data
+    const { publicId, status, amount, items, _count } = data;
     return {
       publicId,
       status,
       amount,
-      products: items.map(item => {
+      products: items.map((item) => {
         return {
           name: item.product.name,
-          price: item.product.price
-        }
+          price: item.product.price,
+        };
       }),
-      paid: _count.payments > 0
-    }
+      paid: _count.payments > 0,
+    };
   }
 
-  static async create(orderByUserId: number, cardIds: string[], currency: 'VND' | 'USD' = 'USD') {
+  static async create(orderByUserId: number, cardIds: string[], currency: "VND" | "USD" = "USD") {
     // const products = await Promise.all(
     //   product_publicIds.map(async (id) => {
     //     const prdService = await new ProductService().withPublicId(id);
@@ -79,24 +79,24 @@ export class OrderService {
     const items = await prisma.cart.findMany({
       where: {
         id: {
-          in: cardIds
+          in: cardIds,
         },
-        userId: orderByUserId
-      }
-    })
+        userId: orderByUserId,
+      },
+    });
 
     return await prisma.order.create({
       data: {
         orderByUserId: orderByUserId,
         amount: items.reduce((sum, prd) => sum + prd.price, 0),
         items: {
-          connect: items.map(c => ({ id: c.id }))
+          connect: items.map((c) => ({ id: c.id })),
         },
-        currency: currency
+        currency: currency,
       },
       include: {
-        items: true
-      }
+        items: true,
+      },
     });
   }
 
@@ -110,8 +110,8 @@ export class OrderService {
         orderByUser: {
           select: {
             name: true,
-            email: true
-          }
+            email: true,
+          },
         },
         items: {
           select: {
@@ -120,34 +120,30 @@ export class OrderService {
                 name: true,
                 files: {
                   where: {
-                    type: 'DESIGN'
+                    type: "DESIGN",
                   },
                   select: {
                     type: true,
                     objectName: true,
-                    bucket: true
+                    bucket: true,
                   },
-                  take: 1
-                }
-              }
-            }
-          }
-        }
-      }
-    })
+                  take: 1,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
 
-    if (
-      order.items.find(item => !item.product.files.length)
-    ) {
-      throw new ServerError("Missing design file", 409, 'logic')
+    if (order.items.find((item) => !item.product.files.length)) {
+      throw new ServerError("Missing design file", 409, "logic");
     }
 
-    const productListText = order.items
-      .map((item, index) => `${index + 1}. ${item.product.name}`)
-      .join('\n')
+    const productListText = order.items.map((item, index) => `${index + 1}. ${item.product.name}`).join("\n");
 
     const textMail = `
-Dear ${order.orderByUser.name ?? 'Customer'},
+Dear ${order.orderByUser.name ?? "Customer"},
     
 Thank you for trusting and purchasing from 3D2DS.
     
@@ -159,47 +155,47 @@ If you have any questions or need further assistance, feel free to contact us.
     
 Best regards,
 3D2DS
-    `
+    `;
 
-    const attachments: Attachment[] = []
+    const attachments: Attachment[] = [];
 
     for (const item of order.items) {
-      const file = item.product.files[0]
-      if (!file) continue
+      const file = item.product.files[0];
+      if (!file) continue;
 
-      const stream: Readable = await S3.CLIENT.getObject(
-        file.bucket,
-        file.objectName
-      )
+      const stream: Readable = await S3.CLIENT.getObject(file.bucket, file.objectName);
 
-      stream.on('error', (err) => {
-        console.error('[MINIO STREAM ERROR]', err)
-      })
+      stream.on("error", (err) => {
+        console.error("[MINIO STREAM ERROR]", err);
+      });
 
       attachments.push({
         filename: file.objectName,
         content: stream,
-        contentType: 'application/octet-stream'
-      })
+        contentType: "application/octet-stream",
+      });
     }
 
-    await Mail.client.sendMail({
-      from: `"3D2DS" <${Mail.userAuth}>`,
-      to: order.orderByUser.email,
-      subject: 'Thank you for your purchase at 3D2DS',
-      text: textMail,
-      attachments: attachments,
-    })
+    await Mail.client
+      .sendMail({
+        from: `"3D2DS" <${Mail.userAuth}>`,
+        to: order.orderByUser.email,
+        subject: "Thank you for your purchase at 3D2DS",
+        text: textMail,
+        attachments: attachments,
+      })
+      .catch((err) => {
+          console.error("Send mail error: ", err)
+      });
 
     await prisma.order.update({
       where: {
-        publicId: orderPublicId
+        publicId: orderPublicId,
       },
       data: {
-        status: 'DELIVERED'
-      }
-    })
-
+        status: "DELIVERED",
+      },
+    });
   }
 
   async cancel() {

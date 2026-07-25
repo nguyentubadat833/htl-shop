@@ -200,8 +200,8 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
         }),
       productFile: designFile
         ? {
-            publicId: designFile.publicId,
-          }
+          publicId: designFile.publicId,
+        }
         : null,
     },
     categories: categorySearchListToSelected(input.categories.map((c) => c.publicId)),
@@ -554,11 +554,12 @@ function clickById(id: string) {
 
 <template>
   <div class="grid grid-cols-[6fr_4fr] gap-4">
-    <div>
+    <div class="h-full flex flex-col overflow-hidden">
       <div class="flex px-4 py-3.5 border-b border-accented">
         <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
       </div>
-      <UTable id="gridData" :loading="pending" :data="state.products" :columns="columns" v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
+      <UTable :loading="pending" :data="state.products" :columns="columns" v-model:global-filter="globalFilter" sticky
+        class="flex-1 full" @select="(row, e) => onSelect(row, e)">
         <template #createdAt-cell="{ row }">
           <NuxtTime v-if="!row.original.createdAt" :datetime="row.original.createdAt!" />
         </template>
@@ -590,19 +591,13 @@ function clickById(id: string) {
           <div class="flex gap-3 w-full">
             <UFormField label="Price" class="w-full">
               <div class="flex gap-2">
-                <UInputNumber
-                  v-model="productCurrent.price"
-                  :locale="'en-US'"
-                  :step="0.001"
-                  :format-options="{
-                    style: 'currency',
-                    currency: currency,
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 3,
-                    roundingMode: 'halfExpand',
-                  }"
-                  class="w-full"
-                />
+                <UInputNumber v-model="productCurrent.price" :locale="'en-US'" :step="0.001" :format-options="{
+                  style: 'currency',
+                  currency: currency,
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 3,
+                  roundingMode: 'halfExpand',
+                }" class="w-full" />
               </div>
             </UFormField>
             <UFormField v-if="productCurrent.publicId" label="Status" class="w-full">
@@ -611,14 +606,8 @@ function clickById(id: string) {
           </div>
 
           <UFormField label="Categories">
-            <UCommandPalette
-              v-model="state.productCurrent.categories"
-              multiple
-              selected-icon="i-lucide-circle-check"
-              :groups="categorySearchGroup"
-              placeholder="Search category"
-              class="flex-1 h-80"
-            />
+            <UCommandPalette v-model="state.productCurrent.categories" multiple selected-icon="i-lucide-circle-check"
+              :groups="categorySearchGroup" placeholder="Search category" class="flex-1 h-80" />
           </UFormField>
           <div v-if="productCurrent.publicId">
             <USeparator label="Resources" />
@@ -626,35 +615,16 @@ function clickById(id: string) {
               <UFormField label="Product file">
                 <div class="space-y-3">
                   <div class="flex items-center gap-3">
-                    <UButton
-                      v-if="!productFileCurrent"
-                      :loading="isProductFileUploadProcessing"
-                      icon="ic:outline-upload-file"
-                      color="neutral"
-                      variant="ghost"
-                      @click="clickById(`btnUDF${productCurrent.publicId}`)"
-                    />
-                    <UButton
-                      v-if="productFileCurrent"
-                      icon="ic:baseline-download-for-offline"
-                      color="info"
-                      variant="ghost"
-                      @click="fileActions().downloadFile(productFileCurrent.publicId)"
-                    />
-                    <UButton
-                      v-if="productFileCurrent"
-                      icon="ic:baseline-delete-forever"
-                      color="error"
-                      variant="ghost"
-                      @click="fileActions().deleteFile(productFileCurrent.publicId)"
-                    />
-                    <UFileUpload
-                      :id="`btnUDF${productCurrent.publicId}`"
-                      variant="button"
-                      @update:model-value="(file) => changeSelectDesignFile(file)"
-                      :ui="layout.uploadImages.ui"
-                      class="hidden"
-                    />
+                    <UButton v-if="!productFileCurrent" :loading="isProductFileUploadProcessing"
+                      icon="ic:outline-upload-file" color="neutral" variant="ghost"
+                      @click="clickById(`btnUDF${productCurrent.publicId}`)" />
+                    <UButton v-if="productFileCurrent" icon="ic:baseline-download-for-offline" color="info"
+                      variant="ghost" @click="fileActions().downloadFile(productFileCurrent.publicId)" />
+                    <UButton v-if="productFileCurrent" icon="ic:baseline-delete-forever" color="error" variant="ghost"
+                      @click="fileActions().deleteFile(productFileCurrent.publicId)" />
+                    <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button"
+                      @update:model-value="(file) => changeSelectDesignFile(file)" :ui="layout.uploadImages.ui"
+                      class="hidden" />
                     <p v-if="!productFileCurrent" class="text-[0.7rem] text-gray-500">No design file available</p>
                   </div>
                 </div>
@@ -663,23 +633,18 @@ function clickById(id: string) {
                 <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
                   <div v-for="img in productThumbnailsCurrent" class="relative group">
                     <img :key="img.publicId" :src="img.link" class="mb-4 w-full rounded-lg" />
-                    <UButton
-                      v-if="img.publicId"
-                      label="Remove"
-                      icon="ic:baseline-delete-sweep"
-                      block
-                      size="sm"
-                      color="error"
-                      variant="link"
+                    <UButton v-if="img.publicId" label="Remove" icon="ic:baseline-delete-sweep" block size="sm"
+                      color="error" variant="link"
                       class="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      @click="fileActions().deleteFile(img.publicId)"
-                    />
+                      @click="fileActions().deleteFile(img.publicId)" />
                   </div>
                 </div>
                 <div class="space-y-4 mt-3">
-                  <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
+                  <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple
+                    @update:model-value="changeSelectImages" :ui="layout.uploadImages.ui">
                   </UFileUpload>
-                  <UButton :loading="isSomeThumbnailUploadProcessing" icon="ic:outline-file-upload" label="Upload" block @click="fileActions().uploadFiles('IMAGE')" />
+                  <UButton :loading="isSomeThumbnailUploadProcessing" icon="ic:outline-file-upload" label="Upload" block
+                    @click="fileActions().uploadFiles('IMAGE')" />
                 </div>
               </UFormField>
             </div>
@@ -750,22 +715,22 @@ function clickById(id: string) {
 </template>
 
 <style scoped>
-.info > div {
+.info>div {
   display: flex;
   gap: 12px;
   align-items: center;
 }
 
-.info > div > p {
+.info>div>p {
   width: 150px;
 }
 
-.info > div > *:not(p) {
+.info>div>*:not(p) {
   /* width: 300px; */
   width: 100%;
 }
 
-.info > div > div * + * {
+.info>div>div *+* {
   margin-left: 0.7rem;
 }
 </style>

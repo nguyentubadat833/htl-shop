@@ -1,12 +1,14 @@
 <template>
   <div class="grid grid-cols-[6fr_4fr] gap-4">
-    <div>
+    <div class="h-full flex flex-col overflow-hidden">
       <div class="flex px-4 py-3.5 border-b border-accented">
         <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
       </div>
-      <UTable id="gridData" :loading="pending" :data="state.data" :columns="columns" v-model:global-filter="globalFilter" @select="(row, e) => onSelect(row, e)">
+      <UTable :loading="pending" :data="state.data" :columns="columns" v-model:global-filter="globalFilter" sticky
+        class="flex-1 full" @select="(row, e) => onSelect(row, e)">
         <template #active-cell="{ row }">
-          <UBadge :label="generateStatus(row.original.active).label" :color="generateStatus(row.original.active).color" />
+          <UBadge :label="generateStatus(row.original.active).label"
+            :color="generateStatus(row.original.active).color" />
         </template>
       </UTable>
     </div>
