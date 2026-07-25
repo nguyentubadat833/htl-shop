@@ -1,0 +1,34 @@
+services:
+  htl-shop:
+    image: nguyentubadat/3d2ds:1.1
+    container_name: 3d2ds-con
+    ports:
+      - "3005:3000"
+    networks:
+      - infrastructure_default
+      - nginx-proxy-manager_default
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://datnguyen:datnguyen@postgres:5432/htl-shop
+      - NUXT_PUBLIC_GOOGLE_ID=
+      - NUXT_GOOGLE_CLIENT_SECRET=
+      - NUXT_GOOGLE_REDIRECT_URI=
+      - NUXT_S3_HOST=
+      - NUXT_S3_ACCESS_KEY=
+      - NUXT_S3_SECRET_KEY=
+      - NUXT_S3_BUCKET_DEFAULT=htl-shop
+      - NUXT_S3_USE_SSL=true
+      - NUXT_MAIL_HOST=smtp.gmail.com
+      - NUXT_MAIL_PORT=587
+      - NUXT_MAIL_SECURE=true
+      - NUXT_MAIL_AUTH_USER=
+      - NUXT_MAIL_AUTH_PASS=
+      - NUXT_SEPAY_ID=
+      - NUXT_SEPAY_KEY=
+      - NUXT_SEPAY_ENV=sandbox
+
+networks:
+  infrastructure_default:
+    external: true
+  nginx-proxy-manager_default:
+    external: true

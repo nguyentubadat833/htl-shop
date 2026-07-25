@@ -22,9 +22,9 @@ export default defineNitroPlugin(async (nitroApp) => {
   console.info(`ℹ️  SEPAY KEY =`, runtimeConfig.sepay.key);
   console.info(`ℹ️  SEPAY ENV =`, runtimeConfig.sepay.env);
 
-  if (!(await S3.CLIENT.bucketExists(runtimeConfig.s3.bucketDefault))) {
-    await S3.CLIENT.makeBucket(runtimeConfig.s3.bucketDefault);
-  }
+  // if (!(await S3.CLIENT.bucketExists(runtimeConfig.s3.bucketDefault))) {
+  //   await S3.CLIENT.makeBucket(runtimeConfig.s3.bucketDefault);
+  // }
 
   console.info(`✅ ${runtimeConfig.s3.bucketDefault} bucket created`);
 });
