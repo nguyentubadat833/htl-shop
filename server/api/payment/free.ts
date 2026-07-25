@@ -2,14 +2,14 @@ import { OrderService } from "~~/server/core/service/order"
 import { CreatePaymentSchema } from "~~/shared/schemas/payment"
 
 export default defineEventHandler(async (event) => {
-  const { orderId, origin } = zodValidateRequestOrThrow(
+  const { order_id, success_url, cancel_url, error_url } = zodValidateRequestOrThrow(
     CreatePaymentSchema,
     getQuery(event)
   )
 
   const order = await prisma.order.findUniqueOrThrow({
     where: {
-      publicId: orderId
+      publicId: order_id
     },
     select: {
       id: true,
@@ -51,6 +51,6 @@ export default defineEventHandler(async (event) => {
           }
         })
       })
-    return sendRedirect(event, `${origin}/payment?orderId=${orderId}&status=success`,)
+    return sendRedirect(event, success_url)
   }
 })

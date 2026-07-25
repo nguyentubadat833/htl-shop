@@ -455,6 +455,10 @@ function productActions() {
   async function save() {
     actionOnProductPublicIdOrReturn();
     const data = state.productCurrent;
+
+    if (data.plan === 'FREE') {
+      data.price = 0
+    }
     if (!data.publicId) {
       await $userApi("/api/product/add", {
         method: "POST",
@@ -483,6 +487,7 @@ function productActions() {
           price: data.price,
           status: data.status,
           info: data.info,
+          plan: data.plan,
           category_publicIds: data.categories.map((i) => i.publicId),
         } satisfies z.input<typeof UpdateProductSchema>,
         onResponse: ({ response }) => {
