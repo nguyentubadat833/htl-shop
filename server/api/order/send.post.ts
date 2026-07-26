@@ -6,12 +6,12 @@ import z from "zod";
 import { OrderService } from "~~/server/core/service/order";
 
 const Schema = z.object({
-  orderPublicId: z.string()
-})
+  orderPublicId: z.string(),
+});
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
-  const { orderPublicId } = zodValidateRequestOrThrow(Schema, await readBody(event))
-  await OrderService.sendProduct(orderPublicId)
+  const { orderPublicId } = zodValidateRequestOrThrow(Schema, await readBody(event));
+  void OrderService.sendProduct(orderPublicId);
 
   //   const order = await prisma.order.findUniqueOrThrow({
   //     where: {
@@ -112,6 +112,6 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
   //     }
   //   })
 
-  setResponseStatus(event, 204)
-  return 'ok'
+  setResponseStatus(event, 204);
+  return "ok";
 });
