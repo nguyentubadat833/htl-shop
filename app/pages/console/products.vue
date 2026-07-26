@@ -77,6 +77,7 @@ interface State {
   };
   products: Product[];
   productCurrent: Product;
+  snapshortProductCurrent: Product
   uploadResource: UploadResource;
 }
 
@@ -223,6 +224,7 @@ const state = reactive<State>({
   },
   products: [],
   productCurrent: structuredClone(productCurrentDefault),
+  snapshortProductCurrent: structuredClone(productCurrentDefault),
   uploadResource: structuredClone(uploadResourceDefault),
 });
 
@@ -303,6 +305,7 @@ function resetProductCurrent(publicId: string) {
     const product = state.products.find((prd) => prd.publicId === publicId);
     if (product) {
       state.productCurrent = product;
+      state.snapshortProductCurrent = structuredClone(product)
     }
   });
 }
@@ -315,6 +318,7 @@ function actionOnProductPublicIdOrReturn() {
 
 function onSelect(row: TableRow<Product>, e?: Event) {
   state.productCurrent = row.original;
+  state.snapshortProductCurrent = structuredClone(row.original)
 }
 
 function changeSelectImages(files: File[] | null | undefined) {
@@ -498,6 +502,8 @@ function productActions() {
                 title: "Updated",
               });
             });
+          } else {
+            data.status = state.snapshortProductCurrent.status
           }
         },
       });

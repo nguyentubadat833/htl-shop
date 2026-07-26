@@ -1,3 +1,5 @@
+import { UAParser } from "ua-parser-js";
+
 export type ErrorType = "validate" | "prisma" | "logic" | "auth" | "permission" | "storage";
 
 export const HttpStatus = {
@@ -47,9 +49,28 @@ export const HttpStatus = {
 
 export type HttpStatusCode = keyof typeof HttpStatus;
 
+export function getClientName(userAgent?: string): string {
+  const parser = new UAParser(userAgent);
+  const { browser, os, device } = parser.getResult();
+
+  return [browser.name, browser.version?.split(".")[0], "on", device.type ?? "Desktop", os.name].filter(Boolean).join(" ");
+}
+
 export function getStatusMessage(code: number): string {
   return HttpStatus[code as HttpStatusCode] || "Unknown Status";
 }
+
+export function isErrorStatus(code: HttpStatusCode | number): boolean {
+  return code >= 400 && code <= 599;
+}
+
+// export function isClientErrorStatus(code: number): boolean {
+//   return code >= 400 && code <= 499;
+// }
+
+// export function isServerErrorStatus(code: number): boolean {
+//   return code >= 500 && code <= 599;
+// }
 
 export class ServerError extends Error {
   constructor(
