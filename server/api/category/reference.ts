@@ -1,4 +1,6 @@
-export default defineWrappedRequiredAdminHandler(async (event) => {
+import { CategoryReference } from "~~/shared/types/category"
+
+export default defineWrappedRequiredAdminHandler(async (event): Promise<CategoryReference[]> => {
   return await prisma.category.findMany({
     select: {
       publicId: true,

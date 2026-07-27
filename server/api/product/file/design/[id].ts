@@ -6,11 +6,12 @@ const ParamsSchema = z.object({
   id: z.string(),
 });
 
-export default defineWrappedRequiredAdminHandler(async (event) => {
+export default defineWrappedRequiredAuthHandler(async (event) => {
   const params = getRouterParams(event);
   const { id: publicId } = zodValidateRequestOrThrow(ParamsSchema, params);
 
-  const { objectName, bucket } = await ProductService.getFile(publicId, "DESIGN");
+  const user = UserAuthContext.unwrapUserAuthContext(event);
+  const { objectName, bucket } = await ProductService.getFile(publicId, "DESIGN", user);
   const expiresInSeconds = 60 * 5;
   // return await S3.CLIENT.presignedGetObject(bucket, objectName, expiresInSeconds);
   const asciiFallback = objectName.replace(/[^\x20-\x7E]/g, "_"); // fallback an toàn

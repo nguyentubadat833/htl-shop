@@ -47,7 +47,7 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
         publicId: item.product.publicId,
         alias: item.product.alias,
         name: item.product.name,
-        fileId: item.product.files.filter((item) => item.type === "DESIGN")[0].publicId,
+        fileId: item.product.files.filter((item) => item.type === "DESIGN")[0]?.publicId,
         imageLinks: item.product.files
           .filter((item) => item.type === "IMAGE")
           .map((file) => file.publicId)

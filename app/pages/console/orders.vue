@@ -85,18 +85,18 @@ function getStatusColor(status: OrderStatus): any {
   return statusColor[status];
 }
 
-// function confirmInput() {
-//   if (state.sendMail.confirmInput === "confirm") {
-//     sendMail().then(() => {
-//       state.sendMail.confirmInput = "";
-//     });
-//   } else {
-//     toast.toast.add({
-//       title: "Please enter 'confirm'",
-//       color: "error",
-//     });
-//   }
-// }
+function confirmInput() {
+  if (state.sendMail.confirmInput === "confirm") {
+    sendMail().then(() => {
+      state.sendMail.confirmInput = "";
+    });
+  } else {
+    toast.toast.add({
+      title: "Please enter 'confirm'",
+      color: "error",
+    });
+  }
+}
 
 async function sendMail() {
   if (!state.orderCurrent) {
@@ -161,10 +161,10 @@ useSeoMeta({
 
     <div v-if="state.orderCurrent" class="space-y-5 overflow-y-auto p-3">
       <UCard :ui="layout.orderItems.ui">
-        <!-- <div class="flex justify-end gap-4">
+        <div class="flex justify-end gap-4">
           <UInput v-model="state.sendMail.confirmInput" placeholder="Please input 'confirm'" />
           <UButton :loading="state.sendMail.isLoading" label="Send mail" @click="confirmInput()" />
-        </div> -->
+        </div>
         <UFormField label="Order items">
           <UTable :data="state.orderCurrent?.items ?? []" :columns="orderItemsColumns">
             <template #productName-cell="{ row }">

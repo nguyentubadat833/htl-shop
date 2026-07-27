@@ -10,7 +10,7 @@ export default defineNitroPlugin((nitroApp) => {
     const clientHost = getRequestIP(event, { xForwardedFor: true }) ?? getRequestHost(event);
     const userAgent = getRequestHeader(event, "user-agent");
 
-    if (pathname.startsWith("/_nuxt") || pathname.startsWith("/api/_nuxt") || pathname.startsWith("/storage/image")) return;
+    if (pathname.startsWith("/_") || pathname.startsWith("/api/_nuxt") || pathname.startsWith("/storage/image")) return;
 
     let message = `[${getLocaleTime()}] # [${clientHost}] # [${getClientName(userAgent)}] # [${pathname}]`;
     const userAuth = event.context.userAuth as UserAuth;

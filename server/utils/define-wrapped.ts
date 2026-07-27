@@ -18,6 +18,7 @@ function handlerError(event: H3Event, err: unknown): ErrorResponse {
     } satisfies ErrorResponse;
   }
 
+  console.log(err);
   setResponseStatus(event, 500);
   return {
     error: true,

@@ -177,9 +177,10 @@ export class OrderService {
                     type: "DESIGN",
                   },
                   select: {
-                    type: true,
-                    objectName: true,
-                    bucket: true,
+                    id: true,
+                    // type: true,
+                    // objectName: true,
+                    // bucket: true,
                   },
                   take: 1,
                 },
@@ -211,24 +212,24 @@ Best regards,
 3D2DS
     `;
 
-    const attachments: Attachment[] = [];
+    // const attachments: Attachment[] = [];
 
-    for (const item of order.items) {
-      const file = item.product.files[0];
-      if (!file) continue;
+    // for (const item of order.items) {
+    //   const file = item.product.files[0];
+    //   if (!file) continue;
 
-      const stream: Readable = await S3.CLIENT.getObject(file.bucket, file.objectName);
+    //   const stream: Readable = await S3.CLIENT.getObject(file.bucket, file.objectName);
 
-      stream.on("error", (err) => {
-        console.error("[MINIO STREAM ERROR]", err);
-      });
+    //   stream.on("error", (err) => {
+    //     console.error("[MINIO STREAM ERROR]", err);
+    //   });
 
-      attachments.push({
-        filename: file.objectName,
-        content: stream,
-        contentType: "application/octet-stream",
-      });
-    }
+    //   attachments.push({
+    //     filename: file.objectName,
+    //     content: stream,
+    //     contentType: "application/octet-stream",
+    //   });
+    // }
 
     await Mail.client
       .sendMail({
@@ -236,10 +237,10 @@ Best regards,
         to: order.orderByUser.email,
         subject: "Thank you for your purchase at 3D2DS",
         text: textMail,
-        attachments: attachments,
+        // attachments: attachments,
       })
       .catch((err) => {
-        console.error("Send mail error: ", err);
+        logErrorColor(`SEND MAIL FAILED | ${JSON.stringify(err)}`);
       });
 
     await prisma.order.update({

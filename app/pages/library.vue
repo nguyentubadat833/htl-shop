@@ -4,10 +4,10 @@
             class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:shadow-sm transition-shadow">
 
             <div class="relative group shrink-0 w-24 h-24 cursor-pointer" @click="navigateTo(`/model/${item.alias}`)">
-                <img :src="item.imageLinks[0]" class="w-full h-full object-cover rounded" alt="image" />
+                <img :src="item.imageLinks[0]" class="w-full h-full object-cover rounded" alt="Product image" />
                 <div
                     class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded flex items-center justify-center">
-                    <span class="text-white text-xs font-semibold">Xem lại</span>
+                    <span class="text-white text-xs font-semibold">View Product</span>
                 </div>
             </div>
 
@@ -16,33 +16,41 @@
                     @click="navigateTo(`/model/${item.alias}`)">
                     {{ item.name }}
                 </p>
-                <p class="text-sm text-gray-400">Đã mua ngày {{ formatPurchasedAt(item.purchasedAt) }}</p>
+
+                <p class="text-sm text-gray-400">
+                    Purchased on {{ formatPurchasedAt(item.purchasedAt) }}
+                </p>
             </div>
 
-            <UButton label="Download" icon="ic:round-download" color="warning" :loading="downloading[item.fileId]"
+            <UButton v-if="item.fileId" label="Download" icon="ic:round-download" color="warning" :loading="downloading[item.fileId]"
                 @click="downloadFile(item.fileId)" />
         </div>
 
-        <div v-if="purchasedList.length === 0" class="text-center text-gray-400 py-10">Bạn chưa mua sản phẩm nào.</div>
+        <div v-if="purchasedList.length === 0" class="text-center text-gray-400 py-10">
+            You haven't purchased any products yet.
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import type { ProductPurchased } from '~~/shared/types/product';
+import type { ProductPurchased } from "~~/shared/types/product";
 
-const { $userApi } = useNuxtApp()
+const { $userApi } = useNuxtApp();
+
 const downloading = ref<Record<string, boolean>>({});
 
-const purchasedList = await $fetch<ProductPurchased[]>('/api/product/purchased-by-user')
+const purchasedList = await $fetch<ProductPurchased[]>(
+    "/api/product/purchased-by-user"
+);
 
 async function downloadFile(fileId: string) {
     downloading.value[fileId] = true;
+
     try {
         $userApi(`/api/product/file/design/${fileId}`, {
             onResponse({ response }) {
                 if (response.ok) {
                     const url = response._data;
-                    // window.open(url, "_blank");
 
                     const link = document.createElement("a");
                     link.href = url;

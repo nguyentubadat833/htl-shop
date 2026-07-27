@@ -55,7 +55,7 @@ export interface ProductPurchased {
   publicId: string;
   alias: string;
   name: string;
-  fileId: string
+  fileId?: string | null
   imageLinks: string[];
   purchasedAt: string;
 }

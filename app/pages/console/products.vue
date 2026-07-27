@@ -3,6 +3,7 @@ import { AddProductSchema, DeleteFileRequestSchema, DeleteProductSchema, UpdateP
 import type { TableColumn, TableRow } from "@nuxt/ui";
 import type z from "zod";
 import { ProductPlan, type ProductStatus } from "~~/prisma/generated/browser";
+import type { CategoryReference } from "~~/shared/types/category";
 
 type TechnicalOptions = {
   platform: string[];
@@ -271,7 +272,7 @@ await useAsyncData(() =>
   }),
 );
 
-const { data: categorySearchGroup } = await useAsyncData(() => $userApi("/api/category/reference"), {
+const { data: categorySearchGroup } = await useAsyncData(() => $userApi<CategoryReference[]>("/api/category/reference"), {
   transform(value) {
     return [
       {
@@ -292,7 +293,8 @@ const { refresh: refreshProducts, pending } = await useAsyncData(() =>
   $userApi("/api/product/list", {
     onResponse({ response }) {
       if (response.ok) {
-        state.products = (response._data as unknown as ProductItemResponse[]).map((product) => {
+        const data = response._data as ProductItemResponse[]
+        state.products = data.map((product) => {
           return productResponseToProduct(product);
         });
       }

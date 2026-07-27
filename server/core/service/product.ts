@@ -1,7 +1,9 @@
 import { S3 } from "./s3";
-import slug from 'slug'
+import slug from "slug";
 import { ProductInfo } from "#shared/types/product";
 import { ObjectStorage, Prisma, Product, ProductStatus, ProductPlan } from "~~/prisma/generated/client";
+import { UserAuth } from "~~/server/utils/context-working";
+import { orderPaidValues } from "~~/shared/constants/order.constants";
 export class ProductService {
   product!: Product;
 
@@ -9,6 +11,21 @@ export class ProductService {
     if (product) {
       this.product = product;
     }
+  }
+
+  static async hasUserPurchasedProduct(userId: number, productId: number): Promise<boolean> {
+    const purchase = await prisma.cart.findFirst({
+      where: {
+        productId,
+        order: {
+          orderByUserId: userId,
+          status: { in: orderPaidValues },
+        },
+      },
+      select: { id: true },
+    });
+
+    return !!purchase;
   }
 
   get finalPrice() {
@@ -30,34 +47,36 @@ export class ProductService {
   }
 
   static async create(plan: ProductPlan, name: string, price: number, info: ProductInfo, createdByUserId: number, categoryPublicIds: string[]) {
-    let alias = slug(name)
+    let alias = slug(name);
     const findWithAlias = await prisma.product.findUnique({
       where: {
-        alias: alias
+        alias: alias,
       },
       select: {
-        id: true
-      }
-    })
+        id: true,
+      },
+    });
 
     if (findWithAlias) {
       // throw new ServerError('Product name must be unique', 409, 'logic')
       const last6 = Date.now().toString().slice(-5);
-      alias = `${alias}-${last6}`
+      alias = `${alias}-${last6}`;
     }
 
-    let categoryIds: number[] = []
+    let categoryIds: number[] = [];
     if (categoryPublicIds.length) {
-      categoryIds = await prisma.category.findMany({
-        where: {
-          publicId: {
-            in: categoryPublicIds
-          }
-        },
-        select: {
-          id: true
-        }
-      }).then(data => data.map(i => i.id))
+      categoryIds = await prisma.category
+        .findMany({
+          where: {
+            publicId: {
+              in: categoryPublicIds,
+            },
+          },
+          select: {
+            id: true,
+          },
+        })
+        .then((data) => data.map((i) => i.id));
     }
 
     return await prisma.product.create({
@@ -66,49 +85,49 @@ export class ProductService {
         name,
         alias,
         price,
-        currency: 'USD',
+        currency: "USD",
         info: info as Prisma.JsonObject,
         createdByUserId: createdByUserId,
         categories: {
-          connect: categoryIds.map(id => {
+          connect: categoryIds.map((id) => {
             return {
-              id: id
-            }
-          })
-        }
+              id: id,
+            };
+          }),
+        },
       },
     });
   }
 
   async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus, categoryPublicIds?: string[], plan?: ProductPlan) {
     const setAlias = async (input?: string) => {
-      if (!input) return undefined
+      if (!input) return undefined;
 
-      const alias = slug(input)
+      const alias = slug(input);
       const findWithAlias = await prisma.product.findFirst({
         where: {
           AND: {
             alias: slug(input),
             id: {
-              not: this.product.id
-            }
-          }
+              not: this.product.id,
+            },
+          },
         },
         select: {
-          status: true
-        }
-      })
+          status: true,
+        },
+      });
 
       if (findWithAlias) {
         if (findWithAlias.status === ProductStatus.SOFT_DELETE) {
-          return undefined
+          return undefined;
         }
-        throw new ServerError('Product name must be unique', 409, 'logic')
+        throw new ServerError("Product name must be unique", 409, "logic");
       }
-      return alias
-    }
+      return alias;
+    };
 
-    if (status === 'ACTIVE') {
+    if (status === "ACTIVE") {
       const files = await prisma.objectStorage.findMany({
         where: {
           AND: {
@@ -116,34 +135,36 @@ export class ProductService {
             // uploadedAt: {
             //   not: null
             // }
-          }
+          },
         },
         select: {
-          type: true
-        }
-      })
+          type: true,
+        },
+      });
 
-      if (!files.find(file => file.type === 'DESIGN')) {
-        throw new ServerError('Required product file', 409, 'logic')
+      if (!files.find((file) => file.type === "DESIGN")) {
+        throw new ServerError("Required product file", 409, "logic");
       }
 
-      if (!files.find(file => file.type === 'IMAGE')) {
-        throw new ServerError('Required thumbnail', 409, 'logic')
+      if (!files.find((file) => file.type === "IMAGE")) {
+        throw new ServerError("Required thumbnail", 409, "logic");
       }
     }
 
-    let categoryIds: number[] = []
+    let categoryIds: number[] = [];
     if (categoryPublicIds && categoryPublicIds.length) {
-      categoryIds = await prisma.category.findMany({
-        where: {
-          publicId: {
-            in: categoryPublicIds
-          }
-        },
-        select: {
-          id: true
-        }
-      }).then(data => data.map(i => i.id))
+      categoryIds = await prisma.category
+        .findMany({
+          where: {
+            publicId: {
+              in: categoryPublicIds,
+            },
+          },
+          select: {
+            id: true,
+          },
+        })
+        .then((data) => data.map((i) => i.id));
     }
     return prisma.product.update({
       where: {
@@ -157,12 +178,12 @@ export class ProductService {
         info: info,
         status: status,
         categories: {
-          set: categoryIds.map(id => {
+          set: categoryIds.map((id) => {
             return {
-              id: id
-            }
-          })
-        }
+              id: id,
+            };
+          }),
+        },
       },
     });
   }
@@ -193,8 +214,8 @@ export class ProductService {
     return await S3.CLIENT.presignedPutObject(S3.BUCKET_UPLOAD_DEFAULT, objectName);
   }
 
-  static async getFile(publicId: string, type: FileType) {
-    const { bucket, objectName } = await prisma.objectStorage.findFirstOrThrow({
+  static async getFile(publicId: string, type: FileType, user?: UserAuth) {
+    const { bucket, objectName, productId } = await prisma.objectStorage.findFirstOrThrow({
       where: {
         publicId: publicId,
         type: type,
@@ -202,8 +223,19 @@ export class ProductService {
       select: {
         bucket: true,
         objectName: true,
+        productId: true,
       },
     });
+
+    if (type === "DESIGN") {
+      if (!user) {
+        throw new ServerError("Access defined", 403);
+      }
+
+      if (user.role !== "ADMIN") {
+        await ProductService.hasUserPurchasedProduct(user.id, productId);
+      }
+    }
 
     const statObject = await S3.CLIENT.statObject(bucket, objectName);
     if (!statObject) {
@@ -230,7 +262,7 @@ export class ProductService {
 }
 
 class Helper {
-  constructor() { }
+  constructor() {}
 
   static async deleteObjectStorages(objectStorages: ObjectStorage[]) {
     await prisma.objectStorage.deleteMany({

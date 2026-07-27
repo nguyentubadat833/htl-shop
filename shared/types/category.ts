@@ -1,28 +1,35 @@
 export enum CategoryType {
-    TWO_D = '2D',
-    THREE_D = '3D'
+  TWO_D = "2D",
+  THREE_D = "3D",
 }
 
 export interface CategoryProductItemResponse {
-    publicId: string
-    name: string
+  publicId: string;
+  name: string;
 }
 
 export interface CategoryItemResponse {
-    publicId: string
-    name: string
-    type: string
-    active: boolean
-    products: CategoryProductItemResponse[]
+  publicId: string;
+  name: string;
+  type: string;
+  active: boolean;
+  products: CategoryProductItemResponse[];
 }
 
 export interface CategorySEOItem {
-    publicId: string,
-    alias: string,
-    name: string,
-    type: string,
-    productCounts: number
-    // products: {
-    //     count: number
-    // }
+  publicId: string;
+  alias: string;
+  name: string;
+  type: string;
+  productCounts: number;
+  // products: {
+  //     count: number
+  // }
+}
+
+export interface CategoryReference {
+  publicId: string;
+  name: string;
+  type: string;
+  active: boolean;
 }
