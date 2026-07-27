@@ -32,6 +32,13 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
         },
       },
     },
+    orderBy: [
+      {
+        order: {
+          orderAt: "desc",
+        },
+      },
+    ],
   });
 
   return purchasedProducts.map(

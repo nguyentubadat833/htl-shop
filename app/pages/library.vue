@@ -42,7 +42,14 @@ async function downloadFile(fileId: string) {
             onResponse({ response }) {
                 if (response.ok) {
                     const url = response._data;
-                    window.open(url, "_blank");
+                    // window.open(url, "_blank");
+
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.rel = "noopener";
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
                 }
             },
         });
