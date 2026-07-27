@@ -46,30 +46,18 @@ const userAuth = ref<UserAuthClient | null>(null);
 
 const items = computed<NavigationMenuItem[][]>(() => {
   const rs = [
-    // [
-    //   {
-    //     label: userAuth.value?.name ?? "",
-    //     icon: "ic:outline-account-circle",
-    //     to: "/profile"
-    //   }
-    // ],
-    // [
-    //   {
-    //     label: "My cart",
-    //     icon: "ic:outline-shopping-basket",
-    //     to: "/cart"
-    //   },
-    //   {
-    //     label: "History",
-    //     icon: "ic:round-history",
-    //     to: "/history"
-    //   }
-    // ],
     [
       {
-        label: "Order History",
+        label: "My Orders",
         icon: "ic:baseline-shopify",
         to: '/orders'
+      },
+    ],
+    [
+      {
+        label: "My Library",
+        icon: "ic:baseline-layers",
+        to: '/library'
       },
       {
         label: "Sign Out",

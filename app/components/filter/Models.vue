@@ -71,7 +71,8 @@ const items = ref<NavigationMenuItem[][]>([
             isMenuItem: true,
             publicId: item.publicId,
             label: item.name,
-            badge: item.products.count,
+            // badge: item.products.count,
+            badge: item.productCounts
           };
         }) ?? [],
     },
@@ -85,7 +86,7 @@ const items = ref<NavigationMenuItem[][]>([
             isMenuItem: true,
             publicId: item.publicId,
             label: item.name,
-            badge: item.products.count,
+            badge: item.productCounts
           };
         }) ?? [],
     },

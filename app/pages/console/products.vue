@@ -262,7 +262,7 @@ const isSomeThumbnailUploadProcessing = computed(() => uploadProductThumbnails.v
 const isProductFileUploadProcessing = computed(() => uploadProductFile.value?.status === "progress");
 
 await useAsyncData(() =>
-  $userApi("/api/option/all", {
+  $userApi<Record<string, string[]>>("/api/option/all", {
     onResponse({ response }) {
       if (response.ok) {
         state.metadata.technicalOptions = response._data;

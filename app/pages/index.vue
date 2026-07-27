@@ -103,7 +103,7 @@ const { filterState, filterStatus, filterTags } = useFilter();
 
 const { data: productList, pending } = await useAsyncData(
   () =>
-    $fetch("/data/products", {
+    $fetch<ProductSEOItemResponse[]>("/data/products", {
       query: filterState.value,
     }),
   {

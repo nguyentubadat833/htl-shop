@@ -28,6 +28,7 @@ export class OrderService {
         publicId: true,
         status: true,
         amount: true,
+        orderAt: true,
         items: {
           select: {
             product: {
@@ -55,11 +56,12 @@ export class OrderService {
       throw new ServerError(HttpStatus[404], 404);
     }
 
-    const { publicId, status, amount, items } = data;
+    const { publicId, status, amount, items, orderAt } = data;
     return {
       publicId,
       status,
       amount,
+      orderAt: orderAt.toISOString(),
       products: items.map((item) => {
         return {
           name: item.product.name,
@@ -82,6 +84,7 @@ export class OrderService {
         publicId: true,
         status: true,
         amount: true,
+        orderAt: true,
         items: {
           select: {
             product: {
@@ -105,10 +108,11 @@ export class OrderService {
       },
     });
 
-    return orders.map(({ publicId, status, amount, items }) => ({
+    return orders.map(({ publicId, status, amount, items, orderAt }) => ({
       publicId,
       status,
       amount,
+      orderAt: orderAt.toISOString(),
       products: items.map((item) => ({
         alias: item.product.alias,
         name: item.product.name,

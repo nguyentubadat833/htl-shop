@@ -14,44 +14,48 @@ export interface AddImageResponse {
   uploadLink: string;
 }
 
-export type ProductInfo = z.output<typeof ProductInfoSchema>
+export type ProductInfo = z.output<typeof ProductInfoSchema>;
 
 export interface ProductItemResponse {
   publicId: string;
-  plan: ProductPlan,
+  plan: ProductPlan;
   name: string;
   price: number;
   status: ProductStatus;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
-  info: ProductInfo
+  info: ProductInfo;
   files: {
     publicId: string;
     type: FileType;
   }[];
   categories: {
-    publicId: string
-  }[]
+    publicId: string;
+  }[];
 }
-
-// export enum ProductPlan {
-//   Free = "Free",
-//   Pro = "Pro"
-// }
 
 export interface ProductSEOItemResponse {
   publicId: string;
-  plan: string,
-  alias: string
+  plan: ProductPlan;
+  alias: string;
   name: string;
   price: number;
   priceVND: number;
   createdAt: string;
-  imageLinks: string[]
+  imageLinks: string[];
   categories: {
-    alias: string,
-    publicId: string,
-    name: string
-    type: string
-  }[]
+    alias: string;
+    publicId: string;
+    name: string;
+    type: string;
+  }[];
+}
+
+export interface ProductPurchased {
+  publicId: string;
+  alias: string;
+  name: string;
+  fileId: string
+  imageLinks: string[];
+  purchasedAt: string;
 }

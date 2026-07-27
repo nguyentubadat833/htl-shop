@@ -13,13 +13,14 @@ import type { OrderStatus, PaymentStatus } from "~~/prisma/generated/browser";
 
 export interface OrderWithProductsResponse {
   publicId: string;
-  status: string;
+  status: OrderStatus;
   amount: number;
   products: {
     name: string;
     price: number;
   }[];
   paid: boolean;
+  orderAt: string
 }
 
 export interface ProductOrderItemResponse {

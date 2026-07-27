@@ -8,11 +8,16 @@
                     :color="(cardState.paymentButtonColor as any)" block @click="payment()" />
             </template>
             <template #terms>
-                <div class="flex items-center justify-center gap-1.5 text-xs text-muted">
-                    <span>Order ID:</span>
-                    <span class="font-mono truncate max-w-[160px]" :title="orderId">{{ orderId }}</span>
-                    <UButton icon="ic:outline-content-copy" color="neutral" variant="ghost" size="xs" square
-                        aria-label="Copy order ID" @click="copyOrderId" />
+                <div class="flex flex-col items-center gap-1.5">
+                    <div class="flex items-center justify-center gap-1.5 text-xs text-muted">
+                        <span>Order ID:</span>
+                        <span class="font-mono truncate max-w-[160px]" :title="orderId">{{ orderId }}</span>
+                        <UButton icon="ic:outline-content-copy" color="neutral" variant="ghost" size="xs" square
+                            aria-label="Copy order ID" @click="copyOrderId" />
+                    </div>
+                    <div class="text-xs text-muted">
+                        {{ formatDate(props.data.orderAt) }}
+                    </div>
                 </div>
             </template>
         </UPricingPlan>
@@ -33,19 +38,27 @@ const props = defineProps<{
     data: OrderWithProductsResponse
 }>()
 
+type Info = {
+    title: string
+    description: string
+    tagline: string
+    paymentButtonLabel: string
+    paymentButtonColor: string
+}
+
 const { publicId: orderId, amount, products, paid } = props.data
 
-const isPaymentMode = computed(() => props.mode === 'payment')
+const cardState = reactive<Partial<Info>>({})
 
-const cardState = reactive({
-    title: paid ? "Payment" : 'Awaiting Payment',
-    description: isPaymentMode.value ?
-        "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email."
-        : "Complete your payment to process this order. Once payment is confirmed, your product will be delivered to your email.",
-    tagline: "Pay once, own it forever",
-    paymentButtonLabel: "Continue to Payment",
-    paymentButtonColor: "warning",
-});
+// const cardState = reactive({
+//     title: paid ? "Payment" : 'Awaiting Payment',
+//     description: isPaymentMode.value ?
+//         "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email."
+//         : "Complete your payment to process this order. Once payment is confirmed, your product will be delivered to your email.",
+//     tagline: "Pay once, own it forever",
+//     paymentButtonLabel: "Continue to Payment",
+//     paymentButtonColor: "warning",
+// });
 
 async function payment() {
 
@@ -88,14 +101,38 @@ async function copyOrderId() {
     })
 }
 
-onBeforeMount(() => {
+function formatDate(date: string) {
+    return new Date(date).toLocaleDateString("en-CA");
+}
+
+onMounted(() => {
+    const isPaymentMode = props.mode
+
     if (paid) {
-        cardState.description = "The product will be delivered directly to your email shortly. Please check your inbox (and spam folder) for the download details.";
-        cardState.tagline = "Payment Successful";
-        cardState.paymentButtonLabel = "Paid";
-        cardState.paymentButtonColor = "info";
+        cardState.title = "Order Paid"
+        cardState.description = "The product will be delivered directly to your email shortly. Please check your inbox (and spam folder) for the download details."
+        cardState.tagline = "Payment Successful"
+        cardState.paymentButtonLabel = "Paid"
+        cardState.paymentButtonColor = "info"
+    } else {
+        cardState.title = "Awaiting Payment"
+        cardState.description = isPaymentMode ?
+            "Complete your payment to receive your order as soon as possible. After successful payment, your product will be sent to your email."
+            : "Complete your payment to process this order. Once payment is confirmed, your product will be delivered to your email.",
+            cardState.tagline = "Pay once, own it forever"
+        cardState.paymentButtonLabel = "Continue to Payment"
+        cardState.paymentButtonColor = "warning"
     }
-});
+})
+
+// onBeforeMount(() => {
+//     if (paid) {
+//         cardState.description = "The product will be delivered directly to your email shortly. Please check your inbox (and spam folder) for the download details.";
+//         cardState.tagline = "Payment Successful";
+//         cardState.paymentButtonLabel = "Paid";
+//         cardState.paymentButtonColor = "info";
+//     }
+// });
 
 // async function getAmountVND(){
 //   const {get, convert} = changeRate()

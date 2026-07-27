@@ -21,7 +21,8 @@ export interface CategorySEOItem {
     alias: string,
     name: string,
     type: string,
-    products: {
-        count: number
-    }
+    productCounts: number
+    // products: {
+    //     count: number
+    // }
 }
