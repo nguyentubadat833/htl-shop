@@ -3,7 +3,7 @@ import { S3 } from "~~/server/core/service/s3";
 import { GetImageSchema } from "~~/shared/schemas/product";
 // import sharp from "sharp";
 // import { Readable } from "stream";
-import { toWebStream } from "~~/server/utils/stream-helper";
+import { toWebStream } from "~~/server/utils/helpers/stream-helper";
 
 export default defineWrappedResponseHandler(async (event) => {
   const query = getQuery(event);

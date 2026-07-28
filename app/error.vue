@@ -30,6 +30,10 @@ const info = computed(() => {
 function handleError() {
   clearError({ redirect: '/' })
 }
+
+// if(props.error.statusCode === 401){
+//   await navigateTo('/')
+// }
 </script>
 
 <template>

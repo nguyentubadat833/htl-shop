@@ -1,10 +1,8 @@
 import { OrderWithProductsResponse } from "#shared/types/order";
-import { Order, OrderStatus } from "~~/prisma/generated/client";
+import { Order } from "~~/prisma/generated/client";
 import { Mail } from "~~/server/core/service/mail";
-import { S3 } from "~~/server/core/service/s3";
 import { orderPaidValues } from "~~/shared/constants/order.constants";
-import type { Attachment } from "nodemailer/lib/mailer";
-import type { Readable } from "stream";
+
 
 export class OrderService {
   order!: Order;

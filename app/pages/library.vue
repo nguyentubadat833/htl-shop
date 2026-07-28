@@ -22,11 +22,11 @@
                 </p>
             </div>
 
-            <UButton v-if="item.fileId" label="Download" icon="ic:round-download" color="warning" :loading="downloading[item.fileId]"
-                @click="downloadFile(item.fileId)" />
+            <UButton v-if="item.fileId" label="Download" icon="ic:round-download" color="warning"
+                :loading="downloading[item.fileId]" @click="downloadFile(item.fileId)" />
         </div>
 
-        <div v-if="purchasedList.length === 0" class="text-center text-gray-400 py-10">
+        <div v-if="purchasedList?.length === 0" class="text-center text-gray-400 py-10">
             You haven't purchased any products yet.
         </div>
     </div>
@@ -36,12 +36,15 @@
 import type { ProductPurchased } from "~~/shared/types/product";
 
 const { $userApi } = useNuxtApp();
-
 const downloading = ref<Record<string, boolean>>({});
 
-const purchasedList = await $fetch<ProductPurchased[]>(
+// const purchasedList = await $userApi<ProductPurchased[]>(
+//     "/api/product/purchased-by-user"
+// );
+
+const { data: purchasedList } = await useAsyncData(() => $userApi<ProductPurchased[]>(
     "/api/product/purchased-by-user"
-);
+))
 
 async function downloadFile(fileId: string) {
     downloading.value[fileId] = true;

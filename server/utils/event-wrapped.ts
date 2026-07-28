@@ -2,6 +2,7 @@ import type { EventHandler, EventHandlerRequest } from "h3";
 import { getStatusMessage } from "./error";
 import { H3Event } from "h3";
 import { ErrorResponse } from "~~/shared/types/app";
+import { UserRole } from "~~/prisma/generated/enums";
 
 function handlerError(event: H3Event, err: unknown): ErrorResponse {
   if (err instanceof ServerError) {
@@ -18,7 +19,6 @@ function handlerError(event: H3Event, err: unknown): ErrorResponse {
     } satisfies ErrorResponse;
   }
 
-  console.log(err);
   setResponseStatus(event, 500);
   return {
     error: true,
@@ -39,10 +39,12 @@ export const defineWrappedResponseHandler = <T extends EventHandlerRequest, D>(h
 
 export const defineWrappedRequiredAuthHandler = <T extends EventHandlerRequest, D>(handler: EventHandler<T, D>): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
-    const userContextService = new UserAuthContext(event);
-    if (!userContextService.userAuth) {
+
+    const user = UserAuthContext.unwrapUserAuthContext(event);
+    if (!user) {
       throw createError({
         statusCode: 401,
+        statusMessage: "Required auth",
       });
     }
 
@@ -55,16 +57,23 @@ export const defineWrappedRequiredAuthHandler = <T extends EventHandlerRequest, 
 
 export const defineWrappedRequiredAdminHandler = <T extends EventHandlerRequest, D>(handler: EventHandler<T, D>): EventHandler<T, D> =>
   defineEventHandler<T>(async (event) => {
-    const userContextService = new UserAuthContext(event);
-    if (!userContextService.userAuth) {
+
+    const user = UserAuthContext.unwrapUserAuthContext(event);
+    if (!user) {
       throw createError({
         statusCode: 401,
+        statusMessage: "Required auth",
+      });
+    }
+
+    if (user.role !== UserRole.ADMIN) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: "Required role",
       });
     }
 
     try {
-      userContextService.hasAdminOrThrow();
-
       return await handler(event);
     } catch (err) {
       return handlerError(event, err);

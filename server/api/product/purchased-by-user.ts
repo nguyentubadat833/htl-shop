@@ -3,7 +3,7 @@ import { ProductPurchased } from "~~/shared/types/product";
 
 export default defineWrappedRequiredAuthHandler(async (event) => {
   const user = UserAuthContext.unwrapUserAuthContext(event);
-
+  
   const purchasedProducts = await prisma.cart.findMany({
     where: {
       order: {

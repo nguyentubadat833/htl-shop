@@ -9,7 +9,7 @@ export type UserAuth = {
 };
 
 export class UserAuthContext {
-  constructor(public event: H3Event<EventHandlerRequest>) { }
+  constructor(public event: H3Event<EventHandlerRequest>) {}
 
   set userAuth(user: UserAuth) {
     this.event.context.userAuth = user;
@@ -46,7 +46,7 @@ export class UserAuthContext {
 
   static hasAuthOrThrowInline(event: H3Event<EventHandlerRequest>) {
     const userAuthContext = new UserAuthContext(event);
-    return userAuthContext.getUserAuthOrThrow()
+    return userAuthContext.getUserAuthOrThrow();
   }
 
   static hasAdminOrThrowInline(event: H3Event<EventHandlerRequest>) {
@@ -55,7 +55,7 @@ export class UserAuthContext {
     return userAuthContext;
   }
 
-  static unwrapUserAuthContext(event: H3Event<EventHandlerRequest>){
-    return event.context.userAuth as UserAuth
+  static unwrapUserAuthContext(event: H3Event<EventHandlerRequest>) {
+    return event.context.userAuth as UserAuth;
   }
 }

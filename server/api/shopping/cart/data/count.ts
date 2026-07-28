@@ -1,6 +1,8 @@
-import { CartService } from "~~/server/core/service/cart"
+import { CartService } from "~~/server/core/service/cart";
 
 export default defineWrappedRequiredAuthHandler(async (event) => {
-  const cartService = new CartService(new UserAuthContext(event).getUserIdOrThrow())
-  return await cartService.count() as number
-})
+  const user = UserAuthContext.unwrapUserAuthContext(event);
+
+  const cartService = new CartService(user.id);
+  return (await cartService.count()) as number;
+});

@@ -1,5 +1,5 @@
 import { ZodError, ZodType } from "zod";
-import { ServerError } from "./error";
+import { ServerError } from "../error";
 
 export function zodValidateRequestOrThrow<T>(schema: ZodType<T>, data: unknown, onError?: (error: ZodError) => void): T {
   const result = schema.safeParse(data);

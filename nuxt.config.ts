@@ -68,6 +68,12 @@ export default defineNuxtConfig({
     "/cart": {
       ssr: false,
     },
+    "/library": {
+      ssr: false,
+    },
+    "/payment": {
+      ssr: false,
+    },
   },
 
   devServer: {
