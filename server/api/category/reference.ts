@@ -6,11 +6,15 @@ export default defineWrappedRequiredAdminHandler(async (event): Promise<Category
       publicId: true,
       name: true,
       type: true,
-      active: true
+      active: true,
+      tags: true
     },
     orderBy: [
       { type: 'asc' },
       { name: 'asc' }
     ]
-  })
+  }).then(items => items.map(item => ({
+    ...item,
+    tags: item.tags.map(tag => tag.name)
+  })))
 })

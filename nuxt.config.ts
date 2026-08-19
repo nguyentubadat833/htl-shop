@@ -4,9 +4,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     "@nuxt/ui",
-    "@nuxt/image",
+    "@nuxt/image", // "@nuxtjs/ngrok"
     "@nuxt/content",
-    // "@nuxtjs/ngrok"
+    "@nuxtjs/device",
   ],
   css: ["~/assets/css/main.css"],
   // prisma: {
@@ -89,6 +89,19 @@ export default defineNuxtConfig({
 
   app: {
     pageTransition: { name: "page", mode: "out-in" },
+  },
+  hooks: {
+    "pages:extend"(pages) {
+      const categoryPage = pages.find((p) => p.path === "/console/categories");
+      if (categoryPage) {
+        categoryPage.file = "~/pages/console/categories2.vue";
+      }
+
+      // const productPage = pages.find((p) => p.path === "/console/products");
+      // if (productPage) {
+      //   productPage.file = "~/pages/console/products2.vue";
+      // }
+    },
   },
   // ngrok: {
   //   authtoken_from_env: true,

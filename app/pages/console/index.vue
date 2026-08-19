@@ -104,7 +104,7 @@ const revenueColumns = [
 </script>
 
 <template>
-  <div class="py-5 h-full flex flex-col overflow-hidden">
+  <div class="h-full flex flex-col overflow-hidden">
     <div v-if="pending" class="flex justify-center py-24">
       <UIcon name="i-lucide-loader-circle" class="size-10 animate-spin" />
     </div>

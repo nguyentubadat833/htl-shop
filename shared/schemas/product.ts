@@ -25,7 +25,8 @@ export const AddProductSchema = z.object({
   name: z.string().min(1, "Tên sản phẩm không được để trống"),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   info: ProductInfoSchema,
-  category_publicIds: z.array(z.string()).default([])
+  category_publicIds: z.array(z.string()).default([]),
+  tagIds: z.array(z.string()).default([])
 });
 
 export const UpdateProductSchema = ProductBaseSchema.extend({

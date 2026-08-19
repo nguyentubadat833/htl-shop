@@ -10,11 +10,20 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
           publicId: true,
           name: true
         }
+      },
+      tags: {
+        select: {
+          id: true,
+          name: true
+        }
       }
     },
     orderBy: [
       { type: 'asc' },
       { name: 'asc' }
     ]
-  })
+  }).then(items => items.map(item => ({
+    ...item,
+    tags: item.tags.map(tag => tag.name)
+  })))
 })

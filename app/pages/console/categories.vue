@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-[6fr_4fr] gap-4">
+  <div class="h-full grid grid-cols-[6fr_4fr] gap-4">
     <div class="h-full flex flex-col overflow-hidden">
       <div class="flex px-4 py-3.5 border-b border-accented">
         <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />

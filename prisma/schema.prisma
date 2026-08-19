@@ -127,8 +127,19 @@ model Category {
   type     String
   active   Boolean   @default(false)
   products Product[]
+  tags     Tag[]
 
   @@map("category")
+}
+
+model Tag {
+  id         String    @id @default(cuid())
+  name       String
+  category   Category  @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  products   Product[]
+
+  @@unique([name, categoryId])
 }
 
 model Product {
@@ -149,6 +160,7 @@ model Product {
   carts           Cart[]
   files           ObjectStorage[]
   categories      Category[]
+  tags            Tag[]
 
   @@map("product")
 }
