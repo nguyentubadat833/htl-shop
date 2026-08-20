@@ -27,6 +27,7 @@ export const AddProductSchema = z.object({
   info: ProductInfoSchema,
   category_publicIds: z.array(z.string()).default([]),
   tagIds: z.array(z.string()).default([]),
+  externalLink: z.string().optional(),
 });
 
 export const UpdateProductSchema = ProductBaseSchema.extend({
@@ -36,7 +37,8 @@ export const UpdateProductSchema = ProductBaseSchema.extend({
   status: z.enum(ProductStatus).optional(),
   info: ProductInfoSchema,
   category_publicIds: z.array(z.string()).optional(),
-  tagIds: z.array(z.string()).optional()
+  tagIds: z.array(z.string()).optional(),
+  externalLink: z.string().optional(),
 });
 
 export const DeleteProductSchema = ProductBaseSchema.extend({});

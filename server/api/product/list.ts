@@ -19,6 +19,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
       createdAt: true,
       updatedAt: true,
       info: true,
+      externalLink: true,
       files: {
         select: {
           publicId: true,
@@ -51,7 +52,8 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
         type: file.type
       })),
       categoryIds: item.categories.map(ctg => ctg.publicId),
-      tagIds: item.tags.map(tag => tag.id)
+      tagIds: item.tags.map(tag => tag.id),
+      externalLink: item.externalLink ?? undefined
     } satisfies ProductItemResponse
   }))
 });

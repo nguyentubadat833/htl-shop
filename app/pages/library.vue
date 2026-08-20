@@ -2,7 +2,6 @@
     <div class="flex flex-col gap-4">
         <div v-for="item in purchasedList" :key="item.publicId"
             class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:shadow-sm transition-shadow">
-
             <div class="relative group shrink-0 w-24 h-24 cursor-pointer" @click="navigateTo(`/model/${item.alias}`)">
                 <img :src="item.imageLinks[0]" class="w-full h-full object-cover rounded" alt="Product image" />
                 <div
@@ -17,24 +16,28 @@
                     {{ item.name }}
                 </p>
 
-                <p class="text-sm text-gray-400">
-                    Purchased on {{ formatPurchasedAt(item.purchasedAt) }}
-                </p>
+                <p class="text-sm text-gray-400">Purchased on {{ formatPurchasedAt(item.purchasedAt) }}</p>
+
+                <div>
+                    <UBadge v-if="item.plan === ProductPlan.PRO" class="font-bold rounded-full">PRO</UBadge>
+                    <UBadge v-else class="font-bold rounded-full" color="neutral" variant="outline">FREE</UBadge>
+                </div>
             </div>
 
             <UButton v-if="item.fileId" label="Download" icon="ic:round-download" color="warning"
-                :loading="downloading[item.fileId]" @click="downloadFile(item.fileId)" />
+                :loading="downloading[item.fileId]" @click="downloadFile(item.plan, item.externalLink, item.fileId)" />
         </div>
 
-        <div v-if="purchasedList?.length === 0" class="text-center text-gray-400 py-10">
-            You haven't purchased any products yet.
-        </div>
+        <div v-if="purchasedList?.length === 0" class="text-center text-gray-400 py-10">You haven't purchased any
+            products yet.</div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ProductPlan } from "~~/prisma/generated/browser";
 import type { ProductPurchased } from "~~/shared/types/product";
 
+const toast = useToast();
 const { $userApi } = useNuxtApp();
 const downloading = ref<Record<string, boolean>>({});
 
@@ -42,30 +45,44 @@ const downloading = ref<Record<string, boolean>>({});
 //     "/api/product/purchased-by-user"
 // );
 
-const { data: purchasedList } = await useAsyncData(() => $userApi<ProductPurchased[]>(
-    "/api/product/purchased-by-user"
-))
+const { data: purchasedList } = await useAsyncData(() => $userApi<ProductPurchased[]>("/api/product/purchased-by-user"));
 
-async function downloadFile(fileId: string) {
-    downloading.value[fileId] = true;
+async function downloadFile(productPlan: ProductPlan, externalLink?: string, fileId?: string) {
+    if (productPlan === ProductPlan.PRO) {
+        if (!fileId) {
+            toast.add({ color: "error", title: "Resource not found" });
+            return;
+        }
 
-    try {
-        $userApi(`/api/product/file/design/${fileId}`, {
-            onResponse({ response }) {
-                if (response.ok) {
-                    const url = response._data;
+        downloading.value[fileId] = true;
 
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.rel = "noopener";
-                    document.body.appendChild(link);
-                    link.click();
-                    link.remove();
-                }
-            },
-        });
-    } finally {
-        downloading.value[fileId] = false;
+        try {
+            $userApi(`/api/product/file/design/${fileId}`, {
+                onResponse({ response }) {
+                    if (response.ok) {
+                        const url = response._data;
+
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.rel = "noopener";
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                    }
+                },
+            });
+        } finally {
+            downloading.value[fileId] = false;
+        }
+    } else {
+        if (!externalLink) {
+            toast.add({ color: "error", title: "Resource not found" });
+            return;
+        }
+
+        console.log(externalLink);
+
+        window.open(externalLink, "_blank");
     }
 }
 

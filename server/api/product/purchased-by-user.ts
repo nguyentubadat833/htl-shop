@@ -53,6 +53,8 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
           .map((file) => file.publicId)
           .map((id) => `/storage/image?publicId=${id}`),
         purchasedAt: item.order!.orderAt.toISOString(),
+        plan: item.product.plan,
+        externalLink: item.product.externalLink ?? undefined
       }) satisfies ProductPurchased,
   );
   //   return await prisma.$queryRaw<

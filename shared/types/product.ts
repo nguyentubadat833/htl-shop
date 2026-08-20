@@ -1,6 +1,6 @@
 import type z from "zod";
 import type { ProductInfoSchema } from "../schemas/product";
-import type { ProductPlan, ProductStatus } from "~~/prisma/generated/browser";
+import type { Product, ProductPlan, ProductStatus } from "~~/prisma/generated/browser";
 
 export type FileType = "IMAGE" | "DESIGN";
 
@@ -31,12 +31,7 @@ export interface ProductItemResponse {
   }[];
   categoryIds: string[]
   tagIds: string[]
-  // categories: {
-  //   publicId: string;
-  // }[];
-  // tags: {
-  //   id: string
-  // }[]
+  externalLink?: string
 }
 
 export interface ProductSEOItemResponse {
@@ -48,6 +43,7 @@ export interface ProductSEOItemResponse {
   priceVND: number;
   createdAt: string;
   imageLinks: string[];
+  info: ProductInfo,
   categories: {
     alias: string;
     publicId: string;
@@ -63,4 +59,6 @@ export interface ProductPurchased {
   fileId?: string | null
   imageLinks: string[];
   purchasedAt: string;
+  externalLink?: string
+  plan: ProductPlan
 }

@@ -46,7 +46,16 @@ export class ProductService {
     return this;
   }
 
-  static async create(plan: ProductPlan, name: string, price: number, info: ProductInfo, createdByUserId: number, categoryPublicIds: string[], tagIds: string[]) {
+  static async create(
+    plan: ProductPlan,
+    name: string,
+    price: number,
+    info: ProductInfo,
+    createdByUserId: number,
+    categoryPublicIds: string[],
+    tagIds: string[],
+    externalLink?: string,
+  ) {
     let alias = slug(name);
     const findWithAlias = await prisma.product.findUnique({
       where: {
@@ -85,6 +94,7 @@ export class ProductService {
         name,
         alias,
         price,
+        externalLink,
         currency: "USD",
         info: info as Prisma.JsonObject,
         createdByUserId: createdByUserId,
@@ -102,7 +112,16 @@ export class ProductService {
     });
   }
 
-  async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus, categoryPublicIds?: string[], plan?: ProductPlan, tagIds?: string[]) {
+  async update(
+    name?: string,
+    price?: number,
+    info?: ProductInfo,
+    status?: ProductStatus,
+    categoryPublicIds?: string[],
+    plan?: ProductPlan,
+    tagIds?: string[],
+    externalLink?: string,
+  ) {
     const setAlias = async (input?: string) => {
       if (!input) return undefined;
 
@@ -145,8 +164,14 @@ export class ProductService {
         },
       });
 
-      if (!files.find((file) => file.type === "DESIGN")) {
-        throw new ServerError("Required product file", 409, "logic");
+      if (this.product.plan === ProductPlan.PRO) {
+        if (!files.find((file) => file.type === "DESIGN")) {
+          throw new ServerError("Required product file", 409, "logic");
+        }
+      } else {
+        if (!this.product.externalLink && !externalLink) {
+          throw new ServerError("Required external link", 409, "logic");
+        }
       }
 
       if (!files.find((file) => file.type === "IMAGE")) {
@@ -180,6 +205,7 @@ export class ProductService {
         price: price,
         info: info,
         status: status,
+        externalLink: externalLink,
         categories: {
           set: categoryIds.map((id) => {
             return {

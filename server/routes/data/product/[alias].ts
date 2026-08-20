@@ -1,5 +1,5 @@
 import z from "zod";
-import { ProductSEOItemResponse } from "#shared/types/product";
+import { ProductInfo, ProductSEOItemResponse } from "#shared/types/product";
 import { ProductStatus } from "~~/prisma/generated/enums";
 import { orderPaidValues } from "~~/shared/constants/order.constants";
 import { changeRate, getAmountVND } from "~~/server/core/service/money";
@@ -28,6 +28,7 @@ export default defineWrappedResponseHandler(async (event) => {
         price: true,
         createdAt: true,
         plan: true,
+        info: true,
         files: {
           where: {
             type: "IMAGE",
@@ -80,5 +81,6 @@ export default defineWrappedResponseHandler(async (event) => {
     createdAt: product.createdAt.toString(),
     imageLinks: product.files.map((file) => file.publicId).map((id) => `/storage/image?publicId=${id}`),
     categories: [],
+    info: product.info as ProductInfo
   };
 });

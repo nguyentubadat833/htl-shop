@@ -160,6 +160,7 @@ model Product {
   info            Json
   carts           Cart[]
   files           ObjectStorage[]
+  externalLink    String?
   categories      Category[]
   tags            Tag[]
 

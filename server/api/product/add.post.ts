@@ -5,14 +5,14 @@ import { ProductService } from "~~/server/core/service/product";
 import { DefineOptionService } from "~~/server/core/service/option";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
-  const userAuthContext = new UserAuthContext(event)
+  const userAuthContext = new UserAuthContext(event);
 
-  const { plan, name, price, info, category_publicIds, tagIds } = zodValidateRequestOrThrow(AddProductSchema, await readBody(event));
-  const product = await ProductService.create(plan, name, price, info, userAuthContext.getUserIdOrThrow(), category_publicIds, tagIds);
+  const { plan, name, price, info, category_publicIds, tagIds, externalLink } = zodValidateRequestOrThrow(AddProductSchema, await readBody(event));
+  const product = await ProductService.create(plan, name, price, info, userAuthContext.getUserIdOrThrow(), category_publicIds, tagIds, externalLink);
 
   void Object.entries(info).forEach(([key, value]) => {
-    DefineOptionService.upsertOption(key, value)
-  })
+    DefineOptionService.upsertOption(key, value);
+  });
 
   return <CreateProductResponse>{
     publicId: product.publicId,

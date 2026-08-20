@@ -1,38 +1,32 @@
 <template>
   <div class="h-full grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-5 items-start overflow-hidden">
     <!-- LEFT PANEL: Product Table -->
-    <UCard
-      :ui="{
-        root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
-        body: 'p-0 flex-1 flex flex-col min-h-0',
-      }"
-    >
+    <UCard :ui="{
+      root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
+      body: 'p-0 flex-1 flex flex-col min-h-0',
+    }">
       <!-- Header / Search Toolbar -->
-      <div class="p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3 bg-neutral-50/50 dark:bg-neutral-900/50">
-        <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Search products..." class="w-full max-w-xs" />
+      <div
+        class="p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3 bg-neutral-50/50 dark:bg-neutral-900/50">
+        <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Search products..."
+          class="w-full max-w-xs" />
         <UButton icon="i-lucide-plus" label="New Product" color="primary" @click="productActions().add()" />
       </div>
 
       <!-- Products Data Table -->
       <div class="flex-1 flex flex-col overflow-hidden">
-        <UTable
-          :loading="pending"
-          :data="state.products"
-          :columns="columns"
-          v-model:row-selection="rowSelection"
-          v-model:global-filter="globalFilter"
-          sticky
-          class="flex-1"
-          @select="(row) => onSelect(row)"
-        >
+        <UTable :loading="pending" :data="state.products" :columns="columns" v-model:row-selection="rowSelection"
+          v-model:global-filter="globalFilter" sticky class="flex-1" @select="(row) => onSelect(row)">
           <!-- Plan Badge -->
           <template #plan-cell="{ row }">
-            <UBadge :label="row.original.plan" :color="row.original.plan === 'PRO' ? 'primary' : 'neutral'" variant="subtle" size="sm" />
+            <UBadge :label="row.original.plan" :color="row.original.plan === 'PRO' ? 'primary' : 'neutral'"
+              variant="subtle" size="sm" />
           </template>
 
           <!-- Status Badge -->
           <template #status-cell="{ row }">
-            <UBadge :label="row.original.status" :color="row.original.status === 'ACTIVE' ? 'success' : 'neutral'" variant="subtle" size="sm" />
+            <UBadge :label="row.original.status" :color="row.original.status === 'ACTIVE' ? 'success' : 'neutral'"
+              variant="subtle" size="sm" />
           </template>
 
           <!-- Price Display -->
@@ -54,22 +48,22 @@
     </UCard>
 
     <!-- RIGHT PANEL: Product Detail Form -->
-    <UCard
-      :ui="{
-        root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
-        header: 'p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between',
-        body: 'p-4 flex-1 overflow-y-auto space-y-4',
-        footer: 'p-4 border-t border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3',
-      }"
-    >
+    <UCard :ui="{
+      root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
+      header: 'p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between',
+      body: 'p-4 flex-1 overflow-y-auto space-y-4',
+      footer: 'p-4 border-t border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3',
+    }">
       <template #header>
         <div class="flex items-center gap-2">
-          <UIcon :name="productCurrent.publicId ? 'i-lucide-box' : 'i-lucide-package-plus'" class="size-5 text-primary-500" />
+          <UIcon :name="productCurrent.publicId ? 'i-lucide-box' : 'i-lucide-package-plus'"
+            class="size-5 text-primary-500" />
           <h3 class="font-semibold text-base">
             {{ productCurrent.publicId ? "Edit Product" : "Create Product" }}
           </h3>
         </div>
-        <UBadge v-if="productCurrent.publicId" :label="productCurrent.publicId" color="neutral" variant="outline" size="xs" />
+        <UBadge v-if="productCurrent.publicId" :label="productCurrent.publicId" color="neutral" variant="outline"
+          size="xs" />
       </template>
 
       <!-- Form Navigation Tabs -->
@@ -91,20 +85,15 @@
               </UFormField>
             </div>
 
-            <UFormField label="Price" :description="productCurrent.plan === 'FREE' ? 'Price is auto-set to 0 for Free items' : ''">
-              <UInputNumber
-                v-model="productCurrent.price"
-                :disabled="productCurrent.plan === 'FREE'"
-                :locale="'en-US'"
-                :step="0.01"
-                :format-options="{
+            <UFormField label="Price"
+              :description="productCurrent.plan === 'FREE' ? 'Price is auto-set to 0 for Free items' : ''">
+              <UInputNumber v-model="productCurrent.price" :disabled="productCurrent.plan === 'FREE'" :locale="'en-US'"
+                :step="0.01" :format-options="{
                   style: 'currency',
                   currency: currency,
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 2,
-                }"
-                class="w-full"
-              />
+                }" class="w-full" />
             </UFormField>
             <UFormField label="Categories" description="Select categories and their associated tags for this product">
               <div class="space-y-3 w-full">
@@ -113,39 +102,28 @@
                   <UButton
                     :label="state.productCurrent.categories.length ? 'Manage Categories & Tags' : 'Choose Categories & Tags...'"
                     :color="state.productCurrent.categories.length ? 'neutral' : 'neutral'"
-                    :variant="state.productCurrent.categories.length ? 'outline' : 'subtle'"
-                    icon="i-lucide-folder-tree"
-                    trailing-icon="i-lucide-chevrons-up-down"
-                    block
-                    class="justify-between"
-                  />
+                    :variant="state.productCurrent.categories.length ? 'outline' : 'subtle'" icon="i-lucide-folder-tree"
+                    trailing-icon="i-lucide-chevrons-up-down" block class="justify-between" />
 
                   <!-- Content bên trong Modal -->
                   <template #content>
                     <div class="p-2">
-                      <UCommandPalette
-                        v-model="state.productCurrent.categories"
-                        multiple
-                        selected-icon="i-lucide-check"
-                        :groups="categorySearchGroup"
-                        placeholder="Search and select categories..."
-                        class="w-full border-none"
-                      />
+                      <UCommandPalette v-model="state.productCurrent.categories" multiple selected-icon="i-lucide-check"
+                        :groups="categorySearchGroup" placeholder="Search and select categories..."
+                        class="w-full border-none" />
                     </div>
                   </template>
                 </UModal>
 
                 <!-- Danh sách Categories & Tags ĐÃ CHỌN (Hiển thị bên dưới Nút trigger) -->
                 <div v-if="state.productCurrent.categories.length" class="space-y-2.5">
-                  <div
-                    v-for="(item, index) in state.productCurrent.categories"
-                    :key="item.publicId || index"
-                    class="p-3 rounded-xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-900/50 space-y-2 relative group transition-all"
-                  >
+                  <div v-for="(item, index) in state.productCurrent.categories" :key="item.publicId || index"
+                    class="p-3 rounded-xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-900/50 space-y-2 relative group transition-all">
                     <!-- Category Header -->
                     <div class="flex items-center justify-between gap-2">
                       <div class="flex items-center gap-2 min-w-0">
-                        <UIcon name="i-lucide-folder-open" class="size-4 text-primary-500 shrink-0" :class="[{ 'bg-red-400': !item.active }]" />
+                        <UIcon name="i-lucide-folder-open" class="size-4 text-primary-500 shrink-0"
+                          :class="[{ 'bg-red-400': !item.active }]" />
                         <span class="font-medium text-xs text-neutral-800 dark:text-neutral-200 truncate">
                           {{ item.name }}
                         </span>
@@ -153,29 +131,17 @@
                       </div>
 
                       <!-- Quick Remove Category Button -->
-                      <UButton
-                        icon="i-lucide-x"
-                        color="error"
-                        variant="ghost"
-                        size="xs"
-                        square
-                        class="opacity-60 hover:opacity-100 transition-opacity"
-                        @click="removeCategory(index)"
-                      />
+                      <UButton icon="i-lucide-x" color="error" variant="ghost" size="xs" square
+                        class="opacity-60 hover:opacity-100 transition-opacity" @click="removeCategory(index)" />
                     </div>
 
                     <!-- Sub-Tags list inside Category -->
                     <div v-if="existsCategoryById(item.publicId)" class="flex flex-wrap gap-1.5 pt-1">
-                      <UBadge
-                        v-for="(tag, tagIdx) in getTagsFromCategoryReference(item.publicId)"
-                        :key="tagIdx"
+                      <UBadge v-for="(tag, tagIdx) in getTagsFromCategoryReference(item.publicId)" :key="tagIdx"
                         :label="typeof tag === 'string' ? tag : tag.name"
                         :color="productCurrent.tagIds.includes(tag.id) ? 'primary' : 'neutral'"
-                        :variant="productCurrent.tagIds.includes(tag.id) ? 'solid' : 'outline'"
-                        size="sm"
-                        class="rounded-md hover:cursor-pointer"
-                        @click="toogleTag(tag.id)"
-                      />
+                        :variant="productCurrent.tagIds.includes(tag.id) ? 'solid' : 'outline'" size="sm"
+                        class="rounded-md hover:cursor-pointer" @click="toogleTag(tag.id)" />
                     </div>
 
                     <!-- <div v-else class="text-[11px] text-neutral-400 italic">
@@ -190,17 +156,21 @@
 
         <!-- TAB 2: Resources & Files -->
         <template #resources>
+          <UFormField v-if="productCurrent.plan === ProductPlan.FREE" label="External link"
+            :required="productCurrent.plan === ProductPlan.FREE">
+            <UTextarea v-model="productCurrent.externalLink" placeholder="Free plan is required" class="w-full" />
+          </UFormField>
           <div v-if="productCurrent.publicId" class="space-y-5 pt-3">
             <!-- Design File Section -->
-            <div class="space-y-2">
-              <label class="text-sm font-medium text-neutral-700 dark:text-neutral-200 flex items-center justify-between">
+            <div v-if="productCurrent.plan === ProductPlan.PRO" class="space-y-2">
+              <label
+                class="text-sm font-medium text-neutral-700 dark:text-neutral-200 flex items-center justify-between">
                 <span>Design File</span>
                 <span v-if="productFileCurrent" class="text-xs text-primary-500 font-normal">File attached</span>
               </label>
 
               <div
-                class="p-3 border border-neutral-200/80 dark:border-neutral-800 rounded-lg bg-neutral-50/50 dark:bg-neutral-950/50 flex items-center justify-between gap-3"
-              >
+                class="p-3 border border-neutral-200/80 dark:border-neutral-800 rounded-lg bg-neutral-50/50 dark:bg-neutral-950/50 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2 truncate">
                   <UIcon name="i-lucide-file-archive" class="size-5 shrink-0 text-neutral-500" />
                   <span class="text-xs text-neutral-600 dark:text-neutral-400 truncate">
@@ -209,33 +179,15 @@
                 </div>
 
                 <div class="flex items-center gap-1 shrink-0">
-                  <UButton
-                    v-if="!productFileCurrent"
-                    :loading="isProductFileUploadProcessing"
-                    icon="i-lucide-upload"
-                    label="Upload"
-                    color="neutral"
-                    variant="soft"
-                    size="xs"
-                    @click="clickById(`btnUDF${productCurrent.publicId}`)"
-                  />
-                  <UButton
-                    v-if="productFileCurrent"
-                    icon="i-lucide-download"
-                    color="neutral"
-                    variant="ghost"
-                    size="xs"
-                    @click="fileActions().downloadFile(productFileCurrent.publicId)"
-                  />
-                  <UButton
-                    v-if="productFileCurrent"
-                    icon="i-lucide-trash-2"
-                    color="error"
-                    variant="ghost"
-                    size="xs"
-                    @click="fileActions().deleteFile(productFileCurrent.publicId)"
-                  />
-                  <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button" class="hidden" @update:model-value="(file) => changeSelectDesignFile(file)" />
+                  <UButton v-if="!productFileCurrent" :loading="isProductFileUploadProcessing" icon="i-lucide-upload"
+                    label="Upload" color="neutral" variant="soft" size="xs"
+                    @click="clickById(`btnUDF${productCurrent.publicId}`)" />
+                  <UButton v-if="productFileCurrent" icon="i-lucide-download" color="neutral" variant="ghost" size="xs"
+                    @click="fileActions().downloadFile(productFileCurrent.publicId)" />
+                  <UButton v-if="productFileCurrent" icon="i-lucide-trash-2" color="error" variant="ghost" size="xs"
+                    @click="fileActions().deleteFile(productFileCurrent.publicId)" />
+                  <UFileUpload :id="`btnUDF${productCurrent.publicId}`" variant="button" class="hidden"
+                    @update:model-value="(file) => changeSelectDesignFile(file)" />
                 </div>
               </div>
             </div>
@@ -246,35 +198,29 @@
 
               <!-- Gallery Grid -->
               <div v-if="productThumbnailsCurrent.length" class="grid grid-cols-3 gap-2">
-                <div
-                  v-for="img in productThumbnailsCurrent"
-                  :key="img.publicId"
-                  class="relative group aspect-square rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800"
-                >
+                <div v-for="img in productThumbnailsCurrent" :key="img.publicId"
+                  class="relative group aspect-square rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800">
                   <img :src="img.link" class="size-full object-cover" />
-                  <div class="absolute inset-0 bg-neutral-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-center">
-                    <UButton icon="i-lucide-trash-2" color="error" size="xs" square @click="fileActions().deleteFile(img.publicId)" />
+                  <div
+                    class="absolute inset-0 bg-neutral-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-center">
+                    <UButton icon="i-lucide-trash-2" color="error" size="xs" square
+                      @click="fileActions().deleteFile(img.publicId)" />
                   </div>
                 </div>
               </div>
 
               <!-- Upload Controller -->
               <div class="space-y-2 pt-2">
-                <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple class="w-full" @update:model-value="changeSelectImages" />
-                <UButton
-                  v-if="uploadProductThumbnails.length"
-                  :loading="isSomeThumbnailUploadProcessing"
-                  icon="i-lucide-upload-cloud"
-                  label="Confirm Upload"
-                  color="primary"
-                  block
-                  size="sm"
-                  @click="fileActions().uploadFiles('IMAGE')"
-                />
+                <UFileUpload v-model="uploadProductThumbnailsSelected" variant="button" multiple class="w-full"
+                  @update:model-value="changeSelectImages" />
+                <UButton v-if="uploadProductThumbnails.length" :loading="isSomeThumbnailUploadProcessing"
+                  icon="i-lucide-upload-cloud" label="Confirm Upload" color="primary" block size="sm"
+                  @click="fileActions().uploadFiles('IMAGE')" />
               </div>
             </div>
           </div>
-          <div v-else class="p-6 text-center text-xs text-neutral-400">Please create and save the product first to manage resources.</div>
+          <div v-else class="p-6 text-center text-xs text-neutral-400">Please create and save the product first to
+            manage resources.</div>
         </template>
 
         <!-- TAB 3: Technical Metadata -->
@@ -286,18 +232,21 @@
               </label>
               <div class="flex gap-1.5">
                 <UInput v-model="productInfoCurrent[field.key]" placeholder="Custom value" class="flex-1" size="sm" />
-                <USelect v-model="productInfoCurrent[field.key]" :items="technicalOptions[field.key] || []" placeholder="Preset" class="w-32" size="sm" />
+                <USelect v-model="productInfoCurrent[field.key]" :items="technicalOptions[field.key] || []"
+                  placeholder="Preset" class="w-32" size="sm" />
               </div>
             </div>
 
             <div class="grid grid-cols-[110px_1fr] items-center gap-2 pt-1">
               <label class="text-xs font-medium text-neutral-500">Size</label>
-              <UInput v-model="productInfoCurrent.size" placeholder="e.g. 1500 x 2000 x 850 mm" class="w-full" size="sm" />
+              <UInput v-model="productInfoCurrent.size" placeholder="e.g. 1500 x 2000 x 850 mm" class="w-full"
+                size="sm" />
             </div>
 
             <div class="space-y-1.5 pt-2">
               <label class="text-xs font-medium text-neutral-500">Description</label>
-              <UTextarea v-model="productInfoCurrent.description" placeholder="Write technical specifications or notes..." :rows="3" class="w-full" />
+              <UTextarea v-model="productInfoCurrent.description"
+                placeholder="Write technical specifications or notes..." :rows="3" class="w-full" />
             </div>
           </div>
         </template>
@@ -305,12 +254,14 @@
 
       <!-- Footer Actions -->
       <template #footer>
-        <UButton v-if="productCurrent.publicId" icon="i-lucide-trash-2" label="Delete" color="error" variant="soft" @click="productActions().del()" />
+        <UButton v-if="productCurrent.publicId" icon="i-lucide-trash-2" label="Delete" color="error" variant="soft"
+          @click="productActions().del()" />
         <div v-else />
 
         <div class="flex items-center gap-2">
           <!-- <UButton label="Reset" color="neutral" variant="ghost" @click="productActions().add()" /> -->
-          <UButton :loading="state.loading" icon="i-lucide-save" label="Save Product" color="primary" @click="productActions().save()" />
+          <UButton :loading="state.loading" icon="i-lucide-save" label="Save Product" color="primary"
+            @click="productActions().save()" />
         </div>
       </template>
     </UCard>
@@ -372,6 +323,7 @@ type Product = {
   };
   categories: CategoryItemSelected[];
   tagIds: string[];
+  externalLink?: string
 };
 
 type FileUpload = {
@@ -504,6 +456,7 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
     createdAt: input.createdAt,
     updatedAt: input.updatedAt,
     info: input.info,
+    externalLink: input.externalLink,
     resources: {
       thumbnails: input.files
         .filter((file) => file.type === "IMAGE")
@@ -605,7 +558,7 @@ const categorySearchGroup = computed(() => {
 });
 
 const { refresh: refreshProducts, pending } = await useAsyncData(() =>
-  $userApi("/api/product/list", {
+  $userApi<ProductItemResponse[]>("/api/product/list", {
     onResponse({ response }) {
       if (response.ok) {
         const data = response._data as ProductItemResponse[];
@@ -620,7 +573,7 @@ function resetProductCurrent(publicId: string) {
     const product = state.products.find((prd) => prd.publicId === publicId);
     if (product) {
       state.productCurrent = product;
-      state.snapshortProductCurrent = {...product}
+      state.snapshortProductCurrent = { ...product };
     }
   });
 }
@@ -774,6 +727,7 @@ function productActions() {
             category_publicIds: data.categories.map((i) => i.publicId),
             tagIds: data.tagIds,
             plan: data.plan,
+            externalLink: data.externalLink
           } satisfies z.input<typeof AddProductSchema>,
           onResponse: ({ response }) => {
             if (response.ok) {
@@ -794,6 +748,7 @@ function productActions() {
             plan: data.plan,
             category_publicIds: data.categories.map((i) => i.publicId),
             tagIds: data.tagIds,
+            externalLink: data.externalLink
           } satisfies z.input<typeof UpdateProductSchema>,
           onResponse: ({ response }) => {
             if (response.ok) {

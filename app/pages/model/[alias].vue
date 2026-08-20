@@ -2,16 +2,8 @@
   <div class="flex flex-col gap-5">
     <div class="lg:grid grid-cols-[7fr_3fr] space-y-5">
       <div class="flex-1 w-full lg:px-20">
-        <UCarousel
-          ref="carousel"
-          v-slot="{ item }"
-          arrows
-          :items="info?.images"
-          :prev="{ onClick: onClickPrev }"
-          :next="{ onClick: onClickNext }"
-          class="w-full"
-          @select="onSelect"
-        >
+        <UCarousel ref="carousel" v-slot="{ item }" arrows :items="info?.images" :prev="{ onClick: onClickPrev }"
+          :next="{ onClick: onClickNext }" class="w-full" @select="onSelect">
           <!-- <img :src="item" class="w-full"> -->
           <div class="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl">
             <div class="relative rounded-lg overflow-hidden">
@@ -22,13 +14,9 @@
         </UCarousel>
 
         <div class="flex gap-1 justify-between pt-4 max-w-xs mx-auto">
-          <div
-            v-for="(item, index) in info?.images"
-            :key="index"
+          <div v-for="(item, index) in info?.images" :key="index"
             class="size-11 opacity-25 hover:opacity-100 transition-opacity"
-            :class="{ 'opacity-100': activeIndex === index }"
-            @click="select(index)"
-          >
+            :class="{ 'opacity-100': activeIndex === index }" @click="select(index)">
             <img :src="item" width="44" height="44" class="rounded-lg" />
           </div>
         </div>
@@ -41,7 +29,8 @@
         <div class="flex flex-col gap-5">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
-              <UBadge :label="info?.plan.toUpperCase()" :color="info?.plan === ProductPlan.FREE ? 'neutral' : 'success'" />
+              <UBadge :label="info?.plan.toUpperCase()"
+                :color="info?.plan === ProductPlan.FREE ? 'neutral' : 'success'" />
               <span class="text-gray-500 font-bold text-xl">{{ info?.price }}</span>
             </div>
             <div class="text-gray-400 font-medium">
@@ -64,19 +53,12 @@
                 }
               "
             /> -->
-            <UButton
-              label="Add to cart"
-              icon="ic:outline-add-shopping-cart"
-              color="secondary"
-              :ui="btnAddToCartUI"
-              block
-              class="hover:cursor-pointer"
-              @click="
+            <UButton label="Add to cart" icon="ic:outline-add-shopping-cart" color="secondary" :ui="btnAddToCartUI"
+              block class="hover:cursor-pointer" @click="
                 () => {
                   info?.id && addProduct(info.id, info.name);
                 }
-              "
-            />
+              " />
           </div>
         </div>
         <div class="space-y-2">
@@ -114,35 +96,34 @@ const { data: info } = await useFetch(`/data/product/${route.params.alias}`, {
       specs: [
         {
           name: "Platform",
-          value: "3dsMax 2016 + obj",
+          value: value.info.platform,
         },
         {
           name: "Render",
-          value: "V-Ray",
+          value: value.info.render,
         },
         {
           name: "Size",
-          value: "44 MB",
+          value: value.info.size,
         },
         {
           name: "Colors",
-          value: "White",
+          value: value.info.colors,
         },
         {
           name: "Style",
-          value: "Modern",
+          value: value.info.style,
         },
         {
           name: "Materials",
-          value: "Fabric",
+          value: value.info.materials,
         },
         {
           name: "Formfactor",
-          value: "none",
+          value: value.info.formfactor,
         },
       ],
-      description:
-        "Soft and adorable eagle plush toy designed especially for kids – perfect for cozy bedrooms, nurseries, and playful interior scenes. High-quality 3D model with realistic fabric details and cute proportions.",
+      description: value.info.description,
     };
   },
 });
