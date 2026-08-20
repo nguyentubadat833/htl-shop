@@ -1,41 +1,37 @@
 <template>
   <div class="h-full grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-5 items-start overflow-hidden">
     <!-- LEFT PANEL: Category Table -->
-    <UCard
-      :ui="{
-        root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
-        body: 'p-0 flex-1 flex flex-col min-h-0',
-      }"
-    >
+    <UCard :ui="{
+      root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
+      body: 'p-0 flex-1 flex flex-col min-h-0',
+    }">
       <!-- Header / Search Toolbar -->
-      <div class="p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3 bg-neutral-50/50 dark:bg-neutral-900/50">
-        <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Filter categories..." class="w-full max-w-xs" />
+      <div
+        class="p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3 bg-neutral-50/50 dark:bg-neutral-900/50">
+        <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Filter categories..."
+          class="w-full max-w-xs" />
         <UButton icon="i-lucide-plus" label="New Category" color="primary" @click="add" />
       </div>
 
       <!-- Main Data Table -->
       <div class="flex-1 flex flex-col overflow-hidden">
-        <UTable
-          :loading="pending"
-          :data="state.data"
-          :columns="columns"
-          v-model:row-selection="rowSelection"
-          v-model:global-filter="globalFilter"
-          sticky
-          class="flex-1"
-          @select="(row) => onSelect(row)"
-        >
+        <UTable :loading="pending" :data="state.data" :columns="columns" v-model:row-selection="rowSelection"
+          v-model:global-filter="globalFilter" sticky class="flex-1" @select="(row) => onSelect(row)">
           <!-- Status Column Custom Render -->
           <template #active-cell="{ row }">
-            <UBadge :label="generateStatus(row.original.active).label" :color="generateStatus(row.original.active).color" variant="subtle" size="sm" />
+            <UBadge :label="generateStatus(row.original.active).label"
+              :color="generateStatus(row.original.active).color" variant="subtle" size="sm" />
           </template>
 
           <!-- Tags Column Custom Render -->
           <template #tags-cell="{ row }">
             <div class="flex flex-wrap gap-1 max-w-55">
-              <UBadge v-for="(tag, idx) in (row.original.tags || []).slice(0, 3)" :key="idx" :label="tag" color="neutral" variant="outline" size="sm" />
-              <UBadge v-if="(row.original.tags || []).length > 3" :label="`+${row.original.tags?.length ?? 0 - 3}`" color="neutral" variant="soft" size="xs" />
-              <span v-if="!(row.original.tags && row.original.tags.length)" class="text-xs text-neutral-400 font-normal"> No tags </span>
+              <UBadge v-for="(tag, idx) in (row.original.tags || []).slice(0, 3)" :key="idx" :label="tag"
+                color="neutral" variant="outline" size="sm" />
+              <UBadge v-if="(row.original.tags || []).length > 3" :label="`+${row.original.tags?.length ?? 0 - 3}`"
+                color="neutral" variant="soft" size="xs" />
+              <span v-if="!(row.original.tags && row.original.tags.length)"
+                class="text-xs text-neutral-400 font-normal"> No tags </span>
             </div>
           </template>
 
@@ -48,27 +44,38 @@
     </UCard>
 
     <!-- RIGHT PANEL: Edit / Create Form -->
-    <UCard
-      :ui="{
-        root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
-        header: 'p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between',
-        body: 'p-5 flex-1 overflow-y-auto space-y-5',
-        footer: 'p-4 border-t border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3',
-      }"
-    >
+    <UCard :ui="{
+      root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
+      header: 'p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between',
+      body: 'p-5 flex-1 overflow-y-auto space-y-5',
+      footer: 'p-4 border-t border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3',
+    }">
       <template #header>
         <div class="flex items-center gap-2">
-          <UIcon :name="state.current.publicId ? 'i-lucide-file-edit' : 'i-lucide-folder-plus'" class="size-5 text-primary-500" />
+          <UIcon :name="state.current.publicId ? 'i-lucide-file-edit' : 'i-lucide-folder-plus'"
+            class="size-5 text-primary-500" />
           <h3 class="font-semibold text-base">
             {{ state.current.publicId ? "Edit Category" : "Create Category" }}
           </h3>
         </div>
-        <UBadge v-if="state.current.publicId" :label="state.current.publicId" color="neutral" variant="outline" size="sm" />
+        <!-- <UBadge v-if="state.current.publicId" :label="state.current.publicId" color="neutral" variant="outline"
+          size="sm" /> -->
       </template>
 
       <UTabs :items="formTabs" class="w-full">
         <template #general>
           <div class="space-y-5">
+            <UFormField v-if="state.current.publicId" label="ID">
+              <UInput disabled v-model="state.current.publicId" :ui="{ trailing: 'pr-0.5' }" class="w-full">
+                <template v-if="state.current.publicId.length" #trailing>
+                  <UTooltip text="Copy to clipboard" :content="{ side: 'right' }">
+                    <UButton :color="copied ? 'success' : 'neutral'" variant="link" size="sm"
+                      :icon="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'" aria-label="Copy to clipboard"
+                      @click="copy(state.current.publicId)" />
+                  </UTooltip>
+                </template>
+              </UInput>
+            </UFormField>
             <!-- Category Name -->
             <UFormField label="Name" required>
               <UInput v-model="state.current.name" placeholder="e.g. Architectural Models" class="w-full" />
@@ -88,13 +95,24 @@
             <!-- Category Tags Input Section -->
             <UFormField label="Tags" description="Type tag name and press Enter or comma to add.">
               <div class="space-y-2 w-full">
-                <UInput v-model="tagInput" placeholder="Add tag..." icon="i-lucide-tag" class="w-full" @keydown.enter.prevent="addTag" @keydown.comma.prevent="addTag" />
-                <div class="flex flex-wrap gap-1.5 min-h-8 p-2 bg-neutral-50 dark:bg-neutral-950/50 rounded-lg border border-neutral-200/60 dark:border-neutral-800">
-                  <UBadge v-for="(tag, index) in state.current.tags" :key="index" color="primary" variant="soft" class="gap-1">
+                <UInput v-model="tagInput" placeholder="Add tag..." icon="i-lucide-tag" class="w-full"
+                  @keydown.enter.prevent="addTag" @keydown.comma.prevent="addTag" />
+                <div
+                  class="flex flex-wrap gap-1.5 min-h-8 p-2 bg-neutral-50 dark:bg-neutral-950/50 rounded-lg border border-neutral-200/60 dark:border-neutral-800">
+                  <!-- <UBadge v-for="(tag, index) in state.current.tags" :key="index" color="primary" variant="soft"
+                    class="gap-1">
                     {{ tag }}
-                    <UIcon name="i-lucide-x" class="size-3 cursor-pointer hover:text-red-500 transition-colors" @click="removeTag(index)" />
+                    <UIcon name="i-lucide-x" class="size-3 cursor-pointer hover:text-red-500 transition-colors"
+                      @click="removeTag(index)" />
+                  </UBadge> -->
+                  <UBadge v-for="(tag, index) in state.current.tags" :key="index" color="primary" variant="soft"
+                    class="gap-1">
+                    {{ tag }}
+                    <UIcon name="i-lucide-x" class="size-3 cursor-pointer hover:text-red-500 transition-colors"
+                      @click="removeTag(index)" />
                   </UBadge>
-                  <span v-if="!state.current.tags.length" class="text-xs text-neutral-400 py-0.5"> No tags attached </span>
+                  <span v-if="!state.current.tags.length" class="text-xs text-neutral-400 py-0.5"> No tags attached
+                  </span>
                 </div>
               </div>
             </UFormField>
@@ -106,7 +124,8 @@
             <!-- <UFormField label="Linked Products">
               <div class="w-full h-full border border-neutral-200/80 dark:border-neutral-800 rounded-lg overflow-hidden"> -->
             <UInput v-model="productFilter" icon="i-lucide-search" placeholder="Filter products..." class="w-full" />
-            <UTable :data="state.current.products" :columns="productColumns" v-model:global-filter="productFilter" class="max-h-96 overflow-y-auto">
+            <UTable :data="state.current.products" :columns="productColumns" v-model:global-filter="productFilter"
+              class="max-h-96 overflow-y-auto">
               <template #empty>
                 <div class="p-4 text-center text-xs text-neutral-400">No products linked to this category</div>
               </template>
@@ -122,7 +141,8 @@
 
       <!-- Footer Actions -->
       <template #footer>
-        <UButton v-if="state.current.publicId" icon="i-lucide-trash-2" label="Delete" color="error" variant="soft" @click="del" />
+        <UButton v-if="state.current.publicId" icon="i-lucide-trash-2" label="Delete" color="error" variant="soft"
+          @click="del" />
         <div v-else />
 
         <div class="flex items-center gap-2">
@@ -137,6 +157,7 @@
 <script lang="ts" setup>
 import type { TableColumn, TableRow } from "@nuxt/ui";
 import { CategoryType, type CategoryItemResponse, type CategoryProductItemResponse } from "#shared/types/category";
+import { useClipboard } from '@vueuse/core'
 
 type CategoryStatus = "ACTIVE" | "INACTIVE";
 
@@ -227,6 +248,7 @@ const rowSelection = ref<Record<string, boolean>>({});
 
 const appToast = new useAppToast();
 const { $userApi } = useNuxtApp();
+const { copy, copied } = useClipboard()
 
 const { refresh, pending } = await useAsyncData(() =>
   $userApi("/api/category/list", {

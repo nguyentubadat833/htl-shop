@@ -10,7 +10,10 @@
         class="p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3 bg-neutral-50/50 dark:bg-neutral-900/50">
         <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Search products..."
           class="w-full max-w-xs" />
-        <UButton icon="i-lucide-plus" label="New Product" color="primary" @click="productActions().add()" />
+        <div class="flex gap-3 items-center">
+          <ImportProducts />
+          <UButton icon="i-lucide-plus" label="New Product" color="primary" @click="productActions().add()" />
+        </div>
       </div>
 
       <!-- Products Data Table -->
@@ -62,8 +65,8 @@
             {{ productCurrent.publicId ? "Edit Product" : "Create Product" }}
           </h3>
         </div>
-        <UBadge v-if="productCurrent.publicId" :label="productCurrent.publicId" color="neutral" variant="outline"
-          size="xs" />
+        <!-- <UBadge v-if="productCurrent.publicId" :label="productCurrent.publicId" color="neutral" variant="outline"
+          size="sm" /> -->
       </template>
 
       <!-- Form Navigation Tabs -->
@@ -71,6 +74,18 @@
         <!-- TAB 1: General Info -->
         <template #general>
           <div class="space-y-4 pt-3">
+            <UFormField v-if="productCurrent.publicId" label="ID">
+              <UInput disabled v-model="productCurrent.publicId" :ui="{ trailing: 'pr-0.5' }" class="w-full">
+                <template v-if="productCurrent.publicId.length" #trailing>
+                  <UTooltip text="Copy to clipboard" :content="{ side: 'right' }">
+                    <UButton :color="copied ? 'success' : 'neutral'" variant="link" size="sm"
+                      :icon="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'" aria-label="Copy to clipboard"
+                      @click="copy(productCurrent.publicId)" />
+                  </UTooltip>
+                </template>
+              </UInput>
+            </UFormField>
+
             <UFormField label="Name" required>
               <UInput v-model="productCurrent.name" placeholder="e.g. Modern Villa 3D Model" class="w-full" />
             </UFormField>
@@ -270,10 +285,12 @@
 
 <script setup lang="ts">
 import { AddProductSchema, DeleteFileRequestSchema, DeleteProductSchema, UpdateProductSchema, UploadFileRequestSchema } from "#shared/schemas/product";
+import { ProductPlan, type ProductStatus } from "~~/prisma/generated/browser";
+import { useClipboard } from '@vueuse/core'
 import type { TableColumn, TableRow } from "@nuxt/ui";
 import type z from "zod";
-import { ProductPlan, type ProductStatus } from "~~/prisma/generated/browser";
 import type { CategoryReference } from "~~/shared/types/category";
+import ImportProducts from "~/components/btn/ImportProducts.vue";
 
 type TechnicalOptions = {
   platform: string[];
@@ -477,6 +494,7 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
 const { createPresignedUploadTask } = useFile();
 const { $userApi } = useNuxtApp();
 const toast = new useAppToast();
+const { copy, copied } = useClipboard()
 
 const state = reactive<State>({
   metadata: {
