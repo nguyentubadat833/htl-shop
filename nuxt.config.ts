@@ -94,13 +94,13 @@ export default defineNuxtConfig({
     "pages:extend"(pages) {
       const categoryPage = pages.find((p) => p.path === "/console/categories");
       if (categoryPage) {
-        categoryPage.file = "~/pages/console/categories2.vue";
+        categoryPage.file = "~/pages/console/v2/categories.vue";
       }
 
-      // const productPage = pages.find((p) => p.path === "/console/products");
-      // if (productPage) {
-      //   productPage.file = "~/pages/console/products2.vue";
-      // }
+      const productPage = pages.find((p) => p.path === "/console/products");
+      if (productPage) {
+        productPage.file = "~/pages/console/v2/products.vue";
+      }
     },
   },
   // ngrok: {

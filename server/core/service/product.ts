@@ -46,7 +46,7 @@ export class ProductService {
     return this;
   }
 
-  static async create(plan: ProductPlan, name: string, price: number, info: ProductInfo, createdByUserId: number, categoryPublicIds: string[]) {
+  static async create(plan: ProductPlan, name: string, price: number, info: ProductInfo, createdByUserId: number, categoryPublicIds: string[], tagIds: string[]) {
     let alias = slug(name);
     const findWithAlias = await prisma.product.findUnique({
       where: {
@@ -95,11 +95,14 @@ export class ProductService {
             };
           }),
         },
+        tags: {
+          connect: tagIds.map((tag) => ({ id: tag })),
+        },
       },
     });
   }
 
-  async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus, categoryPublicIds?: string[], plan?: ProductPlan) {
+  async update(name?: string, price?: number, info?: ProductInfo, status?: ProductStatus, categoryPublicIds?: string[], plan?: ProductPlan, tagIds?: string[]) {
     const setAlias = async (input?: string) => {
       if (!input) return undefined;
 
@@ -184,6 +187,11 @@ export class ProductService {
             };
           }),
         },
+        tags: tagIds
+          ? {
+              set: tagIds.map((id) => ({ id })),
+            }
+          : undefined,
       },
     });
   }

@@ -29,9 +29,14 @@ export interface ProductItemResponse {
     publicId: string;
     type: FileType;
   }[];
-  categories: {
-    publicId: string;
-  }[];
+  categoryIds: string[]
+  tagIds: string[]
+  // categories: {
+  //   publicId: string;
+  // }[];
+  // tags: {
+  //   id: string
+  // }[]
 }
 
 export interface ProductSEOItemResponse {

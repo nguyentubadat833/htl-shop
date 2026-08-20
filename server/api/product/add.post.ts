@@ -8,7 +8,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
   const userAuthContext = new UserAuthContext(event)
 
   const { plan, name, price, info, category_publicIds, tagIds } = zodValidateRequestOrThrow(AddProductSchema, await readBody(event));
-  const product = await ProductService.create(plan, name, price, info, userAuthContext.getUserIdOrThrow(), category_publicIds);
+  const product = await ProductService.create(plan, name, price, info, userAuthContext.getUserIdOrThrow(), category_publicIds, tagIds);
 
   void Object.entries(info).forEach(([key, value]) => {
     DefineOptionService.upsertOption(key, value)

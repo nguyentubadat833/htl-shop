@@ -32,4 +32,8 @@ export interface CategoryReference {
   name: string;
   type: string;
   active: boolean;
+  tags: {
+    id: string
+    name: string
+  }[]
 }

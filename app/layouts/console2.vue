@@ -96,14 +96,14 @@
 
         <!-- Dynamic Page View -->
         <main class="flex-1 overflow-y-auto p-4 lg:p-6 bg-neutral-100/50 dark:bg-neutral-950">
-          <!-- <div class="h-full w-full max-w-7xl mx-auto">
+          <div class="h-full w-full mx-auto">
             <NuxtPage />
-          </div> -->
-          <UCard :ui="{root: 'h-full w-full max-w-7xl mx-auto', body: 'h-full'}">
+          </div>
+          <!-- <UCard :ui="{root: 'h-full w-full max-w-7xl mx-auto', body: 'h-full'}">
             <template #default>
               <NuxtPage />
             </template>
-          </UCard>
+          </UCard> -->
         </main>
       </div>
     </ClientOnly>

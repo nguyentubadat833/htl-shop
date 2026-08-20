@@ -3,18 +3,18 @@ import { ProductPlan, ProductStatus } from "~~/prisma/generated/enums";
 
 const ProductBaseSchema = z.object({
   publicId: z.string(),
-})
+});
 
 export const ProductInfoSchema = z.object({
-  platform: z.string().default(''),
-  render: z.string().default(''),
-  size: z.string().default(''),
-  colors: z.string().default(''),
-  style: z.string().default(''),
-  materials: z.string().default(''),
-  formfactor: z.string().default(''),
-  description: z.string().default('')
-})
+  platform: z.string().default(""),
+  render: z.string().default(""),
+  size: z.string().default(""),
+  colors: z.string().default(""),
+  style: z.string().default(""),
+  materials: z.string().default(""),
+  formfactor: z.string().default(""),
+  description: z.string().default(""),
+});
 
 const FileBaseSchema = z.object({
   publicId: z.string(),
@@ -26,7 +26,7 @@ export const AddProductSchema = z.object({
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   info: ProductInfoSchema,
   category_publicIds: z.array(z.string()).default([]),
-  tagIds: z.array(z.string()).default([])
+  tagIds: z.array(z.string()).default([]),
 });
 
 export const UpdateProductSchema = ProductBaseSchema.extend({
@@ -35,7 +35,8 @@ export const UpdateProductSchema = ProductBaseSchema.extend({
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional(),
   status: z.enum(ProductStatus).optional(),
   info: ProductInfoSchema,
-  category_publicIds: z.array(z.string())
+  category_publicIds: z.array(z.string()).optional(),
+  tagIds: z.array(z.string()).optional()
 });
 
 export const DeleteProductSchema = ProductBaseSchema.extend({});

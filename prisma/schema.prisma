@@ -140,6 +140,7 @@ model Tag {
   products   Product[]
 
   @@unique([name, categoryId])
+  @@map("tag")
 }
 
 model Product {
