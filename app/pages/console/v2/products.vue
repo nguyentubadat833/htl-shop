@@ -620,7 +620,7 @@ function resetProductCurrent(publicId: string) {
     const product = state.products.find((prd) => prd.publicId === publicId);
     if (product) {
       state.productCurrent = product;
-      state.snapshortProductCurrent = structuredClone(product);
+      state.snapshortProductCurrent = {...product}
     }
   });
 }
