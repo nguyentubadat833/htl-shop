@@ -44,9 +44,10 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="h-full flex flex-col overflow-hidden">
+  <!-- <div class="h-full flex flex-col overflow-hidden"> -->
+  <UCard :ui="{ root: 'h-full', body: 'overflow-hidden flex flex-col h-full' }">
     <div class="flex px-4 py-3.5 border-b border-accented">
-      <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
+      <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter users..." />
     </div>
     <UTable :data="users" :columns="columns" v-model:global-filter="globalFilter" sticky class="flex-1 full">
       <template #image-cell="{ row }">
@@ -60,7 +61,8 @@ useSeoMeta({
         <NuxtTime :datetime="row.original.createdAt" />
       </template>
     </UTable>
-  </div>
+  </UCard>
+  <!-- </div> -->
 </template>
 
 <style scoped></style>

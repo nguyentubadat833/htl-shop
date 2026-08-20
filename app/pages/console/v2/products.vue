@@ -14,7 +14,7 @@
       </div>
 
       <!-- Products Data Table -->
-      <div class="flex-1 overflow-auto">
+      <div class="flex-1 flex flex-col overflow-hidden">
         <UTable
           :loading="pending"
           :data="state.products"
@@ -22,7 +22,7 @@
           v-model:row-selection="rowSelection"
           v-model:global-filter="globalFilter"
           sticky
-          class="w-full"
+          class="flex-1"
           @select="(row) => onSelect(row)"
         >
           <!-- Plan Badge -->

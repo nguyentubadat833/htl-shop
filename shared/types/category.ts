@@ -6,6 +6,7 @@ export enum CategoryType {
 export interface CategoryProductItemResponse {
   publicId: string;
   name: string;
+  tags: string
 }
 
 export interface CategoryItemResponse {

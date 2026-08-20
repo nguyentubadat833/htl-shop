@@ -9,12 +9,12 @@
     >
       <!-- Header / Search Toolbar -->
       <div class="p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3 bg-neutral-50/50 dark:bg-neutral-900/50">
-        <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Filter categories or tags..." class="w-full max-w-xs" />
+        <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Filter categories..." class="w-full max-w-xs" />
         <UButton icon="i-lucide-plus" label="New Category" color="primary" @click="add" />
       </div>
 
       <!-- Main Data Table -->
-      <div class="flex-1 overflow-auto">
+      <div class="flex-1 flex flex-col overflow-hidden">
         <UTable
           :loading="pending"
           :data="state.data"
@@ -22,7 +22,7 @@
           v-model:row-selection="rowSelection"
           v-model:global-filter="globalFilter"
           sticky
-          class="w-full"
+          class="flex-1"
           @select="(row) => onSelect(row)"
         >
           <!-- Status Column Custom Render -->
@@ -66,46 +66,59 @@
         <UBadge v-if="state.current.publicId" :label="state.current.publicId" color="neutral" variant="outline" size="sm" />
       </template>
 
-      <!-- Category Name -->
-      <UFormField label="Category Name" required>
-        <UInput v-model="state.current.name" placeholder="e.g. Architectural Models" class="w-full" />
-      </UFormField>
+      <UTabs :items="formTabs" class="w-full">
+        <template #general>
+          <div class="space-y-5">
+            <!-- Category Name -->
+            <UFormField label="Name" required>
+              <UInput v-model="state.current.name" placeholder="e.g. Architectural Models" class="w-full" />
+            </UFormField>
 
-      <!-- Status & Group in Grid -->
-      <div class="grid grid-cols-2 gap-4">
-        <UFormField label="Status">
-          <USelect v-model="state.current.status" :items="statusValues" class="w-full" />
-        </UFormField>
+            <!-- Status & Group in Grid -->
+            <div class="grid grid-cols-2 gap-4">
+              <UFormField label="Status">
+                <USelect v-model="state.current.status" :items="statusValues" class="w-full" />
+              </UFormField>
 
-        <UFormField label="Group Type">
-          <USelect v-model="state.current.type" :items="groupValues" class="w-full" />
-        </UFormField>
-      </div>
+              <UFormField label="Group Type">
+                <USelect v-model="state.current.type" :items="groupValues" class="w-full" />
+              </UFormField>
+            </div>
 
-      <!-- Category Tags Input Section -->
-      <UFormField label="Tags" description="Type tag name and press Enter or comma to add.">
-        <div class="space-y-2 w-full">
-          <UInput v-model="tagInput" placeholder="Add tag..." icon="i-lucide-tag" class="w-full" @keydown.enter.prevent="addTag" @keydown.comma.prevent="addTag" />
-          <div class="flex flex-wrap gap-1.5 min-h-8 p-2 bg-neutral-50 dark:bg-neutral-950/50 rounded-lg border border-neutral-200/60 dark:border-neutral-800">
-            <UBadge v-for="(tag, index) in state.current.tags" :key="index" color="primary" variant="soft" class="gap-1">
-              {{ tag }}
-              <UIcon name="i-lucide-x" class="size-3 cursor-pointer hover:text-red-500 transition-colors" @click="removeTag(index)" />
-            </UBadge>
-            <span v-if="!state.current.tags.length" class="text-xs text-neutral-400 py-0.5"> No tags attached </span>
+            <!-- Category Tags Input Section -->
+            <UFormField label="Tags" description="Type tag name and press Enter or comma to add.">
+              <div class="space-y-2 w-full">
+                <UInput v-model="tagInput" placeholder="Add tag..." icon="i-lucide-tag" class="w-full" @keydown.enter.prevent="addTag" @keydown.comma.prevent="addTag" />
+                <div class="flex flex-wrap gap-1.5 min-h-8 p-2 bg-neutral-50 dark:bg-neutral-950/50 rounded-lg border border-neutral-200/60 dark:border-neutral-800">
+                  <UBadge v-for="(tag, index) in state.current.tags" :key="index" color="primary" variant="soft" class="gap-1">
+                    {{ tag }}
+                    <UIcon name="i-lucide-x" class="size-3 cursor-pointer hover:text-red-500 transition-colors" @click="removeTag(index)" />
+                  </UBadge>
+                  <span v-if="!state.current.tags.length" class="text-xs text-neutral-400 py-0.5"> No tags attached </span>
+                </div>
+              </div>
+            </UFormField>
           </div>
-        </div>
-      </UFormField>
-
-      <!-- Linked Products Table -->
-      <UFormField label="Linked Products">
-        <div class="w-full h-full border border-neutral-200/80 dark:border-neutral-800 rounded-lg overflow-hidden">
-          <UTable :data="state.current.products" :columns="productColumns" class="max-h-96 overflow-y-auto">
-            <template #empty>
-              <div class="p-4 text-center text-xs text-neutral-400">No products linked to this category</div>
-            </template>
-          </UTable>
-        </div>
-      </UFormField>
+        </template>
+        <template #products>
+          <div class="space-y-5">
+            <!-- Linked Products Table -->
+            <!-- <UFormField label="Linked Products">
+              <div class="w-full h-full border border-neutral-200/80 dark:border-neutral-800 rounded-lg overflow-hidden"> -->
+            <UInput v-model="productFilter" icon="i-lucide-search" placeholder="Filter products..." class="w-full" />
+            <UTable :data="state.current.products" :columns="productColumns" v-model:global-filter="productFilter" class="max-h-96 overflow-y-auto">
+              <template #empty>
+                <div class="p-4 text-center text-xs text-neutral-400">No products linked to this category</div>
+              </template>
+              <template #tags-cell="{ row }">
+                {{ row.original.tags }}
+              </template>
+            </UTable>
+            <!-- </div>
+            </UFormField> -->
+          </div>
+        </template>
+      </UTabs>
 
       <!-- Footer Actions -->
       <template #footer>
@@ -137,6 +150,7 @@ type Category = {
   products: {
     publicId: string;
     name: string;
+    tags: string
   }[];
 };
 
@@ -177,13 +191,17 @@ const columns = [
 ] satisfies TableColumn<ExtendedCategoryItemResponse>[];
 
 const productColumns = [
-  {
-    accessorKey: "publicId",
-    header: "ID",
-  },
+  // {
+  //   accessorKey: "publicId",
+  //   header: "ID",
+  // },
   {
     accessorKey: "name",
     header: "Name",
+  },
+  {
+    accessorKey: "tags",
+    header: "Tags",
   },
 ] satisfies TableColumn<CategoryProductItemResponse>[];
 
@@ -197,6 +215,7 @@ const categoryDefaultState: Category = {
 };
 
 const globalFilter = ref("");
+const productFilter = ref("");
 const tagInput = ref("");
 
 const state = reactive<State>({
@@ -219,6 +238,11 @@ const { refresh, pending } = await useAsyncData(() =>
   }),
 );
 
+const formTabs = [
+  { label: "General", slot: "general", icon: "i-lucide-info" },
+  { label: "Products", slot: "products", icon: "ic:sharp-layers" },
+];
+
 // Map API Data Row to Form State
 function categoryRowToProduct(category: ExtendedCategoryItemResponse) {
   state.current.publicId = category.publicId;
@@ -226,7 +250,7 @@ function categoryRowToProduct(category: ExtendedCategoryItemResponse) {
   state.current.type = category.type as CategoryType;
   state.current.status = category.active ? "ACTIVE" : "INACTIVE";
   state.current.tags = [...(category.tags || [])];
-  state.current.products = category.products || [];
+  state.current.products = category.products;
 }
 
 function onSelect(row: TableRow<ExtendedCategoryItemResponse>) {

@@ -28,7 +28,8 @@
             <!-- <span class="font-medium" :class="[card.plan === ProductPlan.PRO ? 'text-green-600' : 'text-gray-400']">{{
               card.plan.toUpperCase()
             }}</span> -->
-            <Icon v-if="card.categories.some((ct) => ct.type === CategoryType.THREE_D)" name="cuida:box-outline" size="25" class="text-gray-400" />
+            <Icon v-if="card.categories.some((ct) => ct.type === CategoryType.THREE_D)" name="cuida:box-outline"
+              size="25" class="text-gray-400" />
             <Icon v-else name="cuida:layers-outline" size="25" class="text-gray-400" />
             <UBadge v-if="card.plan === ProductPlan.PRO" class="font-bold rounded-full">PRO</UBadge>
             <UBadge v-else class="font-bold rounded-full" color="neutral" variant="outline">FREE</UBadge>
@@ -42,17 +43,19 @@
                   <img :src="item" class="rounded" alt="image" />
                 </div>
               </UCarousel>
-              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded"></div>
+              <div
+                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded">
+              </div>
 
               <div
                 class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
-                @click="navigateTo(`/model/${card.alias}`)"
-              >
+                @click="navigateTo(`/model/${card.alias}`)">
                 <span class="text-white font-semibold">View Details</span>
               </div>
             </div>
 
-            <div class="font-medium line-clamp-1 text-gray-600 text-sm hover:underline hover:cursor-pointer" @click="navigateTo(`/model/${card.alias}`)">
+            <div class="font-medium line-clamp-1 text-gray-600 text-sm hover:underline hover:cursor-pointer"
+              @click="navigateTo(`/model/${card.alias}`)">
               {{ card.name }}
             </div>
             <div class="flex justify-between">
@@ -64,8 +67,10 @@
               <!-- <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="addProduct(card.publicId, card.name)" /> -->
             </div>
             <div class="flex gap-2">
-              <UButton label="Buy now" icon="ic:outline-payments" color="warning" block @click="buyNow(card.publicId)" />
-              <UButton icon="ic:baseline-add-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="() => void addProduct(card.publicId, card.name)" />
+              <UButton label="Buy now" icon="ic:outline-payments" color="warning" block
+                @click="buyNow(card.publicId)" />
+              <UButton icon="ic:baseline-add-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer"
+                @click="() => void addProduct(card.publicId, card.name)" />
             </div>
           </div>
         </template>

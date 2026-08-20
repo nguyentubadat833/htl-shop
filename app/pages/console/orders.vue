@@ -62,7 +62,7 @@ const orderItemsColumns = [
   },
 ] satisfies TableColumn<ProductOrderItemResponse>[];
 
-const router = useRouter()
+const router = useRouter();
 const toast = new useAppToast();
 const { $userApi } = useNuxtApp();
 const { data: orders, refresh, pending } = await useAsyncData(() => $userApi("/api/order/list"));
@@ -123,26 +123,32 @@ function pushToModel(alias: string) {
   const routeData = router.resolve({
     name: "model-alias",
     params: { alias: alias },
-  })
+  });
 
-  window.open(routeData.href, "_blank")
+  window.open(routeData.href, "_blank");
 }
 
 useSeoMeta({
-  title: 'Orders'
-})
-
+  title: "Orders",
+});
 </script>
 
 <template>
   <div class="h-full" :class="[{ 'grid grid-cols-[6fr_4fr] gap-4': state.orderCurrent }]">
-    <div class="h-full flex flex-col overflow-hidden">
+    <UCard :ui="{root: 'h-full', body: 'overflow-hidden flex flex-col h-full'}">
       <div class="flex px-4 py-3.5 border-b border-accented shrink-0">
-        <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
+        <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter orders..." />
       </div>
 
-      <UTable :loading="pending" :data="orders" :columns="columns" v-model:global-filter="globalFilter"
-        sticky class="flex-1 full" @select="(row, e) => onSelect(row, e)">
+      <UTable
+        :loading="pending"
+        :data="orders"
+        :columns="columns"
+        v-model:global-filter="globalFilter"
+        sticky
+        class="h-full flex-1"
+        @select="(row, e) => onSelect(row, e)"
+      >
         <template #status-cell="{ row }">
           <UBadge :label="row.original.status" :color="getStatusColor(row.original.status)" />
         </template>
@@ -157,9 +163,9 @@ useSeoMeta({
         </template>
         <template #amount-cell="{ row }"> {{ row.original.amount }} {{ state.currency }} </template>
       </UTable>
-    </div>
+    </UCard>
 
-    <div v-if="state.orderCurrent" class="space-y-5 overflow-y-auto p-3">
+    <div v-if="state.orderCurrent" class="space-y-5 overflow-y-auto">
       <UCard :ui="layout.orderItems.ui">
         <div class="flex justify-end gap-4">
           <UInput v-model="state.sendMail.confirmInput" placeholder="Please input 'confirm'" />
@@ -168,8 +174,7 @@ useSeoMeta({
         <UFormField label="Order items">
           <UTable :data="state.orderCurrent?.items ?? []" :columns="orderItemsColumns">
             <template #productName-cell="{ row }">
-              <span class="hover:underline hover:cursor-pointer" @click="pushToModel(row.original.productAlias)">{{
-                row.original.productName }}</span>
+              <span class="hover:underline hover:cursor-pointer" @click="pushToModel(row.original.productAlias)">{{ row.original.productName }}</span>
             </template>
             <template #price-cell="{ row }"> {{ row.original.price }} {{ state.currency }} </template>
           </UTable>
@@ -178,7 +183,6 @@ useSeoMeta({
       </UCard>
     </div>
   </div>
-
 </template>
 
 <style scoped></style>

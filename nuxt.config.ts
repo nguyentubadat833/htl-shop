@@ -92,6 +92,7 @@ export default defineNuxtConfig({
   },
   hooks: {
     "pages:extend"(pages) {
+
       const categoryPage = pages.find((p) => p.path === "/console/categories");
       if (categoryPage) {
         categoryPage.file = "~/pages/console/v2/categories.vue";
