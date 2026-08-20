@@ -242,7 +242,7 @@ function submit(){
 </script>
 
 <template>
-  <UModal title="Import product" :ui="{ content: 'min-w-[70vw]' }">
+  <UModal title="Import productsUPDA" :ui="{ content: 'min-w-[70vw]' }">
     <UButton icon="i-lucide-upload" color="info" />
     <template #body>
       <div class="min-h-[40vh] max-h-[60vh]">
