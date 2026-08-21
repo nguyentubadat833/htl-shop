@@ -442,7 +442,7 @@ function clear(){
       <div class="flex justify-between w-full">
         <div class="flex gap-2">
           <UButton :disabled="tableRowItems.some(item => item.status.type === 'processing')" label="Choose folder" icon="i-lucide-folder-open" color="neutral" variant="outline" @click="openFolder" />
-          <UButton :disabled="tableRowItems.some(item => item.status.type === 'processing')" label="Clear" icon="ic:baseline-delete-sweep" color="neutral" variant="outline" @click="clear" />
+          <UButton :disabled="tableRowItems.some(item => item.status.type === 'processing')" label="Clear" icon="ic:baseline-delete-sweep" color="error" variant="outline" @click="clear" />
         </div>
         <UButton label="Submit" icon="ic:baseline-publish" @click="submit" />
       </div>
