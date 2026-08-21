@@ -136,7 +136,7 @@ model Tag {
   id         String    @id @default(cuid())
   name       String
   category   Category  @relation(fields: [categoryId], references: [id])
-  categoryId Int
+  categoryId Int @map("category_id")
   products   Product[]
 
   @@unique([name, categoryId])
@@ -160,7 +160,7 @@ model Product {
   info            Json
   carts           Cart[]
   files           ObjectStorage[]
-  externalLink    String?
+  externalLink    String? @map("external_link")
   categories      Category[]
   tags            Tag[]
 

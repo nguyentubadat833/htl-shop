@@ -25,6 +25,8 @@ RUN pnpm run build
 FROM node:22-alpine
 WORKDIR /app
 
+RUN apk add --no-cache postgresql-client
+
 COPY --from=build /build/.output ./output
 COPY --from=build /build/prisma ./prisma
 

@@ -14,7 +14,7 @@ export async function uploadTodayLogToS3() {
 
   try {
 
-    await S3.CLIENT.fPutObject(S3.BUCKET_UPLOAD_DEFAULT, `/logs/${fileName}`, filePath);
+    await S3.CLIENT.fPutObject(S3.BUCKET_UPLOAD_DEFAULT, `logs/${fileName}`, filePath);
     console.log(`[S3 Upload] Log file uploaded successfully for ${today}`);
   } catch (err) {
     console.error("[S3 Upload] Failed to upload log file:", err);

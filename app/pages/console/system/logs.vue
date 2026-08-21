@@ -100,8 +100,8 @@ function getLineColor(line: string) {
       <!-- Trạng thái trống -->
       <div v-else class="flex flex-col items-center justify-center py-12 text-gray-500">
         <UIcon name="i-lucide-file-x" class="w-8 h-8 mb-2" />
-        <p v-if="searchQuery">Không tìm thấy dòng log nào khớp với từ khóa "{{ searchQuery }}"</p>
-        <p v-else>Chưa có dữ liệu log cho ngày hôm nay.</p>
+        <p v-if="searchQuery">No log entries found matching your keyword "{{ searchQuery }}"</p>
+        <p v-else>No logs available for today.</p>
       </div>
     </div>
   </UCard>

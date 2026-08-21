@@ -48,11 +48,11 @@ export default defineNuxtConfig({
       env: process.env.NUXT_SEPAY_ENV,
     },
     db: {
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      name: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      pass: process.env.DB_PASSWORD
+      host: process.env.NUXT_DB_HOST,
+      port: process.env.NUXT_DB_PORT,
+      name: process.env.NUXT_DB_NAME,
+      user: process.env.NUXT_DB_USER,
+      pass: process.env.NUXT_DB_PASS
     },
     siteUrl: "",
   },

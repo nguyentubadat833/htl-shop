@@ -7,6 +7,13 @@ export default defineNitroPlugin(async (nitroApp) => {
   console.info(`ℹ️  NODE PRODUCTION =`, runtimeConfig.nodeProduction);
   console.info(`ℹ️  GOOGLE CLIENT ID =`, runtimeConfig.google.clientId);
   console.info(`ℹ️  GOOGLE CLIENT SECRET =`, runtimeConfig.google.clientSecret);
+
+  console.info(`ℹ️  DB HOST =`, runtimeConfig.db.host);
+  console.info(`ℹ️  DB PORT =`, runtimeConfig.db.port);
+  console.info(`ℹ️  DB NAME =`, runtimeConfig.db.name);
+  console.info(`ℹ️  DB USER =`, runtimeConfig.db.user);
+  console.info(`ℹ️  DB PASS =`, runtimeConfig.db.pass);
+
   console.info(`ℹ️  S3 HOST =`, runtimeConfig.s3.host);
   console.info(`ℹ️  S3 PORT =`, runtimeConfig.s3.port);
   console.info(`ℹ️  S3 ACCESS KEY =`, runtimeConfig.s3.accessKey);

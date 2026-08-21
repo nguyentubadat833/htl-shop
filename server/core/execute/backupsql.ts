@@ -5,9 +5,17 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import { S3 } from "../service/s3";
 
-export async function runSqlBackup(args: { dbHost: string; dbPort: number; dbName: string; dbUser: string; dbPass: string }) {
+export async function runSqlBackup() {
+  const runtimeConfig = useRuntimeConfig();
+  const dbConfig = runtimeConfig.db;
+
+  const dbHost = dbConfig.host;
+  const dbPort = Number(dbConfig.port);
+  const dbName = dbConfig.name;
+  const dbUser = dbConfig.user;
+  const dbPass = dbConfig.pass;
+
   const execAsync = promisify(exec);
-  const { dbHost, dbPort, dbName, dbUser, dbPass } = args;
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const filename = `backup-${dbName}-${timestamp}.sql`;
@@ -22,7 +30,7 @@ export async function runSqlBackup(args: { dbHost: string; dbPort: number; dbNam
     await execAsync(cmd);
     console.log(`[Backup] Database dumped: ${backupFilePath}`);
 
-    await S3.CLIENT.fPutObject(S3.BUCKET_UPLOAD_DEFAULT, `/backups/database/${filename}`, backupFilePath).then(() => {
+    await S3.CLIENT.fPutObject(S3.BUCKET_UPLOAD_DEFAULT, `backups/database/${filename}`, backupFilePath).then(() => {
       console.log(`[Backup] Database saved to storage: ${filename}`);
     });
   } catch (err) {
