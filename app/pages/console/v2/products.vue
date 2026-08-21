@@ -11,7 +11,7 @@
         <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Search products..."
           class="w-full max-w-xs" />
         <div class="flex gap-3 items-center">
-          <ImportProducts />
+          <ImportProducts @success="refreshProducts"/>
           <UButton icon="i-lucide-plus" label="New Product" color="primary" @click="productActions().add()" />
         </div>
       </div>
