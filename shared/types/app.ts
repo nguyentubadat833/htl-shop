@@ -4,3 +4,9 @@ export type ErrorResponse = {
     statusMessage: string
     message?: string
 }
+
+export interface BackupFileItem {
+  name: string
+  size: number
+  lastModified: Date
+}

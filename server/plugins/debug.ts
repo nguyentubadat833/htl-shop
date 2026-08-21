@@ -30,4 +30,6 @@ export default defineNitroPlugin((nitroApp) => {
 
     logInfoColor(message);
   });
+
+  
 });

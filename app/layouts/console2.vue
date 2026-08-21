@@ -170,6 +170,13 @@ const navItems: NavigationMenuItem[] = [
   ],
   [
     {
+      label: "Database",
+      icon: "heroicons:circle-stack-solid",
+      to: "/console/backups/database",
+    },
+  ],
+  [
+    {
       label: "Back to Site",
       icon: "i-lucide-arrow-left",
       to: "/",
