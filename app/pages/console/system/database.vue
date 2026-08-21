@@ -8,10 +8,10 @@ useSeoMeta({
 const toast = useToast();
 const { $userApi } = useNuxtApp();
 
-const { data: backups, pending, refresh, error } = await useAsyncData(() => $userApi<BackupFileItem[]>("/api/execute/backupsql"));
+const { data: backups, pending, refresh, error } = await useAsyncData(() => $userApi<BackupFileItem[]>("/api/database/backups"));
 const { execute: runsqlBackup, pending: isBackingUp } = useLazyAsyncData(
   () =>
-    $userApi("/api/execute/backupsql", {
+    $userApi("/api/database/backup", {
       method: "post",
       onResponse({ response }) {
         if (response.ok) {

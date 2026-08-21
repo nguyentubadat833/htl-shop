@@ -88,9 +88,10 @@
           </div>
 
           <!-- Top Right Action Controls -->
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-4">
             <BtnColorMode class="hover:scale-110" />
-            <UButton icon="i-lucide-bell" color="neutral" variant="ghost" size="sm" square />
+            <BtnGoogle/>
+            <!-- <UButton icon="i-lucide-bell" color="neutral" variant="ghost" size="sm" square /> -->
           </div>
         </header>
 
@@ -170,9 +171,14 @@ const navItems: NavigationMenuItem[] = [
   ],
   [
     {
+      label: "Logs",
+      icon: "i-lucide-square-terminal",
+      to: "/console/system/logs",
+    },
+    {
       label: "Database",
-      icon: "heroicons:circle-stack-solid",
-      to: "/console/backups/database",
+      icon: "i-lucide-database",
+      to: "/console/system/database",
     },
   ],
   [

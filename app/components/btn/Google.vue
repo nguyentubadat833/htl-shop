@@ -41,6 +41,7 @@ const { count: cartCount } = useCart();
 const { loading: isLoading } = useGoogleButton();
 const { authSession } = session();
 const { googleId } = usePublicVariables();
+const router = useRoute()
 const googleClient = ref<any>(null);
 const userAuth = ref<UserAuthClient | null>(null);
 
@@ -71,7 +72,7 @@ const items = computed<NavigationMenuItem[][]>(() => {
     ],
   ];
 
-  if (userAuth.value?.role === UserRole.ADMIN.toString()) {
+  if (userAuth.value?.role === UserRole.ADMIN.toString() && !router.path.startsWith('/console')) {
     rs.unshift([
       {
         label: "CMS Admin",
