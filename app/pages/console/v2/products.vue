@@ -126,7 +126,7 @@
             <UFormField label="Name" required>
               <UInput v-model="productCurrent.name" placeholder="e.g. Modern Villa 3D Model" class="w-full" />
             </UFormField>
-            
+
             <div class="grid grid-cols-2 gap-3">
               <UFormField label="Plan">
                 <USelect v-model="productCurrent.plan" :items="planOptions" class="w-full" />

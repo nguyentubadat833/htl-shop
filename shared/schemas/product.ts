@@ -35,7 +35,7 @@ export const UpdateProductSchema = ProductBaseSchema.extend({
   name: z.string().optional(),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional(),
   status: z.enum(ProductStatus).optional(),
-  info: ProductInfoSchema,
+  info: ProductInfoSchema.optional(),
   category_publicIds: z.array(z.string()).optional(),
   tagIds: z.array(z.string()).optional(),
   externalLink: z.string().optional(),
