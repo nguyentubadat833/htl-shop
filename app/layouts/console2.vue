@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen w-full bg-neutral-50 dark:bg-neutral-950 flex overflow-hidden">
+  <div class="lg:h-screen w-full bg-neutral-50 dark:bg-neutral-950 flex overflow-hidden">
     <ClientOnly>
       <!-- Sidebar Mobile Backdrop -->
       <div v-if="isMobileOpen" class="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm z-40 lg:hidden" @click="isMobileOpen = false" />

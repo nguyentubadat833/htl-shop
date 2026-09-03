@@ -24,8 +24,10 @@
                 </div>
             </div>
 
-            <UButton v-if="item.fileId" label="Download" icon="ic:round-download" color="warning"
-                :loading="downloading[item.fileId]" @click="downloadFile(item.plan, item.externalLink, item.fileId)" />
+            <!-- <UButton v-if="item.fileId" label="Download" icon="ic:round-download" color="warning"
+                :loading="downloading[item.fileId]" @click="downloadFile(item.plan, item.externalLink, item.fileId)" /> -->
+            <UButton label="Download" icon="ic:round-download" color="warning"
+                :loading="item.fileId ? downloading[item.fileId] : undefined" @click="downloadFile(item.plan, item.externalLink, item?.fileId)" />
         </div>
 
         <div v-if="purchasedList?.length === 0" class="text-center text-gray-400 py-10">You haven't purchased any
@@ -47,7 +49,7 @@ const downloading = ref<Record<string, boolean>>({});
 
 const { data: purchasedList } = await useAsyncData(() => $userApi<ProductPurchased[]>("/api/product/purchased-by-user"));
 
-async function downloadFile(productPlan: ProductPlan, externalLink?: string, fileId?: string) {
+async function downloadFile(productPlan: ProductPlan, externalLink?: string, fileId?: string | null) {
     if (productPlan === ProductPlan.PRO) {
         if (!fileId) {
             toast.add({ color: "error", title: "Resource not found" });

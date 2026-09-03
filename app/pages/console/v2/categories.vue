@@ -10,7 +10,6 @@
         class="p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3 bg-neutral-50/50 dark:bg-neutral-900/50">
         <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Filter categories..."
           class="w-full max-w-xs" />
-        <UButton icon="i-lucide-plus" label="New Category" color="primary" @click="add" />
       </div>
 
       <!-- Main Data Table -->
@@ -58,6 +57,7 @@
             {{ state.current.publicId ? "Edit Category" : "Create Category" }}
           </h3>
         </div>
+        <UButton icon="i-lucide-plus" label="New Category" color="primary" @click="add" size="sm" />
         <!-- <UBadge v-if="state.current.publicId" :label="state.current.publicId" color="neutral" variant="outline"
           size="sm" /> -->
       </template>
@@ -141,13 +141,13 @@
 
       <!-- Footer Actions -->
       <template #footer>
-        <UButton v-if="state.current.publicId" icon="i-lucide-trash-2" label="Delete" color="error" variant="soft"
+        <UButton v-if="state.current.publicId" icon="i-lucide-trash-2" label="Delete" color="error" variant="soft" size="sm"
           @click="del" />
         <div v-else />
 
         <div class="flex items-center gap-2">
           <!-- <UButton label="Reset" color="neutral" variant="ghost" @click="add" /> -->
-          <UButton :loading="state.loading" icon="i-lucide-save" label="Save Changes" color="primary" @click="save" />
+          <UButton :loading="state.loading" icon="i-lucide-save" label="Save Changes" color="primary" size="sm" @click="save" />
         </div>
       </template>
     </UCard>
@@ -279,7 +279,6 @@ function onSelect(row: TableRow<ExtendedCategoryItemResponse>) {
   categoryRowToProduct(row.original);
   rowSelection.value = {};
   rowSelection.value[row.index] = true;
-  console.log(rowSelection.value);
 }
 
 function generateStatus(value: boolean): {

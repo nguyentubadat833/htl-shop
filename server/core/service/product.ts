@@ -4,6 +4,23 @@ import { ProductInfo } from "#shared/types/product";
 import { ObjectStorage, Prisma, Product, ProductStatus, ProductPlan } from "~~/prisma/generated/client";
 import { UserAuth } from "~~/server/utils/context-working";
 import { orderPaidValues } from "~~/shared/constants/order.constants";
+import z from "zod";
+
+const setNewAliasSchema = z.object({
+  type: z.literal("new"),
+  name: z.string(),
+});
+
+const setUpdateAliasSchema = z.object({
+  type: z.literal("update"),
+  productId: z.number(),
+  name: z.string(),
+});
+
+const setAliasSchema = z.discriminatedUnion("type", [setNewAliasSchema, setUpdateAliasSchema]);
+
+type SetAliasInput = z.infer<typeof setAliasSchema>;
+
 export class ProductService {
   product!: Product;
 
@@ -11,6 +28,48 @@ export class ProductService {
     if (product) {
       this.product = product;
     }
+  }
+
+  static async setProductAlias(input: SetAliasInput) {
+    let alias = slug(input.name);
+
+    if (input.type === "new") {
+      const existsAlias = await prisma.product.findUnique({
+        where: { alias },
+        select: {
+          id: true,
+        },
+      });
+
+      if (existsAlias) {
+        const last6 = Date.now().toString().slice(-5);
+        alias = `${alias}-${last6}`;
+      }
+    } else {
+      const existsAlias = await prisma.product.findFirst({
+        where: {
+          AND: {
+            alias,
+            id: {
+              not: input.productId,
+            },
+            status: {
+              in: ["ACTIVE", "INACTIVE"],
+            },
+          },
+        },
+        select: {
+          status: true,
+        },
+      });
+
+      if (existsAlias) {
+        const last6 = Date.now().toString().slice(-5);
+        alias = `${alias}-${last6}`;
+      }
+    }
+
+    return alias;
   }
 
   static async hasUserPurchasedProduct(userId: number, productId: number): Promise<boolean> {
@@ -56,21 +115,21 @@ export class ProductService {
     tagIds: string[],
     externalLink?: string,
   ) {
-    let alias = slug(name);
-    const findWithAlias = await prisma.product.findUnique({
-      where: {
-        alias: alias,
-      },
-      select: {
-        id: true,
-      },
-    });
+    // let alias = slug(name);
+    // const findWithAlias = await prisma.product.findUnique({
+    //   where: {
+    //     alias: alias,
+    //   },
+    //   select: {
+    //     id: true,
+    //   },
+    // });
 
-    if (findWithAlias) {
-      // throw new ServerError('Product name must be unique', 409, 'logic')
-      const last6 = Date.now().toString().slice(-5);
-      alias = `${alias}-${last6}`;
-    }
+    // if (findWithAlias) {
+    //   // throw new ServerError('Product name must be unique', 409, 'logic')
+    //   const last6 = Date.now().toString().slice(-5);
+    //   alias = `${alias}-${last6}`;
+    // }
 
     let categoryIds: number[] = [];
     if (categoryPublicIds.length) {
@@ -92,7 +151,7 @@ export class ProductService {
       data: {
         plan,
         name,
-        alias,
+        alias: await ProductService.setProductAlias({ type: "new", name }),
         price,
         externalLink,
         currency: "USD",
@@ -122,32 +181,32 @@ export class ProductService {
     tagIds?: string[],
     externalLink?: string,
   ) {
-    const setAlias = async (input?: string) => {
-      if (!input) return undefined;
+    // const setAlias = async (input?: string) => {
+    //   if (!input) return undefined;
 
-      const alias = slug(input);
-      const findWithAlias = await prisma.product.findFirst({
-        where: {
-          AND: {
-            alias: slug(input),
-            id: {
-              not: this.product.id,
-            },
-          },
-        },
-        select: {
-          status: true,
-        },
-      });
+    //   const alias = slug(input);
+    //   const findWithAlias = await prisma.product.findFirst({
+    //     where: {
+    //       AND: {
+    //         alias: slug(input),
+    //         id: {
+    //           not: this.product.id,
+    //         },
+    //       },
+    //     },
+    //     select: {
+    //       status: true,
+    //     },
+    //   });
 
-      if (findWithAlias) {
-        if (findWithAlias.status === ProductStatus.SOFT_DELETE) {
-          return undefined;
-        }
-        throw new ServerError("Product name must be unique", 409, "logic");
-      }
-      return alias;
-    };
+    //   if (findWithAlias) {
+    //     if (findWithAlias.status === ProductStatus.SOFT_DELETE) {
+    //       return undefined;
+    //     }
+    //     throw new ServerError("Product name must be unique", 409, "logic");
+    //   }
+    //   return alias;
+    // };
 
     if (status === "ACTIVE") {
       const files = await prisma.objectStorage.findMany({
@@ -200,7 +259,7 @@ export class ProductService {
       },
       data: {
         plan: plan,
-        alias: await setAlias(name),
+        alias: name ? await ProductService.setProductAlias({ type: "update", productId: this.product.id, name }) : undefined,
         name: name,
         price: price,
         info: info,

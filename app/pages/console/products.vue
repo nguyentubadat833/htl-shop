@@ -39,8 +39,8 @@ type Product = {
   name: string;
   price: number;
   status: ProductStatus;
-  createdAt: Date | undefined;
-  updatedAt: Date | undefined;
+  createdAt: string | undefined;
+  updatedAt: string | undefined;
   info: ProductInfo;
   resources: {
     thumbnails: {
@@ -178,8 +178,8 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
     name: input.name,
     price: input.price,
     status: input.status,
-    createdAt: input.createdAt,
-    updatedAt: input.updatedAt,
+    createdAt: input.createdAt?.toString(),
+    updatedAt: input.updatedAt?.toString(),
     info: input.info,
     resources: {
       thumbnails: input.files
@@ -206,7 +206,7 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
         }
         : null,
     },
-    categories: categorySearchListToSelected(input.categories.map((c) => c.publicId)),
+    categories: categorySearchListToSelected(input.categoryIds),
   };
 };
 

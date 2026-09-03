@@ -22,8 +22,8 @@ export interface ProductItemResponse {
   name: string;
   price: number;
   status: ProductStatus;
-  createdAt: Date | undefined;
-  updatedAt: Date | undefined;
+  createdAt: string | undefined;
+  updatedAt: string | undefined;
   info: ProductInfo;
   files: {
     publicId: string;

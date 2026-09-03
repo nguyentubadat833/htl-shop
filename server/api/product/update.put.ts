@@ -10,5 +10,5 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
     DefineOptionService.upsertOption(key, value);
   });
 
-  return product
+  return product;
 });

@@ -12,11 +12,29 @@ export default defineWrappedRequiredAdminHandler(async (event): Promise<Category
           id: true,
           name: true
         }
+      },
+      _count: {
+        select: {
+          products: {
+            where: {
+              status: {
+                not: 'SOFT_DELETE'
+              }
+            }
+          }
+        }
       }
     },
     orderBy: [
       { type: 'asc' },
       { name: 'asc' }
     ]
-  })
+  }).then(items => items.map(item => ({
+    publicId: item.publicId,
+    name: item.name,
+    type: item.type,
+    active: item.active,
+    tags: item.tags,
+    totalProducts: item._count.products
+  } satisfies CategoryReference)))
 })

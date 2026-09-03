@@ -8,12 +8,28 @@
       <!-- Header / Search Toolbar -->
       <div
         class="p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-3 bg-neutral-50/50 dark:bg-neutral-900/50">
+        <UModal v-model:open="filters.open" :ui="{ content: 'sm:max-w-xl min-h-[350px]', footer: 'justify-end' }"
+          title="Filter by Categories">
+          <UButton label="Filters" icon="ic:baseline-filter-alt-off" color="neutral" variant="ghost"
+            class="justify-between" />
+
+          <!-- Content bên trong Modal -->
+          <template #body>
+            <UCommandPalette v-model="filters.categories" multiple selected-icon="i-lucide-check"
+              :groups="categorySearchGroup" placeholder="Search and select categories..." class="w-full border-none">
+              <template #item-trailing="{ item }">
+                {{ item.totalProducts }} items
+              </template>
+            </UCommandPalette>
+          </template>
+          <template #footer>
+            <UButton label="Clear" icon="ic:baseline-filter-alt-off" variant="outline" color="neutral"
+              @click="clearFilterCategories" />
+            <UButton label="Accept filters" icon="ic:outline-filter-alt" @click="acceptFilterCategories" />
+          </template>
+        </UModal>
         <UInput v-model="globalFilter" icon="i-lucide-search" placeholder="Search products..."
           class="w-full max-w-xs" />
-        <div class="flex gap-3 items-center">
-          <ImportProducts @success="refreshProducts"/>
-          <UButton icon="i-lucide-plus" label="New Product" color="primary" @click="productActions().add()" />
-        </div>
       </div>
 
       <!-- Products Data Table -->
@@ -47,6 +63,23 @@
             <span v-else class="text-xs text-neutral-400">-</span>
           </template>
         </UTable>
+        <div class="px-4 py-3.5 border-t border-accented text-sm text-muted
+         flex flex-wrap items-center gap-x-4 gap-y-2">
+          <!-- Total -->
+          <div class="flex items-center gap-1 shrink-0">
+            <span class="font-bold">Total</span>
+            <span>{{ state.products.length }} items</span>
+          </div>
+
+          <!-- Filters -->
+          <div v-if="filters.categories.length" class="flex flex-wrap items-center gap-2 min-w-0">
+            <UBadge v-for="category in filters.categories" :key="category.publicId" :label="category.name"
+              color="neutral" variant="subtle" />
+
+            <UBadge label="Clear filters" icon="ic:sharp-clear-all" color="error" variant="soft"
+              class="cursor-pointer shrink-0" @click="clearFilterCategories" />
+          </div>
+        </div>
       </div>
     </UCard>
 
@@ -64,6 +97,10 @@
           <h3 class="font-semibold text-base">
             {{ productCurrent.publicId ? "Edit Product" : "Create Product" }}
           </h3>
+        </div>
+        <div class="flex gap-3 items-center">
+          <ImportProducts @success="refreshProducts" />
+          <UButton size="sm" icon="i-lucide-plus" label="New Product" color="primary" @click="productActions().add()" />
         </div>
         <!-- <UBadge v-if="productCurrent.publicId" :label="productCurrent.publicId" color="neutral" variant="outline"
           size="sm" /> -->
@@ -89,7 +126,7 @@
             <UFormField label="Name" required>
               <UInput v-model="productCurrent.name" placeholder="e.g. Modern Villa 3D Model" class="w-full" />
             </UFormField>
-
+            
             <div class="grid grid-cols-2 gap-3">
               <UFormField label="Plan">
                 <USelect v-model="productCurrent.plan" :items="planOptions" class="w-full" />
@@ -270,12 +307,12 @@
       <!-- Footer Actions -->
       <template #footer>
         <UButton v-if="productCurrent.publicId" icon="i-lucide-trash-2" label="Delete" color="error" variant="soft"
-          @click="productActions().del()" />
+          size="sm" @click="productActions().del()" />
         <div v-else />
 
         <div class="flex items-center gap-2">
           <!-- <UButton label="Reset" color="neutral" variant="ghost" @click="productActions().add()" /> -->
-          <UButton :loading="state.loading" icon="i-lucide-save" label="Save Product" color="primary"
+          <UButton :loading="state.loading" icon="i-lucide-save" label="Save Product" color="primary" size="sm"
             @click="productActions().save()" />
         </div>
       </template>
@@ -307,6 +344,7 @@ type CategoryItemSelected = {
   publicId: string;
   type: string;
   active: boolean;
+  totalProducts: number
 };
 
 type ProductInfo = {
@@ -326,8 +364,8 @@ type Product = {
   name: string;
   price: number;
   status: ProductStatus;
-  createdAt: Date | undefined;
-  updatedAt: Date | undefined;
+  createdAt: string | undefined;
+  updatedAt: string | undefined;
   info: ProductInfo;
   resources: {
     thumbnails: {
@@ -470,8 +508,8 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
     name: input.name,
     price: input.price,
     status: input.status,
-    createdAt: input.createdAt,
-    updatedAt: input.updatedAt,
+    createdAt: input.createdAt?.toString(),
+    updatedAt: input.updatedAt?.toString(),
     info: input.info,
     externalLink: input.externalLink,
     resources: {
@@ -546,6 +584,11 @@ const uploadProductFile = toRef(state.uploadResource, "productFile");
 const uploadProductThumbnails = toRef(state.uploadResource, "thumbnails");
 const isSomeThumbnailUploadProcessing = computed(() => uploadProductThumbnails.value.some((ul) => ul.status === "progress"));
 const isProductFileUploadProcessing = computed(() => uploadProductFile.value?.status === "progress");
+const filters = reactive({
+  open: false,
+  categories: [] as CategoryItemSelected[],
+  selectdCategoryIds: [] as string[]
+})
 
 await useAsyncData(() =>
   $userApi<Record<string, string[]>>("/api/option/all", {
@@ -577,6 +620,9 @@ const categorySearchGroup = computed(() => {
 
 const { refresh: refreshProducts, pending } = await useAsyncData(() =>
   $userApi<ProductItemResponse[]>("/api/product/list", {
+    query: {
+      categories: filters.selectdCategoryIds
+    },
     onResponse({ response }) {
       if (response.ok) {
         const data = response._data as ProductItemResponse[];
@@ -584,6 +630,10 @@ const { refresh: refreshProducts, pending } = await useAsyncData(() =>
       }
     },
   }),
+  {
+    watch: [() => filters.selectdCategoryIds],
+    deep: true,
+  }
 );
 
 function resetProductCurrent(publicId: string) {
@@ -831,5 +881,15 @@ function getTagsFromCategoryReference(categoryId: string) {
 
 function existsCategoryById(categoryId: string) {
   return categoryReferences.value?.some((ctg) => ctg.publicId === categoryId) ?? false;
+}
+
+function clearFilterCategories() {
+  filters.categories = []
+  acceptFilterCategories()
+}
+
+function acceptFilterCategories() {
+  filters.selectdCategoryIds = filters.categories.map(ctg => ctg.publicId)
+  filters.open = false
 }
 </script>

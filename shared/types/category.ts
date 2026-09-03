@@ -36,5 +36,6 @@ export interface CategoryReference {
   tags: {
     id: string
     name: string
-  }[]
+  }[],
+  totalProducts: number
 }
