@@ -33,40 +33,25 @@ export class ProductService {
   static async setProductAlias(input: SetAliasInput) {
     let alias = slug(input.name);
 
-    if (input.type === "new") {
-      const existsAlias = await prisma.product.findUnique({
-        where: { alias },
-        select: {
-          id: true,
-        },
-      });
-
-      if (existsAlias) {
-        const last6 = Date.now().toString().slice(-5);
-        alias = `${alias}-${last6}`;
-      }
-    } else {
-      const existsAlias = await prisma.product.findFirst({
-        where: {
-          AND: {
+    // Điều kiện query alias đã tồn tại ở bất kỳ product nào khác hay chưa (không lọc theo status)
+    const whereCondition: Prisma.ProductWhereInput =
+      input.type === "new"
+        ? { alias }
+        : {
             alias,
-            id: {
-              not: input.productId,
-            },
-            status: {
-              in: ["ACTIVE", "INACTIVE"],
-            },
-          },
-        },
-        select: {
-          status: true,
-        },
-      });
+            id: { not: input.productId },
+          };
 
-      if (existsAlias) {
-        const last6 = Date.now().toString().slice(-5);
-        alias = `${alias}-${last6}`;
-      }
+    const existsAlias = await prisma.product.findFirst({
+      where: whereCondition,
+      select: { id: true },
+    });
+
+    if (existsAlias) {
+      // Tạo suffix ngẫu nhiên kết hợp timestamp + random string để tránh trùng khi chạy đồng thời
+      const randomSuffix = Math.random().toString(36).substring(2, 6);
+      const timeSuffix = Date.now().toString().slice(-4);
+      alias = `${alias}-${timeSuffix}${randomSuffix}`;
     }
 
     return alias;

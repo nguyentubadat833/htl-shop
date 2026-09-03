@@ -291,6 +291,8 @@ async function openFolder() {
   tableRowItems.value.forEach((row) => {
     row.isDuplicate = nameItems.filter((name) => name === row.name).length > 1 || checkResults.some((rs) => rs.name === row.name && rs.isDuplicate);
   });
+
+  console.log(tableRowItems)
 }
 
 function createImageUrl(file: File) {
@@ -328,7 +330,6 @@ async function submit() {
                   method: "POST",
                   body: <z.infer<typeof UploadFileRequestSchema>>{
                     publicId: productId,
-                    categories,
                     file: {
                       filename: fileUpload.file.name,
                       size: fileUpload.file.size,
@@ -497,7 +498,8 @@ function selectCategories(values: CategorySelectItem[], index: number) {
     </template>
     <template #footer>
       <UButton to="/templates/product-import-template.zip" download="Product_Import_Template.zip"
-        icon="i-heroicons-document-arrow-down" color="warning" variant="subtle" label="Example template" external size="sm" />
+        icon="i-heroicons-document-arrow-down" color="warning" variant="subtle" label="Example template" external
+        size="sm" />
       <div class="space-x-2">
         <UButton v-if="!tableRowItems.length"
           :disabled="tableRowItems.some((item) => item.status.type === 'processing')" label="Choose folder"

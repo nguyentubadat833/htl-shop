@@ -5,6 +5,7 @@ import { ErrorResponse } from "~~/shared/types/app";
 import { UserRole } from "~~/prisma/generated/enums";
 
 function handlerError(event: H3Event, err: unknown): ErrorResponse {
+  console.log(err)
   if (err instanceof ServerError) {
     const statusCode = err.code;
     const statusMessage = getStatusMessage(statusCode);
