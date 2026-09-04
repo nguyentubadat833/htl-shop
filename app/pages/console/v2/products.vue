@@ -1,5 +1,6 @@
 <template>
-  <div class="h-full grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-5 items-start overflow-hidden">
+  <div class="h-full grid-cols-1 lg:grid-cols-[1fr_480px] gap-5 items-start overflow-hidden"
+    :class="[{ 'grid': !selectedProducts.length }]">
     <!-- LEFT PANEL: Product Table -->
     <UCard :ui="{
       root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
@@ -44,8 +45,10 @@
 
           <!-- Status Badge -->
           <template #status-cell="{ row }">
-            <UBadge :label="row.original.status" :color="row.original.status === 'ACTIVE' ? 'success' : 'neutral'"
-              variant="subtle" size="sm" />
+            <!-- <UBadge :label="row.original.status" :color="row.original.status === 'ACTIVE' ? 'success' : 'neutral'"
+              variant="subtle" size="sm" /> -->
+            <USwitch :model-value="row.original.status === 'ACTIVE'"
+              @update:model-value="(value) => switchStatus(value, row.original)" />
           </template>
 
           <!-- Price Display -->
@@ -62,29 +65,40 @@
             </span>
             <span v-else class="text-xs text-neutral-400">-</span>
           </template>
+
+          <template #check-cell="{ row }">
+            <label class="flex items-center justify-center w-full h-full cursor-pointer" @click.stop>
+              <UCheckbox :model-value="selectedProducts.includes(row.original)"
+                @update:model-value="(value) => checkRow(value, row.original)" @click.stop />
+            </label>
+          </template>
         </UTable>
         <div class="px-4 py-3.5 border-t border-accented text-sm text-muted
          flex flex-wrap items-center gap-x-4 gap-y-2">
           <!-- Total -->
-          <div class="flex items-center gap-1 shrink-0">
-            <span class="font-bold">Total</span>
-            <span>{{ state.products.length }} items</span>
-          </div>
+          <UButton v-if="selectedProducts.length" :label="`Delete ${selectedProducts.length} products`"
+            icon="i-lucide-trash-2" color="error" size="sm" @click="deleteProducts" />
+          <div v-else>
+            <div class="flex items-center gap-1 shrink-0">
+              <span class="font-bold">Total</span>
+              <span>{{ state.products.length }} items</span>
+            </div>
 
-          <!-- Filters -->
-          <div v-if="filters.categories.length" class="flex flex-wrap items-center gap-2 min-w-0">
-            <UBadge v-for="category in filters.categories" :key="category.publicId" :label="category.name"
-              color="neutral" variant="subtle" />
+            <!-- Filters -->
+            <div v-if="filters.categories.length" class="flex flex-wrap items-center gap-2 min-w-0">
+              <UBadge v-for="category in filters.categories" :key="category.publicId" :label="category.name"
+                color="neutral" variant="subtle" />
 
-            <UBadge label="Clear filters" icon="ic:sharp-clear-all" color="error" variant="soft"
-              class="cursor-pointer shrink-0" @click="clearFilterCategories" />
+              <UBadge label="Clear filters" icon="ic:sharp-clear-all" color="error" variant="soft"
+                class="cursor-pointer shrink-0" @click="clearFilterCategories" />
+            </div>
           </div>
         </div>
       </div>
     </UCard>
 
     <!-- RIGHT PANEL: Product Detail Form -->
-    <UCard :ui="{
+    <UCard v-if="!selectedProducts.length" :ui="{
       root: 'h-full flex flex-col border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden',
       header: 'p-4 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between',
       body: 'p-4 flex-1 overflow-y-auto space-y-4',
@@ -329,6 +343,8 @@ import type z from "zod";
 import type { CategoryReference } from "~~/shared/types/category";
 import ImportProducts from "~/components/btn/ImportProducts.vue";
 
+const Button = resolveComponent('UButton')
+
 type TechnicalOptions = {
   platform: string[];
   render: string[];
@@ -465,6 +481,22 @@ const productCurrentDefault: Product = {
 
 const columns = [
   {
+    id: 'check',
+    header: ({ table }) =>
+      h(
+        'div',
+        {
+          class: 'flex items-center justify-center w-full',
+        },
+        selectedProducts.value.length ? h(Button, {
+          icon: 'ic:outline-playlist-remove',
+          variant: 'ghost',
+          color: 'warning',
+          onClick: () => selectedProducts.value = []
+        }) : undefined,
+      ),
+  },
+  {
     accessorKey: "name",
     header: "Product Name",
   },
@@ -478,7 +510,7 @@ const columns = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Active",
   },
   {
     accessorKey: "createdAt",
@@ -529,9 +561,9 @@ const productResponseToProduct = (input: ProductItemResponse): Product => {
   };
 };
 
+const toast = new useAppToast();
 const { createPresignedUploadTask } = useFile();
 const { $userApi } = useNuxtApp();
-const toast = new useAppToast();
 const { copy, copied } = useClipboard()
 
 const state = reactive<State>({
@@ -551,6 +583,7 @@ const uploadProductThumbnailsSelected = ref<File[]>();
 const currency = toRef(state.metadata, "currency");
 const technicalOptions = toRef(state.metadata, "technicalOptions");
 const rowSelection = ref<Record<string, boolean>>({});
+const selectedProducts = ref<Product[]>([])
 
 const productCurrent = computed({
   get: () => state.productCurrent,
@@ -842,16 +875,31 @@ function productActions() {
 
   async function del() {
     actionOnProductPublicIdOrReturn();
-    await $userApi("/api/product/delete", {
-      method: "DELETE",
-      body: <z.output<typeof DeleteProductSchema>>{ publicId: state.productCurrent.publicId },
-      onResponse: ({ response }) => {
-        if (response.ok) {
-          refreshProducts().then(() => add());
-          toast.toast.add({ title: "Deleted successfully" });
+    const toast = useToast()
+
+    toast.add({
+      title: 'Confirm delete',
+      description: `Do you want to delete ${state.productCurrent.name}`,
+      actions: [{
+        icon: 'ic:baseline-check-circle-outline',
+        label: 'Continue delete',
+        color: 'error',
+        onClick: (e) => {
+          e?.stopPropagation()
+
+          $userApi("/api/product/delete", {
+            method: "DELETE",
+            body: <z.output<typeof DeleteProductSchema>>{ publicId: state.productCurrent.publicId },
+            onResponse: ({ response }) => {
+              if (response.ok) {
+                refreshProducts().then(() => add());
+                toast.add({ title: "Deleted successfully", color: 'warning' });
+              }
+            },
+          });
         }
-      },
-    });
+      }]
+    })
   }
 
   return { add, save, del };
@@ -891,5 +939,70 @@ function clearFilterCategories() {
 function acceptFilterCategories() {
   filters.selectdCategoryIds = filters.categories.map(ctg => ctg.publicId)
   filters.open = false
+}
+
+async function switchStatus(value: boolean, product: Product) {
+  if (!product.publicId) return
+
+  product.status = value ? 'ACTIVE' : 'INACTIVE'
+  await $userApi("/api/product/update", {
+    method: "PUT",
+    body: {
+      publicId: product.publicId,
+      status: product.status,
+    } satisfies z.input<typeof UpdateProductSchema>,
+    onResponse: ({ response }) => {
+      if (response.ok) {
+        refreshProducts().then(() => {
+          resetProductCurrent(response._data.publicId);
+          toast.toast.add({ title: "Updated successfully" });
+        });
+      }
+    },
+  });
+}
+
+function checkRow(value: boolean | "indeterminate", product: Product) {
+  if (value) {
+    selectedProducts.value.push(product)
+  } else {
+    selectedProducts.value = selectedProducts.value.filter(prd => prd.publicId !== product.publicId)
+  }
+}
+
+async function deleteProducts() {
+  if (!selectedProducts.value.length) return
+
+  const toast = useToast()
+
+  toast.add({
+    title: 'Confirm delete',
+    description: `Do you want to delete ${selectedProducts.value.length} products`,
+    actions: [{
+      icon: 'ic:baseline-check-circle-outline',
+      label: 'Continue delete',
+      color: 'error',
+      onClick: async (e) => {
+        e?.stopPropagation()
+
+        await Promise.allSettled(
+          selectedProducts.value.map(product =>
+            $userApi("/api/product/delete", {
+              method: "DELETE",
+              body: <z.output<typeof DeleteProductSchema>>{ publicId: product.publicId },
+            })
+          )
+        )
+
+        selectedProducts.value = []
+        refreshProducts()
+
+        toast.add({
+          title: "Deleted successfully",
+          color: 'warning'
+        })
+      }
+    }]
+  })
 }
 </script>

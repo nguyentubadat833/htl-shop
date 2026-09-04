@@ -180,6 +180,11 @@ const navItems: NavigationMenuItem[] = [
       icon: "i-lucide-database",
       to: "/console/system/database",
     },
+    {
+      label: "Setting",
+      icon: "ic:baseline-settings",
+      to: "/console/system/setting",
+    },
   ],
   [
     {

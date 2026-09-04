@@ -275,11 +275,12 @@ export class ProductService {
       },
     });
 
-    await Helper.deleteObjectStorages(objectStorages);
+    await ProductHelper.deleteObjectStorages(objectStorages);
   }
 
   async addFile(name: string, size: number, type: FileType): Promise<string> {
-    const objectName = `${Date.now()}_${name}`;
+    const objectName = `${Date.now()}_${crypto.randomUUID()}_${name}`;
+    
     await prisma.objectStorage.create({
       data: {
         productId: this.product.id,
@@ -335,11 +336,11 @@ export class ProductService {
       },
     });
 
-    await Helper.deleteObjectStorages(objectStorages);
+    await ProductHelper.deleteObjectStorages(objectStorages);
   }
 }
 
-class Helper {
+export class ProductHelper {
   constructor() {}
 
   static async deleteObjectStorages(objectStorages: ObjectStorage[]) {

@@ -79,7 +79,13 @@ ORDER BY
       take: 10,
     }),
 
-    prisma.product.count(),
+    prisma.product.count({
+      where: {
+        status: {
+          not: 'SOFT_DELETE'
+        }
+      }
+    }),
 
     prisma.product.count({
       where: {
