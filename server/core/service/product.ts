@@ -223,7 +223,7 @@ export class ProductService {
       }
     }
 
-    let categoryIds: number[] = [];
+    let categoryIds: number[] | undefined = undefined;
     if (categoryPublicIds && categoryPublicIds.length) {
       categoryIds = await prisma.category
         .findMany({
@@ -250,13 +250,15 @@ export class ProductService {
         info: info,
         status: status,
         externalLink: externalLink,
-        categories: {
-          set: categoryIds.map((id) => {
-            return {
-              id: id,
-            };
-          }),
-        },
+        categories: categoryIds
+          ? {
+              set: categoryIds.map((id) => {
+                return {
+                  id: id,
+                };
+              }),
+            }
+          : undefined,
         tags: tagIds
           ? {
               set: tagIds.map((id) => ({ id })),
@@ -280,7 +282,7 @@ export class ProductService {
 
   async addFile(name: string, size: number, type: FileType): Promise<string> {
     const objectName = `${Date.now()}_${crypto.randomUUID()}_${name}`;
-    
+
     await prisma.objectStorage.create({
       data: {
         productId: this.product.id,
