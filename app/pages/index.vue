@@ -5,7 +5,7 @@
         <FilterModels />
       </UPageAside>
     </template>
-    <h1 class="text-xl font-semibold">3D &amp; 2D Models for Architecture</h1>
+    <!-- <h1 class="text-xl font-semibold">3D &amp; 2D Models for Architecture</h1> -->
     <div class="lg:flex justify-between hidden">
       <FilterModelTypes />
       <FilterPlans />
