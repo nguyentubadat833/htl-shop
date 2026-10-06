@@ -10,8 +10,8 @@
     <div v-else class="aspect-square flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 text-muted">
       No preview available
     </div>
-    <p v-if="compact && images.length > 1" class="mt-2 text-center text-xs text-muted" aria-live="polite">
-      {{ activeIndex + 1 }} / {{ images.length }}
+    <p v-if="compact" class="mt-2 h-4 text-center text-xs leading-4 text-muted" aria-live="polite">
+      <span v-if="images.length > 1">{{ activeIndex + 1 }} / {{ images.length }}</span>
     </p>
     <div v-if="!compact && images.length > 1" ref="thumbnails"
       class="product-thumbnails mt-4 flex w-full min-w-0 gap-2 overflow-x-auto py-2" aria-label="Product previews">
