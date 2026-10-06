@@ -5,6 +5,36 @@ import { orderPaidValues } from "~~/shared/constants/order.constants";
 
 
 export class OrderService {
+  static async recordFreeDownload(userId: number, productPublicId: string) {
+    return prisma.$transaction(async tx => {
+      const product = await tx.product.findUnique({ where: { publicId: productPublicId } });
+      if (!product || product.status !== 'ACTIVE') throw new ServerError('Product unavailable', 409, 'logic');
+      if (product.plan !== 'FREE' || product.price !== 0) throw new ServerError('Product is not free', 400, 'logic');
+      let url: URL;
+      try {
+        url = new URL(product.externalLink ?? '');
+        if (!['https:', 'http:'].includes(url.protocol)) throw new Error('Invalid link');
+      } catch {
+        throw new ServerError('Download link unavailable', 409, 'logic');
+      }
+      // Serialize downloads of the same product for this user across tabs and requests.
+      await tx.$queryRaw`SELECT 1 FROM pg_advisory_xact_lock(${userId}::integer, ${product.id}::integer)`;
+      const existing = await tx.cart.findFirst({
+        where: { userId, productId: product.id, order: { orderByUserId: userId, status: { in: orderPaidValues } } },
+        select: { order: { select: { publicId: true } } },
+      });
+      if (existing?.order) return { orderId: existing.order.publicId, created: false };
+      const order = await tx.order.create({
+        data: {
+          orderByUserId: userId, amount: 0, currency: 'USD', status: 'PAID',
+          items: { create: { userId, productId: product.id, price: 0 } },
+        },
+        select: { publicId: true },
+      });
+      return { orderId: order.publicId, created: true };
+    });
+  }
+
   order!: Order;
   constructor(order?: Order) {
     if (order) {

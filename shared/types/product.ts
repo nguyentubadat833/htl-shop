@@ -53,7 +53,7 @@ export interface ProductSEOItemResponse {
   }[];
 }
 
-export type ProductSEOListItemResponse = Omit<ProductSEOItemResponse, "info">;
+export type ProductSEOListItemResponse = Omit<ProductSEOItemResponse, "info"> & { externalLink?: string };
 
 export interface ProductPurchased {
   publicId: string;

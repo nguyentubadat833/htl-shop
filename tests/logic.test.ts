@@ -19,6 +19,43 @@ const { Mail } = await import('../server/core/service/mail');
 const globals = globalThis as any;
 function setDatabase(db: any) { globals.prisma = db; }
 
+function freeDownloadDatabase(overrides: any = {}, existing: any = null) {
+  const calls: any = {};
+  const tx = {
+    product: { findUnique: async () => ({ id: 4, plan: 'FREE', price: 0, status: 'ACTIVE', externalLink: 'https://example.com/download', ...overrides }) },
+    $queryRaw: async () => { calls.locked = true; return []; },
+    cart: { findFirst: async (args: any) => { calls.lookup = args; return existing; } },
+    order: { create: async (args: any) => { calls.create = args; return { publicId: 'free-order' }; } },
+  };
+  setDatabase({ $transaction: async (fn: any) => fn(tx) });
+  return calls;
+}
+
+test('direct free download rejects PRO, nonzero prices, inactive products and unsafe links', async () => {
+  for (const overrides of [{ plan: 'PRO' }, { price: 10 }, { status: 'INACTIVE' }, { externalLink: null }, { externalLink: 'javascript:alert(1)' }]) {
+    const calls = freeDownloadDatabase(overrides);
+    await assert.rejects(OrderService.recordFreeDownload(7, 'product'));
+    assert.equal(calls.create, undefined);
+  }
+});
+
+test('direct free download records a zero-value paid order for the authenticated user', async () => {
+  const calls = freeDownloadDatabase();
+  assert.deepEqual(await OrderService.recordFreeDownload(7, 'product'), { orderId: 'free-order', created: true });
+  assert.equal(calls.locked, true);
+  assert.deepEqual(calls.create.data, {
+    orderByUserId: 7, amount: 0, currency: 'USD', status: 'PAID',
+    items: { create: { userId: 7, productId: 4, price: 0 } },
+  });
+  assert.equal(calls.lookup.where.order.orderByUserId, 7);
+});
+
+test('direct free download reuses an existing purchase without creating another order', async () => {
+  const calls = freeDownloadDatabase({}, { order: { publicId: 'previous-order' } });
+  assert.deepEqual(await OrderService.recordFreeDownload(7, 'product'), { orderId: 'previous-order', created: false });
+  assert.equal(calls.create, undefined);
+});
+
 function cart(id = 'a', status = 'ACTIVE', price = 12) {
   return { id, price: 1, product: { status, price } };
 }

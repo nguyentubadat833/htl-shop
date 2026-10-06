@@ -43,17 +43,18 @@
               {{ card.name }}
             </NuxtLink>
             <div class="flex justify-between">
-              <div class="flex items-center gap-1 text-gray-500">
+              <div class="flex flex-wrap items-center gap-1 text-gray-500">
                 <!-- <Icon name="ic:outline-payments" size="20" /> -->
                 <p class="font-medium">{{ priceToUSD(card.price) }}</p>
                 <p class="text-gray-500 text-sm">{{ `(≈${priceToVND(card.priceVND)})` }}</p>
               </div>
               <!-- <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="addProduct(card.publicId, card.name)" /> -->
             </div>
-            <div class="flex gap-2">
+            <div class="flex flex-col gap-2 sm:flex-row">
               <UButton :label="card.plan === ProductPlan.FREE ? 'Download free' : 'Buy now'" icon="ic:outline-payments" color="warning" block
-                @click="buyNow(card.publicId)" />
-              <UButton icon="ic:baseline-add-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer"
+                class="min-w-0 text-xs sm:text-sm" :ui="{ leadingIcon: 'hidden sm:block' }"
+                @click="card.plan === ProductPlan.FREE ? downloadFree(card.publicId, card.externalLink) : buyNow(card.publicId)" />
+              <UButton icon="ic:baseline-add-shopping-cart" color="neutral" variant="soft" class="justify-center shrink-0 hover:cursor-pointer"
                 @click="() => void addProduct(card.publicId, card.name)" />
             </div>
           </div>
@@ -90,7 +91,7 @@ const cardUI = {
 //   base: 'ring-0!'
 // }
 
-const { addProduct, buyNow } = useCart();
+const { addProduct, buyNow, downloadFree } = useCart();
 const { filterState, filterStatus, filterTags } = useFilter();
 
 const { data: productList, pending } = await useAsyncData(

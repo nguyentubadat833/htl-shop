@@ -12,6 +12,38 @@ export default function () {
   const { authSession } = session();
   const { $userApi } = useNuxtApp();
   const { click: googleButtonClick } = useGoogleButton()
+  const freeDownloads = new Set<string>();
+
+  function downloadFree(publicId: string, externalLink?: string) {
+    if (!authSession().get()) {
+      googleButtonClick();
+      return;
+    }
+    let url: URL;
+    try {
+      url = new URL(externalLink ?? '');
+      if (!['https:', 'http:'].includes(url.protocol)) throw new Error('Invalid download link');
+    } catch {
+      appToast.toast.add({ title: 'Download link unavailable', color: 'error' });
+      return;
+    }
+    window.open(url.href, '_blank', 'noopener,noreferrer');
+    if (freeDownloads.has(publicId)) return;
+    freeDownloads.add(publicId);
+    void $userApi('/api/shopping/free-download', {
+      method: 'POST',
+      keepalive: true,
+      body: { product_publicId: publicId },
+      // A background history request must not navigate away on an expired session.
+      onResponseError() {},
+    }).catch(() => {
+      appToast.toast.add({
+        title: 'Could not save this download to your library',
+        description: 'Please click Download free again to retry.',
+        color: 'error',
+      });
+    }).finally(() => freeDownloads.delete(publicId));
+  }
 
   async function count() {
     if (authSession().get()) {
@@ -118,6 +150,7 @@ export default function () {
     addProduct,
     removeProducts,
     checkout,
-    buyNow
+    buyNow,
+    downloadFree
   };
 }

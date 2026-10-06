@@ -90,6 +90,7 @@ export default defineWrappedResponseHandler(async (event) => {
         data.map(async item => {
             return {
                 plan: item.plan,
+                externalLink: item.plan === 'FREE' ? item.externalLink ?? undefined : undefined,
                 publicId: item.publicId,
                 alias: item.alias,
                 name: item.name,
