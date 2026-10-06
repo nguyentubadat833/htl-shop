@@ -1,5 +1,5 @@
 import z from "zod";
-import { ProductInfo, ProductSEOItemResponse } from "#shared/types/product";
+import type { ProductInfo, ProductSEOItemResponse } from "#shared/types/product";
 import { ProductStatus } from "~~/prisma/generated/enums";
 import { orderPaidValues } from "~~/shared/constants/order.constants";
 import { changeRate, getAmountVND } from "~~/server/core/service/money";
@@ -72,6 +72,7 @@ export default defineWrappedResponseHandler(async (event) => {
   }
 
   return <ProductSEOItemResponse>{
+    indexable: product.status === ProductStatus.ACTIVE,
     plan: product.plan,
     publicId: product.publicId,
     alias: product.alias,

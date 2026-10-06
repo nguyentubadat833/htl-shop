@@ -8,8 +8,8 @@ const mailENV = runtimeConfig.mail;
 
 const MailEnvSchema = z.object({
   host: z.string(),
-  port: z.number(),
-  secure: z.preprocess((value) => value === "true", z.boolean()),
+  port: z.coerce.number().int().min(1).max(65535),
+  secure: z.preprocess((value) => value === true || value === "true", z.boolean()),
   auth: z.object({
     user: z.string(),
     pass: z.string(),
@@ -41,7 +41,6 @@ async function testConnection() {
   }
 }
 
-testConnection();
 
 export class Mail {
   static userAuth = auth.user;

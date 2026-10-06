@@ -1,6 +1,14 @@
 <script setup lang="ts">
+type Summary = {
+  user_total: number; user_active_total: number; product_total: number; product_active_total: number;
+  order_total: number; order_success_total: number;
+  revenue_by_month: { year: number; month: number; total_orders: number; total_customers: number; total_products: number; total_revenue: number }[];
+  top_users: { name: string; email: string; image: string | null; purchaseCount: number }[];
+  top_paid_products: { name: string; price: number; currency: string; purchaseCount: number }[];
+  top_add_cart_products: { name: string; price: number; currency: string; addToCartCount: number }[];
+};
 const { $userApi } = useNuxtApp();
-const { data, pending } = await useAsyncData(() => $userApi("/api/summary"));
+const { data, pending } = await useAsyncData(() => $userApi<Summary>("/api/summary"));
 
 const stats = computed(() => {
   if (!data.value) return [];

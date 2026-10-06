@@ -27,15 +27,5 @@ if (!parseQuery.success) {
 const orderIdQuery = parseQuery.data.orderId;
 const statusQuery = parseQuery.data.status
 
-const data = await $userApi(`/api/shopping/order/${orderIdQuery}`)
-    .then(rs => {
-        if (statusQuery !== 'success') {
-            return rs
-        } else {
-            return {
-                ...rs,
-                paid: rs.paid || true
-            }
-        }
-    })
+const data = await $userApi(`/api/shopping/order/${orderIdQuery}`);
 </script>

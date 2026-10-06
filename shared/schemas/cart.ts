@@ -9,5 +9,5 @@ export const RemoveProductsInCartSchema = z.object({
 })
 
 export const CheckoutInCartSchema = z.object({
-    cardIds: z.array(z.string())
+    cardIds: z.array(z.string().min(1)).min(1)
 })

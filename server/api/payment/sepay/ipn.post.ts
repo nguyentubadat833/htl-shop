@@ -7,7 +7,7 @@ import { OrderService } from "~~/server/core/service/order";
     publicId: string
     currency: string
     amount: number
-    status: string
+    status: "PENDING" | "PAID" | "SENDING" | "DELIVERED" | "CANCELLED"
   }
 
 const ipnSchema = z.object({
@@ -47,15 +47,12 @@ export default defineWrappedResponseHandler(async (event) => {
   });
 
   // Idempotency: nếu đã xử lý rồi thì trả về ngay, không làm lại
-  if (order.status === "PAID" || order.status === "DELIVERED") {
+  if (order.status === "PAID" || order.status === "SENDING" || order.status === "DELIVERED") {
     return { success: true };
   }
 
-  // Trả response ngay sau khi đã có đủ dữ liệu tối thiểu để xác nhận hợp lệ
-  // Xử lý phần còn lại (quy đổi tiền tệ, update DB, gửi hàng) ở background
-  processIpnAsync(order, data).catch((err) => {
-    console.error("IPN processing failed", { orderId: order.id, err });
-  });
+  // Acknowledge only after payment persistence succeeds, so the gateway can retry failures.
+  await processIpnAsync(order, data);
 
   return { success: true };
 });
@@ -79,103 +76,26 @@ async function processIpnAsync(order: OrderData, data: z.infer<typeof ipnSchema>
 
   if (!validAmount || !validTransaction) return;
 
-  await prisma.order.update({
-    where: { id: order.id },
-    data: {
-      status: "PAID",
-      payments: {
-        create: [
-          {
-            amount: ipnTransaction.transaction_amount,
-            method: ipnTransaction.payment_method,
-            status: "SUCCESS",
-            metadata: data,
-          },
-        ],
+  const claimed = await prisma.$transaction(async tx => {
+    const result = await tx.order.updateMany({
+      where: { id: order.id, status: order.status },
+      data: { status: "PAID" },
+    });
+    if (!result.count) return false;
+    await tx.payment.create({
+      data: {
+        orderId: order.id,
+        transactionId: ipnTransaction.transaction_id,
+        amount: ipnTransaction.transaction_amount,
+        method: ipnTransaction.payment_method,
+        status: "SUCCESS",
+        metadata: data,
       },
-    },
+    });
+    return true;
   });
+  if (!claimed) return;
 
-  await OrderService.sendProduct(order.publicId);
-  await prisma.order.update({
-    where: { id: order.id },
-    data: { status: "DELIVERED" },
-  });
+  await OrderService.sendProduct(order.publicId).catch(() => console.error("[Delivery] Paid order email failed"));
+  // Email delivery may be retried by the admin; the paid order remains accessible in the library.
 }
-
-// export default defineWrappedResponseHandler(async (event) => {
-//   const body = await readBody(event);
-
-//   const parseBody = ipnSchema.safeParse(body);
-//   if (!parseBody.success) {
-//     throw createError({
-//       statusCode: 500,
-//     });
-//   }
-
-//   const data = parseBody.data;
-//   const ipnOrder = data.order;
-//   const ipnTransaction = data.transaction;
-
-//   const order = await prisma.order.findFirstOrThrow({
-//     where: {
-//       publicId: ipnOrder.order_invoice_number,
-//     },
-//     select: {
-//       id: true,
-//       publicId: true,
-//       currency: true,
-//       amount: true,
-//     },
-//   });
-
-//   let orderAmount = order.amount;
-//   if (order.currency === "USD" && ipnTransaction.transaction_currency === "VND") {
-//     orderAmount = await getAmountVND(orderAmount);
-//   } else {
-//     console.trace("Not support");
-//     throw createError({
-//       statusCode: 409,
-//     });
-//   }
-
-//   if (data.notification_type === "ORDER_PAID") {
-//     const validAmount = Number(orderAmount) === Number(ipnTransaction.transaction_amount);
-//     const validTransaction = ipnOrder.order_status === "CAPTURED" && ipnTransaction.transaction_type === "PAYMENT" && ipnTransaction.transaction_status === "APPROVED";
-//     if (validAmount && validTransaction) {
-//       await prisma.order.update({
-//         where: {
-//           id: order.id,
-//         },
-//         data: {
-//           status: "PAID",
-//           payments: {
-//             create: [
-//               {
-//                 amount: ipnTransaction.transaction_amount,
-//                 method: ipnTransaction.payment_method,
-//                 status: "SUCCESS",
-//                 metadata: data,
-//               },
-//             ],
-//           },
-//         },
-//       });
-
-//       OrderService.sendProduct(order.publicId).then(() => {
-//         prisma.order.update({
-//           where: {
-//             id: order.id,
-//           },
-//           data: {
-//             status: "DELIVERED",
-//           },
-//         });
-//       });
-//     }
-//   }
-
-//   return {
-//     success: true,
-//   };
-// });

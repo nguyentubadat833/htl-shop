@@ -1,4 +1,4 @@
-import { BucketItem } from "minio";
+import type { BucketItem } from "minio";
 import { S3 } from "~~/server/core/service/s3";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {

@@ -1,4 +1,4 @@
-import { UserItem } from "#shared/types/user";
+import type { UserItem } from "#shared/types/user";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
   const users: UserItem[] = await prisma.user.findMany({

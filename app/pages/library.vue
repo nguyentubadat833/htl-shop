@@ -59,7 +59,7 @@ async function downloadFile(productPlan: ProductPlan, externalLink?: string, fil
         downloading.value[fileId] = true;
 
         try {
-            $userApi(`/api/product/file/design/${fileId}`, {
+            await $userApi(`/api/product/file/design/${fileId}`, {
                 onResponse({ response }) {
                     if (response.ok) {
                         const url = response._data;
@@ -84,7 +84,7 @@ async function downloadFile(productPlan: ProductPlan, externalLink?: string, fil
 
         console.log(externalLink);
 
-        window.open(externalLink, "_blank");
+        window.open(externalLink, "_blank", "noopener,noreferrer");
     }
 }
 

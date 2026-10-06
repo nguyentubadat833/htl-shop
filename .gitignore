@@ -30,3 +30,8 @@ prisma/generated
 
 keys
 docker-compose.yml
+
+# Isolated browser regression fixture
+.nuxt-browser-test
+tests/browser-fixture/.nuxt
+tests/browser-fixture/.output

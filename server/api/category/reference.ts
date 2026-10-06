@@ -1,4 +1,4 @@
-import { CategoryReference } from "~~/shared/types/category"
+import type { CategoryReference } from "~~/shared/types/category"
 
 export default defineWrappedRequiredAdminHandler(async (event): Promise<CategoryReference[]> => {
   return await prisma.category.findMany({

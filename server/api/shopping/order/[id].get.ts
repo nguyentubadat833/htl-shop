@@ -1,6 +1,6 @@
 import z from "zod";
 import { orderPaidValues } from "~~/shared/constants/order.constants";
-import { OrderWithProductsResponse } from "~~/shared/types/order";
+import type { OrderWithProductsResponse } from "~~/shared/types/order";
 
 const Schema = z.object({
   id: z.string(),
@@ -47,6 +47,7 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
       orderId: order.id,
     },
     select: {
+      price: true,
       product: {
         select: {
           alias: true,
@@ -65,7 +66,7 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
     products: items.map((item) => {
       return {
         name: item.product.name,
-        price: item.product.price,
+        price: item.price,
       };
     }),
     paid: orderPaidValues.includes(order.status),

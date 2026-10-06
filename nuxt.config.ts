@@ -17,6 +17,10 @@ export default defineNuxtConfig({
   // },
   runtimeConfig: {
     public: {
+      siteUrl: "https://3d2ds.com",
+      adsenseClientId: "",
+      adsenseEnabled: false,
+      googleSiteVerification: "",
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
     },
     nodeProduction: process.env.NODE_ENV === "production",
@@ -54,7 +58,7 @@ export default defineNuxtConfig({
       user: process.env.NUXT_DB_USER,
       pass: process.env.NUXT_DB_PASS
     },
-    siteUrl: "",
+
   },
   content: {
     experimental: {
@@ -63,22 +67,32 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    "/orders": { ssr: false, headers: { "X-Robots-Tag": "noindex, nofollow" } },
+    "/api/**": { headers: { "X-Robots-Tag": "noindex, nofollow" } },
+    "/data/**": { headers: { "X-Robots-Tag": "noindex, nofollow" } },
+    "/console": { ssr: false, headers: { "X-Robots-Tag": "noindex, nofollow" } },
     "/console/**": {
+      headers: { "X-Robots-Tag": "noindex, nofollow" },
       ssr: false,
     },
     "/auth/**": {
+      headers: { "X-Robots-Tag": "noindex, nofollow" },
       ssr: false,
     },
     "/profile": {
+      headers: { "X-Robots-Tag": "noindex, nofollow" },
       ssr: false,
     },
     "/cart": {
+      headers: { "X-Robots-Tag": "noindex, nofollow" },
       ssr: false,
     },
     "/library": {
+      headers: { "X-Robots-Tag": "noindex, nofollow" },
       ssr: false,
     },
     "/payment": {
+      headers: { "X-Robots-Tag": "noindex, nofollow" },
       ssr: false,
     },
   },
@@ -95,6 +109,7 @@ export default defineNuxtConfig({
   },
 
   app: {
+    head: { htmlAttrs: { lang: "en" } },
     pageTransition: { name: "page", mode: "out-in" },
   },
   hooks: {

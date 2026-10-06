@@ -27,7 +27,7 @@ export function useProductImport(onSuccess?: () => void) {
     const sheetData = await readSheet(file, 1);
     const { objects, errors } = parseSheetData(sheetData, excelRowSchemas);
 
-    if (errors) {
+    if (errors?.length) {
       toast.add({
         color: "error",
         title: "Parse excel error",
@@ -36,7 +36,7 @@ export function useProductImport(onSuccess?: () => void) {
       return;
     }
 
-    objects.forEach((object) => {
+    (objects ?? []).forEach((object) => {
       const parse = TableRowSchema.safeParse(object);
       if (parse.success) {
         tableRowItems.value.push(parse.data);

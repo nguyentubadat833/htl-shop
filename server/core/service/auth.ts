@@ -1,4 +1,4 @@
-import { Credentials, OAuth2Client, TokenPayload } from "google-auth-library";
+import { type Credentials, OAuth2Client, type TokenPayload } from "google-auth-library";
 
 type VerifyCodeWithPostmessage = {
   tokens: Credentials;

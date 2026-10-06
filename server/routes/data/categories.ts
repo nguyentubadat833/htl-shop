@@ -1,4 +1,4 @@
-import { CategorySEOItem } from "#shared/types/category";
+import type { CategorySEOItem } from "#shared/types/category";
 
 export default defineWrappedResponseHandler(async (event) => {
   return await prisma.category

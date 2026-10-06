@@ -1,0 +1,238 @@
+[
+  {
+    "width": 360,
+    "path": "/",
+    "scroll": 360,
+    "galleries": [
+      {
+        "width": 312,
+        "scroll": 312
+      },
+      {
+        "width": 312,
+        "scroll": 312
+      },
+      {
+        "width": 312,
+        "scroll": 312
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 360,
+    "path": "/model/fixture-60",
+    "scroll": 360,
+    "galleries": [
+      {
+        "width": 328,
+        "scroll": 328
+      }
+    ],
+    "thumbnails": {
+      "width": 328,
+      "scroll": 3112
+    }
+  },
+  {
+    "width": 360,
+    "path": "/model/fixture-1",
+    "scroll": 360,
+    "galleries": [
+      {
+        "width": 328,
+        "scroll": 328
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 360,
+    "path": "/model/fixture-0",
+    "scroll": 360,
+    "galleries": [
+      {
+        "width": 328,
+        "scroll": 328
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 753,
+    "path": "/",
+    "scroll": 753,
+    "galleries": [
+      {
+        "width": 182,
+        "scroll": 182
+      },
+      {
+        "width": 182,
+        "scroll": 182
+      },
+      {
+        "width": 182,
+        "scroll": 182
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 753,
+    "path": "/model/fixture-60",
+    "scroll": 753,
+    "galleries": [
+      {
+        "width": 705,
+        "scroll": 705
+      }
+    ],
+    "thumbnails": {
+      "width": 705,
+      "scroll": 3112
+    }
+  },
+  {
+    "width": 753,
+    "path": "/model/fixture-1",
+    "scroll": 753,
+    "galleries": [
+      {
+        "width": 705,
+        "scroll": 705
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 753,
+    "path": "/model/fixture-0",
+    "scroll": 753,
+    "galleries": [
+      {
+        "width": 705,
+        "scroll": 705
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 1265,
+    "path": "/",
+    "scroll": 1265,
+    "galleries": [
+      {
+        "width": 182,
+        "scroll": 182
+      },
+      {
+        "width": 182,
+        "scroll": 182
+      },
+      {
+        "width": 182,
+        "scroll": 182
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 1265,
+    "path": "/model/fixture-60",
+    "scroll": 1265,
+    "galleries": [
+      {
+        "width": 760,
+        "scroll": 760
+      }
+    ],
+    "thumbnails": {
+      "width": 760,
+      "scroll": 3112
+    }
+  },
+  {
+    "width": 1265,
+    "path": "/model/fixture-1",
+    "scroll": 1265,
+    "galleries": [
+      {
+        "width": 760,
+        "scroll": 760
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 1265,
+    "path": "/model/fixture-0",
+    "scroll": 1265,
+    "galleries": [
+      {
+        "width": 760,
+        "scroll": 760
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 1905,
+    "path": "/",
+    "scroll": 1905,
+    "galleries": [
+      {
+        "width": 185,
+        "scroll": 185
+      },
+      {
+        "width": 185,
+        "scroll": 185
+      },
+      {
+        "width": 185,
+        "scroll": 185
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 1905,
+    "path": "/model/fixture-60",
+    "scroll": 1905,
+    "galleries": [
+      {
+        "width": 770,
+        "scroll": 770
+      }
+    ],
+    "thumbnails": {
+      "width": 770,
+      "scroll": 3112
+    }
+  },
+  {
+    "width": 1905,
+    "path": "/model/fixture-1",
+    "scroll": 1905,
+    "galleries": [
+      {
+        "width": 770,
+        "scroll": 770
+      }
+    ],
+    "thumbnails": null
+  },
+  {
+    "width": 1905,
+    "path": "/model/fixture-0",
+    "scroll": 1905,
+    "galleries": [
+      {
+        "width": 770,
+        "scroll": 770
+      }
+    ],
+    "thumbnails": null
+  }
+]

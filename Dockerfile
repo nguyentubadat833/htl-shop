@@ -2,7 +2,7 @@ FROM node:22-alpine AS build
 WORKDIR /build
 
 # Enable pnpm via corepack
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 
 # Copy package manager files trước để cache layer
 COPY package.json pnpm-lock.yaml .npmrc* ./
@@ -10,8 +10,8 @@ COPY package.json pnpm-lock.yaml .npmrc* ./
 COPY . .
 RUN pnpm install --frozen-lockfile --ignore-scripts=false
 
-ARG DATABASE_URL=postgresql://datnguyen:datnguyen@localhost:5432/htl-shop
-ARG NUXT_PUBLIC_GOOGLE_ID=452558787466-iunc1j26aqanlu3shk933cfn4c44lrrq.apps.googleusercontent.com
+ARG DATABASE_URL=postgresql://build:build@localhost:5432/build
+ARG NUXT_PUBLIC_GOOGLE_ID
 
 RUN pnpm prisma:generate
 

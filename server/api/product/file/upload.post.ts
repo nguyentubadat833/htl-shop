@@ -1,5 +1,5 @@
 import { ProductService } from "~~/server/core/service/product";
-import { AddImageResponse } from "#shared/types/product";
+import type { AddImageResponse } from "#shared/types/product";
 import { UploadFileRequestSchema } from "#shared/schemas/product";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {

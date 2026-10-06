@@ -1,7 +1,9 @@
+import { $fetch as apiFetch } from "ofetch";
+
 export default defineNuxtPlugin((nuxtApp) => {
   const toast = useToast();
 
-  const clientApi = $fetch.create({
+  const clientApi = apiFetch.create({
     onResponseError({ response }) {
       if (!response.ok) {
         toast.add({ title: response._data?.message ?? "Error", color: "error" });
@@ -9,14 +11,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   });
 
-  const userApi = $fetch.create({
+  const userApi = apiFetch.create({
     credentials: "include",
     async onResponseError({ response }) {
       if (response.status === 401) {
         await nuxtApp.runWithContext(() => navigateTo("/"));
       } else {
         let message = "Error";
-        if ("error" in response._data && response._data.error === true && "message" in response._data) {
+        if (response._data && typeof response._data === "object" && "error" in response._data && response._data.error === true && "message" in response._data) {
           message = response._data.message;
         }
         toast.add({

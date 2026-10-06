@@ -1,9 +1,9 @@
 <template>
   <div class="flex gap-4">
-    <UCheckbox :model-value="filterState.plans.includes(ProductPlan.FREE)" label="FREE"
-      @update:model-value="(value) => choosePlan(value, ProductPlan.FREE)" />
-    <UCheckbox :model-value="filterState.plans.includes(ProductPlan.PRO)" label="PRO"
-      @update:model-value="(value) => choosePlan(value, ProductPlan.PRO)" />
+    <UCheckbox :model-value="filterState.plans.includes(freePlan)" label="FREE"
+      @update:model-value="(value) => choosePlan(value, freePlan)" />
+    <UCheckbox :model-value="filterState.plans.includes(proPlan)" label="PRO"
+      @update:model-value="(value) => choosePlan(value, proPlan)" />
   </div>
 
 </template>
@@ -12,6 +12,9 @@
 import { ProductPlan } from '~~/prisma/generated/browser'
 import { useFilter } from '~/composables/components/filter';
 
+
+const freePlan = ProductPlan.FREE;
+const proPlan = ProductPlan.PRO;
 
 const { filterState } = useFilter()
 const plans = toRef(filterState.value, 'plans')

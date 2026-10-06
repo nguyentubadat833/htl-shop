@@ -28,6 +28,9 @@ export default defineEventHandler(async (event) => {
 
   if (!idToken || !isLogin) {
     removeCookies();
+    if (currentPath === "/console" || currentPath.startsWith("/console/")) {
+      throw createError({ statusCode: 401, statusMessage: "Required auth" });
+    }
     return;
   }
 
@@ -46,10 +49,11 @@ export default defineEventHandler(async (event) => {
           id: true,
           publicId: true,
           role: true,
+          status: true,
           email: true,
         },
       });
-      if (user) {
+      if (user?.status === "ACTIVE") {
         const authContext = new UserAuthContext(event);
 
         const userAUth = {
@@ -68,7 +72,7 @@ export default defineEventHandler(async (event) => {
 
   const user = UserAuthContext.unwrapUserAuthContext(event);
 
-  if (currentPath.startsWith("/console")) {
+  if ((currentPath === "/console" || currentPath.startsWith("/console/"))) {
     if (!user) {
       throw createError({
         statusCode: 401,

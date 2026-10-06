@@ -1,8 +1,8 @@
 import z from "zod";
 
 export const CreatePaymentSchema = z.object({
-    order_id: z.string(),
-    success_url: z.string(),
-    cancel_url: z.string(),
-    error_url: z.string(),
+    order_id: z.string().min(1),
+    success_url: z.url(),
+    cancel_url: z.url(),
+    error_url: z.url(),
 })

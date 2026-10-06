@@ -19,11 +19,11 @@ SELECT
 
     COUNT(DISTINCT o.id)                  AS total_orders,
     COUNT(DISTINCT o.order_by_user_id)    AS total_customers,
-    COUNT(c.id)                           AS total_products,
+    COALESCE(SUM(c.product_count), 0)::bigint AS total_products,
     COALESCE(SUM(o.amount), 0)            AS total_revenue
 
 FROM "order" o
-JOIN cart c
+JOIN (SELECT order_id, COUNT(*) AS product_count FROM cart GROUP BY order_id) c
     ON c.order_id = o.id
 
 WHERE o.status IN ('PAID', 'SENDING', 'DELIVERED')

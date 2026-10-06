@@ -11,7 +11,7 @@ const Schema = z.object({
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
   const { orderPublicId } = zodValidateRequestOrThrow(Schema, await readBody(event));
-  void OrderService.sendProduct(orderPublicId);
+  await OrderService.sendProduct(orderPublicId);
 
   //   const order = await prisma.order.findUniqueOrThrow({
   //     where: {

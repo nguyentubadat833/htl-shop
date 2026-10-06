@@ -26,7 +26,7 @@
           </div>
           <USeparator />
           <div class="flex-1 overflow-hidden">
-            <NuxtPage class="h-full" />
+            <div class="h-full"><slot /></div>
           </div>
         </UCard>
       </div>

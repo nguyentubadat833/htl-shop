@@ -1,8 +1,8 @@
 import { S3 } from "./s3";
 import slug from "slug";
-import { ProductInfo } from "#shared/types/product";
-import { ObjectStorage, Prisma, Product, ProductStatus, ProductPlan } from "~~/prisma/generated/client";
-import { UserAuth } from "~~/server/utils/context-working";
+import type { ProductInfo } from "#shared/types/product";
+import { type ObjectStorage, Prisma, type Product, ProductStatus, ProductPlan } from "~~/prisma/generated/client";
+import type { UserAuth } from "~~/server/utils/context-working";
 import { orderPaidValues } from "~~/shared/constants/order.constants";
 import z from "zod";
 
@@ -193,7 +193,7 @@ export class ProductService {
     //   return alias;
     // };
 
-    if (status === "ACTIVE") {
+    if ((status ?? this.product.status) === "ACTIVE") {
       const files = await prisma.objectStorage.findMany({
         where: {
           AND: {
@@ -208,12 +208,12 @@ export class ProductService {
         },
       });
 
-      if (this.product.plan === ProductPlan.PRO) {
+      if ((plan ?? this.product.plan) === ProductPlan.PRO) {
         if (!files.find((file) => file.type === "DESIGN")) {
           throw new ServerError("Required product file", 409, "logic");
         }
       } else {
-        if (!this.product.externalLink && !externalLink) {
+        if (!(externalLink ?? this.product.externalLink)) {
           throw new ServerError("Required external link", 409, "logic");
         }
       }
@@ -224,7 +224,7 @@ export class ProductService {
     }
 
     let categoryIds: number[] | undefined = undefined;
-    if (categoryPublicIds && categoryPublicIds.length) {
+    if (categoryPublicIds !== undefined) {
       categoryIds = await prisma.category
         .findMany({
           where: {
@@ -314,7 +314,9 @@ export class ProductService {
       }
 
       if (user.role !== "ADMIN") {
-        await ProductService.hasUserPurchasedProduct(user.id, productId);
+        if (!(await ProductService.hasUserPurchasedProduct(user.id, productId))) {
+          throw new ServerError("Product has not been purchased", 403, "permission");
+        }
       }
     }
 

@@ -1,4 +1,4 @@
-import { ProductSEOItemResponse } from "#shared/types/product"
+import type { ProductSEOListItemResponse } from "#shared/types/product"
 import z from "zod"
 import { changeRate, getAmountVND } from "~~/server/core/service/money"
 
@@ -98,7 +98,7 @@ export default defineWrappedResponseHandler(async (event) => {
                 createdAt: item.createdAt.toString(),
                 imageLinks: item.files.map(file => file.publicId).map(id => `/storage/image?publicId=${id}`),
                 categories: item.categories
-            } satisfies ProductSEOItemResponse
+            } satisfies ProductSEOListItemResponse
         })
     )
 })

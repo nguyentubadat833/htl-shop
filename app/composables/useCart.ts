@@ -3,10 +3,11 @@ import session from "~/utils/session.ts";
 import type { AddProductToCartSchema, CheckoutInCartSchema, RemoveProductsInCartSchema } from "#shared/schemas/cart";
 import { useGoogleButton } from "./components/googleButton";
 
-const quality = ref();
+
 
 export default function () {
   const router = useRouter();
+  const quality = useState<number | undefined>("cart-count", () => undefined);
   const appToast = new useAppToast();
   const { authSession } = session();
   const { $userApi } = useNuxtApp();
@@ -34,7 +35,10 @@ export default function () {
     //   document.getElementById("googleSigninButton")?.click();
     //   return;
     // }
-    googleButtonClick()
+    if (!authSession().get()) {
+      googleButtonClick();
+      return;
+    }
     const { id: cartdId } = await $userApi("/api/shopping/cart/add", {
       method: "POST",
       body: <z.infer<typeof AddProductToCartSchema>>{
@@ -78,7 +82,7 @@ export default function () {
       },
       onResponse({ response }) {
         if (response.ok) {
-          navigateTo(`/payment?orderId=${response._data}`);
+
           count();
         }
       },
@@ -92,7 +96,7 @@ export default function () {
       if (cardId) {
         const orderId = await checkout([cardId]);
         await router.push({
-          path: "payment",
+          path: "/payment",
           query: {
             orderId: orderId,
             status: "confirm",

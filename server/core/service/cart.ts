@@ -1,6 +1,6 @@
 import { OrderService } from "./order";
 import { ProductService } from "./product";
-import { CartItemResponse } from "#shared/types/cart";
+import type { CartItemResponse } from "#shared/types/cart";
 import { ProductPlan, ProductStatus } from "~~/prisma/generated/client";
 
 export class CartService {
@@ -109,6 +109,7 @@ export class CartService {
     await prisma.cart.deleteMany({
       where: {
         userId: this.userId,
+        orderId: null,
         product: {
           publicId: {
             in: product_publicIds,

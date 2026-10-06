@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import os from "os";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { promisify } from "util";
 import { S3 } from "../service/s3";
 
@@ -15,19 +15,18 @@ export async function runSqlBackup() {
   const dbUser = dbConfig.user;
   const dbPass = dbConfig.pass;
 
-  const execAsync = promisify(exec);
+  const execAsync = promisify(execFile);
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const filename = `backup-${dbName}-${timestamp}.sql`;
   const tmpDir = os.tmpdir();
   const backupFilePath = path.join(tmpDir, filename);
 
-  const cmd = `PGPASSWORD="${dbPass}" pg_dump -h ${dbHost} -p ${dbPort} -U ${dbUser} ${dbName} > ${backupFilePath}`;
-
   try {
-    console.log(`[Backup] Running: ${cmd}`);
-
-    await execAsync(cmd);
+    console.log("[Backup] Running pg_dump");
+    await execAsync("pg_dump", ["-h", dbHost, "-p", String(dbPort), "-U", dbUser, "--file", backupFilePath, dbName], {
+      env: { ...process.env, PGPASSWORD: dbPass },
+    });
     console.log(`[Backup] Database dumped: ${backupFilePath}`);
 
     await S3.CLIENT.fPutObject(S3.BUCKET_UPLOAD_DEFAULT, `backups/database/${filename}`, backupFilePath).then(() => {

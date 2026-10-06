@@ -1,29 +1,12 @@
 <template>
   <div class="flex flex-col gap-5">
-    <div class="lg:grid grid-cols-[7fr_3fr] space-y-5">
-      <div class="flex-1 w-full lg:px-20">
-        <UCarousel ref="carousel" v-slot="{ item }" arrows :items="info?.images" :prev="{ onClick: onClickPrev }"
-          :next="{ onClick: onClickNext }" class="w-full" @select="onSelect">
-          <!-- <img :src="item" class="w-full"> -->
-          <div class="bg-gray-100 dark:bg-gray-800 p-2 rounded-xl">
-            <div class="relative rounded-lg overflow-hidden">
-              <img :src="item" class="w-full" />
-              <div class="hidden dark:block absolute inset-0 bg-black/10"></div>
-            </div>
-          </div>
-        </UCarousel>
-
-        <div class="flex gap-1 justify-between pt-4 max-w-xs mx-auto">
-          <div v-for="(item, index) in info?.images" :key="index"
-            class="size-11 opacity-25 hover:opacity-100 transition-opacity"
-            :class="{ 'opacity-100': activeIndex === index }" @click="select(index)">
-            <img :src="item" width="44" height="44" class="rounded-lg" />
-          </div>
-        </div>
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)]">
+      <div class="min-w-0 w-full lg:px-8">
+        <ProductGallery :images="info?.images ?? []" :name="info?.name ?? ''" />
       </div>
       <div class="flex flex-col gap-6">
         <div class="pb-2 lg:mt-0 mt-10">
-          <span class="text-gray-600 font-bold text-xl">{{ info?.name }}</span>
+          <h1 class="font-bold text-xl">{{ info?.name }}</h1>
         </div>
 
         <div class="flex flex-col gap-5">
@@ -81,16 +64,20 @@ const btnAddToCartUI = {
   base: "rounded-3xl h-10",
 };
 
+const { siteUrl } = useRuntimeConfig().public;
 const requestUrl = useRequestURL();
+const siteOrigin = siteUrl || requestUrl.origin;
 const route = useRoute();
 const { addProduct } = useCart();
 
-const { data: info } = await useFetch(`/data/product/${route.params.alias}`, {
+const { data: info, error } = await useFetch(() => `/data/product/${encodeURIComponent(String(route.params.alias))}`, {
   transform(value) {
     return {
       id: value.publicId,
       name: value.name,
       price: value.price + " $",
+      amount: value.price,
+      indexable: value.indexable,
       plan: value.plan,
       images: value.imageLinks,
       specs: [
@@ -130,74 +117,42 @@ const { data: info } = await useFetch(`/data/product/${route.params.alias}`, {
 
 if (!info.value) {
   throw createError({
-    statusCode: 404,
+    statusCode: error.value?.statusCode || 404,
+    statusMessage: error.value?.statusCode === 404 ? "Product not found" : "Unable to load product",
   });
 }
 
-// const info = reactive({
-//   name: 'Eagle Plushy Kids toy',
-//   price: '2$',
-//   plan: 'Pro',
-//   images: ['https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8164/8164078.68fa1eadd13f4.jpeg', 'https://b5.3dsky.org/media/cache/tuk_model_custom_filter_ang_en/model_images/0000/0000/8164/8164079.68fa1eadd5cd2.jpeg'],
-//   specs: [
-//     {
-//       name: "Platform",
-//       value: "3dsMax 2016 + obj"
-//     },
-//     {
-//       name: "Render",
-//       value: "V-Ray"
-//     },
-//     {
-//       name: "Size",
-//       value: "44 MB"
-//     },
-//     {
-//       name: "Colors",
-//       value: "White"
-//     },
-//     {
-//       name: "Style",
-//       value: "Modern"
-//     },
-//     {
-//       name: "Materials",
-//       value: "Fabric"
-//     },
-//     {
-//       name: "Formfactor",
-//       value: "none"
-//     }
-//   ],
-//   description: "Soft and adorable eagle plush toy designed especially for kids – perfect for cozy bedrooms, nurseries, and playful interior scenes. High-quality 3D model with realistic fabric details and cute proportions."
-// })
-
-const carousel = useTemplateRef("carousel");
-const activeIndex = ref(0);
-
-function onClickPrev() {
-  activeIndex.value--;
-}
-function onClickNext() {
-  activeIndex.value++;
-}
-function onSelect(index: number) {
-  activeIndex.value = index;
-}
-
-function select(index: number) {
-  activeIndex.value = index;
-
-  carousel.value?.emblaApi?.scrollTo(index);
-}
-
+const description = computed(() => info.value?.description || `Download ${info.value?.name} for architecture and interior visualization at 3d2ds.`);
 useSeoMeta({
-  title: info.value.name,
-  description: info.value.description,
-  ogImage: `${requestUrl.origin}${info.value.images[0]}`,
-  ogImageAlt: "img",
-  ogDescription: info.value.description,
+  title: () => info.value?.name,
+  description: () => description.value,
+  ogTitle: () => info.value?.name,
+  ogType: "website",
+  ogImage: () => info.value?.images[0] ? new URL(info.value.images[0], siteOrigin).href : new URL("/images/logo.jpg", siteOrigin).href,
+  ogImageAlt: () => info.value?.name,
+  ogDescription: () => description.value,
+  twitterCard: "summary_large_image",
+  robots: () => info.value?.indexable === false ? "noindex, nofollow" : "index, follow",
 });
+useHead(() => ({
+  script: info.value?.indexable === false ? [] : [{
+    key: "product-jsonld",
+    type: "application/ld+json",
+    textContent: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: info.value?.name,
+      description: description.value,
+      image: info.value?.images.map(image => new URL(image, siteOrigin).href),
+      sku: info.value?.id,
+      offers: {
+        "@type": "Offer",
+        url: new URL(route.path, siteOrigin).href,
+        priceCurrency: "USD",
+        price: info.value?.amount,
+        availability: "https://schema.org/InStock",
+      },
+    }).replace(/</g, "\\u003c"),
+  }],
+}));
 </script>
-
-<style></style>

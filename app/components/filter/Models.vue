@@ -49,7 +49,7 @@ import { useFilter } from "~/composables/components/filter";
 const { filterState, filterCategories } = useFilter();
 const selectedCategoryPublicId = toRef(filterState.value, "categoryPublicIds");
 
-const { data: nav } = await useAsyncData(() => $fetch("/data/categories"), {
+const { data: nav } = await useAsyncData(() => $fetch<CategorySEOItem[]>(String("/data/categories")), {
   transform(value) {
     return {
       threeD: value.filter((i) => i.type === CategoryType.THREE_D),

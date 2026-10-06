@@ -127,6 +127,7 @@ onMounted(() => {
   } else {
     authSession().remove();
   }
+  if (!googleId) return;
   const script = document.createElement("script");
   script.src = "https://accounts.google.com/gsi/client";
   script.async = true;
@@ -136,6 +137,7 @@ onMounted(() => {
 });
 
 function initGoogle() {
+  if (!googleId || !(window as any).google?.accounts?.oauth2) return;
   googleClient.value = (window as any).google.accounts.oauth2.initCodeClient({
     client_id: googleId,
     scope: "openid email profile",

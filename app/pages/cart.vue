@@ -5,24 +5,18 @@ const { list, checkout: cartCheckout, removeProducts } = useCart()
 const router = useRouter()
 const data = ref<CartItemResponse[]>()
 const selectedItem = ref<CartItemResponse[]>([])
-const amount = ref<number>(0)
+const amount = computed(() => selectedItem.value.reduce((sum, item) => sum + item.product.price, 0));
 
-async function chooseItem(value: boolean | "indeterminate", item: CartItemResponse) {
-  if (value === true) {
-    selectedItem.value.push(item)
-    amount.value += item.product.price
-  } else {
-    selectedItem.value = selectedItem.value.filter(i => i.cartId !== item.cartId)
-    amount.value -= item.product.price
-  }
-  await nextTick()
+function chooseItem(value: boolean | "indeterminate", item: CartItemResponse) {
+  selectedItem.value = selectedItem.value.filter(i => i.cartId !== item.cartId);
+  if (value === true) selectedItem.value.push(item);
 }
 
 async function checkout() {
   const ids = selectedItem.value.map(item => item.cartId)
   const orderId = await cartCheckout(ids)
   await router.push({
-    path: 'payment',
+    path: '/payment',
     query: {
       orderId: orderId,
       status: 'confirm'
@@ -30,16 +24,10 @@ async function checkout() {
   })
 }
 
-function removeProduct(item: CartItemResponse) {
-  chooseItem(false, item)
-  removeProducts([item.product.publicId])
-    .then(() => {
-      list()
-        .then(rs => {
-          data.value = rs
-        })
-    })
-
+async function removeProduct(item: CartItemResponse) {
+  await removeProducts([item.product.publicId]);
+  chooseItem(false, item);
+  data.value = await list();
 }
 
 onBeforeMount(() => {
@@ -62,10 +50,10 @@ useSeoMeta({
         love!</span>
     </div>
     <UPageList divide>
-      <UPageCard v-for="(item, index) in data" :key="index" variant="ghost" :ui="{ body: 'w-full' }">
+      <UPageCard v-for="(item, index) in data" :key="item.cartId" variant="ghost" :ui="{ body: 'w-full' }">
         <template #body>
           <div class="flex items-center gap-4">
-            <UCheckbox :key="useId()" size="xl" @update:model-value="(value) => chooseItem(value, item)" />
+            <UCheckbox :model-value="selectedItem.some(selected => selected.cartId === item.cartId)" size="xl" @update:model-value="(value) => chooseItem(value, item)" />
             <div class="w-full flex gap-4">
               <div
                 class="overflow-hidden border light:border-gray-200 dark:border-gray-700 rounded-lg min-h-20 max-h-20 min-w-20 max-w-20">

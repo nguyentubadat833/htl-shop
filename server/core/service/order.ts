@@ -1,5 +1,5 @@
-import { OrderWithProductsResponse } from "#shared/types/order";
-import { Order } from "~~/prisma/generated/client";
+import type { OrderWithProductsResponse } from "#shared/types/order";
+import type { Order } from "~~/prisma/generated/client";
 import { Mail } from "~~/server/core/service/mail";
 import { orderPaidValues } from "~~/shared/constants/order.constants";
 
@@ -29,6 +29,7 @@ export class OrderService {
         orderAt: true,
         items: {
           select: {
+            price: true,
             product: {
               select: {
                 alias: true,
@@ -63,7 +64,7 @@ export class OrderService {
       products: items.map((item) => {
         return {
           name: item.product.name,
-          price: item.product.price,
+          price: item.price,
         };
       }),
       paid: orderPaidValues.includes(status),
@@ -85,6 +86,7 @@ export class OrderService {
         orderAt: true,
         items: {
           select: {
+            price: true,
             product: {
               select: {
                 alias: true,
@@ -114,7 +116,7 @@ export class OrderService {
       products: items.map((item) => ({
         alias: item.product.alias,
         name: item.product.name,
-        price: item.product.price,
+        price: item.price,
       })),
       // paid: _count.payments > 0,
       paid: orderPaidValues.includes(status),
@@ -122,33 +124,31 @@ export class OrderService {
   }
 
   static async create(orderByUserId: number, cardIds: string[], currency: "VND" | "USD" = "USD") {
-    // const products = await Promise.all(
-    //   product_publicIds.map(async (id) => {
-    //     const prdService = await new ProductService().withPublicId(id);
-    //     return { id: prdService.product.id, price: prdService.finalPrice };
-    //   }),
-    // );
-    const items = await prisma.cart.findMany({
-      where: {
-        id: {
-          in: cardIds,
+    const ids = [...new Set(cardIds)];
+    if (!ids.length) throw new ServerError("Select at least one cart item", 400, "logic");
+    return prisma.$transaction(async tx => {
+      const items = await tx.cart.findMany({
+        where: { id: { in: ids }, userId: orderByUserId, orderId: null },
+        include: { product: { select: { status: true, price: true } } },
+      });
+      if (items.length !== ids.length) throw new ServerError("Cart items are unavailable", 409, "logic");
+      if (items.some(item => item.product.status !== "ACTIVE")) throw new ServerError("Product required active", 409, "logic");
+      const order = await tx.order.create({
+        data: {
+          orderByUserId,
+          amount: items.reduce((sum, item) => sum + item.product.price, 0),
+          currency,
         },
-        userId: orderByUserId,
-      },
-    });
-
-    return await prisma.order.create({
-      data: {
-        orderByUserId: orderByUserId,
-        amount: items.reduce((sum, prd) => sum + prd.price, 0),
-        items: {
-          connect: items.map((c) => ({ id: c.id })),
-        },
-        currency: currency,
-      },
-      include: {
-        items: true,
-      },
+      });
+      // Claim only unassigned rows: a simultaneous checkout cannot move rows from another order.
+      for (const item of items) {
+        const claimed = await tx.cart.updateMany({
+          where: { id: item.id, userId: orderByUserId, orderId: null },
+          data: { orderId: order.id, price: item.product.price },
+        });
+        if (claimed.count !== 1) throw new ServerError("Cart changed; please retry", 409, "logic");
+      }
+      return tx.order.findUniqueOrThrow({ where: { id: order.id }, include: { items: true } });
     });
   }
 
@@ -167,9 +167,12 @@ export class OrderService {
         },
         items: {
           select: {
+            price: true,
             product: {
               select: {
                 name: true,
+                plan: true,
+                externalLink: true,
                 files: {
                   where: {
                     type: "DESIGN",
@@ -189,11 +192,13 @@ export class OrderService {
       },
     });
 
-    if (order.items.find((item) => !item.product.files.length)) {
+    if (!orderPaidValues.includes(order.status)) throw new ServerError("Order must be paid before delivery", 409, "logic");
+
+    if (order.items.find((item) => item.product.plan === "PRO" && !item.product.files.length)) {
       throw new ServerError("Missing design file", 409, "logic");
     }
 
-    const productListText = order.items.map((item, index) => `${index + 1}. ${item.product.name}`).join("\n");
+    const productListText = order.items.map((item, index) => `${index + 1}. ${item.product.name}${item.product.plan === "FREE" && item.product.externalLink ? ` — ${item.product.externalLink}` : ""}`).join("\n");
 
     const textMail = `
 Dear ${order.orderByUser.name ?? "Customer"},
@@ -203,7 +208,8 @@ Thank you for trusting and purchasing from 3D2DS.
 Below is the list of products you have purchased:
 ${productListText}
     
-Please find the attached files related to your order.
+Access your purchased downloads in your library:
+${new URL("/library", useRuntimeConfig().public.siteUrl).href}
 If you have any questions or need further assistance, feel free to contact us.
     
 Best regards,
@@ -236,9 +242,6 @@ Best regards,
         subject: "Thank you for your purchase at 3D2DS",
         text: textMail,
         // attachments: attachments,
-      })
-      .catch((err) => {
-        logErrorColor(`SEND MAIL FAILED | ${JSON.stringify(err)}`);
       });
 
     await prisma.order.update({
@@ -252,11 +255,10 @@ Best regards,
   }
 
   async cancel() {
-    await prisma.order.update({
-      where: { id: this.order.id },
-      data: {
-        status: "CANCELLED",
-      },
+    const result = await prisma.order.updateMany({
+      where: { id: this.order.id, status: "PENDING" },
+      data: { status: "CANCELLED" },
     });
+    if (!result.count) throw new ServerError("Only pending orders can be cancelled", 409, "logic");
   }
 }

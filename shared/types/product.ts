@@ -35,6 +35,7 @@ export interface ProductItemResponse {
 }
 
 export interface ProductSEOItemResponse {
+  indexable?: boolean;
   publicId: string;
   plan: ProductPlan;
   alias: string;
@@ -51,6 +52,8 @@ export interface ProductSEOItemResponse {
     type: string;
   }[];
 }
+
+export type ProductSEOListItemResponse = Omit<ProductSEOItemResponse, "info">;
 
 export interface ProductPurchased {
   publicId: string;

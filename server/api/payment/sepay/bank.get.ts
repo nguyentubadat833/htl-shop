@@ -1,14 +1,16 @@
+import { escapeXml } from "#shared/utils/site";
 import { CreatePaymentSchema } from "#shared/schemas/payment";
 import { SepayService } from "~~/server/core/service/sepay";
 
 export default defineWrappedRequiredAuthHandler(async (event) => {
   const { order_id, success_url, cancel_url, error_url } = zodValidateRequestOrThrow(CreatePaymentSchema, getQuery(event));
 
+  validatePaymentRedirects(event, [success_url, cancel_url, error_url]);
   const sepayService = new SepayService();
-  const { checkoutForm, checkoutURL } = await sepayService.createCheckoutBankTransfer(order_id, "VND", `DH3D2DS ${order_id}`, success_url, error_url, cancel_url);
+  const { checkoutForm, checkoutURL } = await sepayService.createCheckoutBankTransfer(order_id, new UserAuthContext(event).getUserIdOrThrow(), "VND", `DH3D2DS ${order_id}`, success_url, error_url, cancel_url);
 
   const hiddenInputs = Object.entries(checkoutForm)
-    .map(([key, value]) => `<input type="hidden" name="${key}" value="${String(value)}" />`)
+    .map(([key, value]) => `<input type="hidden" name="${escapeXml(key)}" value="${escapeXml(String(value))}" />`)
     .join("\n");
 
   setResponseHeader(event, "Content-Type", "text/html; charset=utf-8");
@@ -21,7 +23,7 @@ export default defineWrappedRequiredAuthHandler(async (event) => {
         <title>Redirecting to Sepay...</title>
       </head>
       <body>
-        <form id="sepay-form" action="${checkoutURL}" method="POST">
+        <form id="sepay-form" action="${escapeXml(checkoutURL)}" method="POST">
           ${hiddenInputs}
         </form>
 

@@ -516,7 +516,7 @@ const columns = [
     accessorKey: "createdAt",
     header: "Created",
   },
-] satisfies TableColumn<ProductItemResponse>[];
+] satisfies TableColumn<Product>[];
 
 const planOptions = [ProductPlan.FREE, ProductPlan.PRO];
 

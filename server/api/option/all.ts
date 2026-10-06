@@ -24,7 +24,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
     if (!acc[item.key]) {
       acc[item.key] = []
     }
-    acc[item.key].push(item.value)
+    acc[item.key]!.push(item.value)
     return acc
   }, {})
 

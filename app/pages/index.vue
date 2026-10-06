@@ -5,6 +5,7 @@
         <FilterModels />
       </UPageAside>
     </template>
+    <h1 class="text-xl font-semibold">3D &amp; 2D Models for Architecture</h1>
     <div class="lg:flex justify-between hidden">
       <FilterModelTypes />
       <FilterPlans />
@@ -22,7 +23,7 @@
       </div>
     </div>
     <UPageGrid>
-      <UPageCard v-for="(card, index) in productList" :key="useId()" v-bind="card" :ui="cardUI">
+      <UPageCard v-for="(card, index) in productList" :key="card.publicId" :ui="cardUI">
         <template #leading>
           <div class="flex justify-between items-center w-full">
             <!-- <span class="font-medium" :class="[card.plan === ProductPlan.PRO ? 'text-green-600' : 'text-gray-400']">{{
@@ -37,27 +38,10 @@
         </template>
         <template #body>
           <div class="flex flex-col gap-3">
-            <div class="relative group mb-10">
-              <UCarousel v-slot="{ item }" dots :items="card.imageLinks">
-                <div class="flex flex-col items-center justify-center h-48">
-                  <img :src="item" class="rounded" alt="image" />
-                </div>
-              </UCarousel>
-              <div
-                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded">
-              </div>
-
-              <div
-                class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
-                @click="navigateTo(`/model/${card.alias}`)">
-                <span class="text-white font-semibold">View Details</span>
-              </div>
-            </div>
-
-            <div class="font-medium line-clamp-1 text-gray-600 text-sm hover:underline hover:cursor-pointer"
-              @click="navigateTo(`/model/${card.alias}`)">
+            <ProductGallery :images="card.imageLinks" :name="card.name" compact :lazy="index > 2" />
+            <NuxtLink :to="`/model/${card.alias}`" class="font-medium line-clamp-1 text-sm hover:underline">
               {{ card.name }}
-            </div>
+            </NuxtLink>
             <div class="flex justify-between">
               <div class="flex items-center gap-1 text-gray-500">
                 <!-- <Icon name="ic:outline-payments" size="20" /> -->
@@ -67,7 +51,7 @@
               <!-- <UButton icon="ic:round-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer" @click="addProduct(card.publicId, card.name)" /> -->
             </div>
             <div class="flex gap-2">
-              <UButton label="Dowload fee" icon="ic:outline-payments" color="warning" block
+              <UButton :label="card.plan === ProductPlan.FREE ? 'Download free' : 'Buy now'" icon="ic:outline-payments" color="warning" block
                 @click="buyNow(card.publicId)" />
               <UButton icon="ic:baseline-add-shopping-cart" color="neutral" variant="soft" class="hover:cursor-pointer"
                 @click="() => void addProduct(card.publicId, card.name)" />
@@ -84,19 +68,22 @@ import { ProductPlan } from "~~/prisma/generated/browser";
 import { useFilter } from "~/composables/components/filter";
 
 useSeoMeta({
-  title: "Home",
+  title: "3D & 2D Models for Architecture and Interior Design",
+  ogTitle: "3D & 2D Models for Architecture and Interior Design",
+  description: "Explore free and premium 3D and 2D models for architecture, interior design and visualization at 3d2ds.",
 });
 
 const pageUI = {
-  center: "py-5 flex flex-col gap-10",
+  center: "min-w-0 py-5 flex flex-col gap-10",
   left: "px-4! py-1!",
 };
 
 const cardUI = {
-  root: "shadow-md dark:ring-1 light:ring-0 rounded hover:shadow-2xl hover:scale-102",
+  root: "min-w-0 max-w-full shadow-md dark:ring-1 light:ring-0 rounded hover:shadow-2xl hover:scale-102",
   leading: "w-full",
-  body: "w-full",
-  container: "p-2 sm:p-4",
+  wrapper: "min-w-0 w-full",
+  body: "w-full min-w-0",
+  container: "min-w-0 p-2 sm:p-4 lg:flex",
 };
 
 // const chooseSortTypeUI = {
@@ -108,11 +95,11 @@ const { filterState, filterStatus, filterTags } = useFilter();
 
 const { data: productList, pending } = await useAsyncData(
   () =>
-    $fetch<ProductSEOItemResponse[]>("/data/products", {
+    $fetch<ProductSEOListItemResponse[]>("/data/products", {
       query: filterState.value,
     }),
   {
-    watch: [filterState.value],
+    watch: [filterState],
     transform(response) {
       return response.filter((prd) => filterState.value.plans.includes(prd.plan));
     },

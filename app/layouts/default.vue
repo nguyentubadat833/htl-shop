@@ -11,7 +11,7 @@
             <UButton v-for="item in nav" :label="item.label" :icon="item.icon" color="neutral" variant="link"
               @click="navigateTo(item.to)" />
           </div> -->
-          <NuxtPage />
+          <slot />
         </div>
       </UContainer>
     </UMain>

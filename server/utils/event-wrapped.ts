@@ -1,11 +1,14 @@
 import type { EventHandler, EventHandlerRequest } from "h3";
 import { getStatusMessage } from "./error";
-import { H3Event } from "h3";
-import { ErrorResponse } from "~~/shared/types/app";
+import { H3Event, isError } from "h3";
+import type { ErrorResponse } from "~~/shared/types/app";
 import { UserRole } from "~~/prisma/generated/enums";
 
 function handlerError(event: H3Event, err: unknown): ErrorResponse {
-  console.log(err)
+  if (isError(err)) {
+    setResponseStatus(event, err.statusCode, err.statusMessage);
+    return { error: true, statusCode: err.statusCode, statusMessage: err.statusMessage || getStatusMessage(err.statusCode), message: err.message };
+  }
   if (err instanceof ServerError) {
     const statusCode = err.code;
     const statusMessage = getStatusMessage(statusCode);

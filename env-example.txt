@@ -1,6 +1,6 @@
 NODE_ENV=dev
 
-# DATABASE_URL="postgresql://${DB_USER}:%40Remika25032024@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}"
+# DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
 # DB_SCHEMA="public"
 
 DATABASE_URL=
@@ -30,3 +30,11 @@ NUXT_MAIL_AUTH_PASS=
 NUXT_SEPAY_ID=
 NUXT_SEPAY_KEY=
 NUXT_SEPAY_ENV=sandbox
+
+# Canonical production origin (no trailing path)
+NUXT_PUBLIC_SITE_URL=https://3d2ds.com
+NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION=
+
+# AdSense Auto ads: paste your publisher client ID, not an HTML snippet.
+NUXT_PUBLIC_ADSENSE_CLIENT_ID=
+NUXT_PUBLIC_ADSENSE_ENABLED=false

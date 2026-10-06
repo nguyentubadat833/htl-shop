@@ -65,7 +65,7 @@ const orderItemsColumns = [
 const router = useRouter();
 const toast = new useAppToast();
 const { $userApi } = useNuxtApp();
-const { data: orders, refresh, pending } = await useAsyncData(() => $userApi("/api/order/list"));
+const { data: orders, refresh, pending } = await useAsyncData(() => $userApi<OrderItemResponse[]>("/api/order/list"));
 const globalFilter = ref();
 
 const state = reactive<State>({

@@ -1,4 +1,4 @@
-import { CreateProductResponse } from "#shared/types/product";
+import type { CreateProductResponse } from "#shared/types/product";
 import { AddProductSchema } from "#shared/schemas/product";
 import { UserAuthContext } from "~~/server/utils/context-working";
 import { ProductService } from "~~/server/core/service/product";

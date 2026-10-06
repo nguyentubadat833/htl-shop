@@ -8,6 +8,26 @@
 </template>
 <script setup lang="ts">
 const requestUrl = useRequestURL();
+const route = useRoute();
+const config = useRuntimeConfig().public;
+const siteOrigin = config.siteUrl || requestUrl.origin;
+const publicPage = computed(() => route.path === "/" || route.path === "/about" || route.path.startsWith("/model/"));
+const canonical = computed(() => new URL(route.path, siteOrigin).href);
+useHead(() => ({
+  link: publicPage.value ? [{ rel: "canonical", href: canonical.value }] : [],
+  script: route.path === "/" ? [{
+    key: "website-jsonld", type: "application/ld+json",
+    textContent: JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", name: "3d2ds Architecture", url: new URL("/", siteOrigin).href }).replace(/</g, "\\u003c"),
+  }] : [],
+  meta: config.googleSiteVerification ? [{ name: "google-site-verification", content: config.googleSiteVerification }] : [],
+}));
+useSeoMeta({
+  robots: () => publicPage.value ? "index, follow" : "noindex, nofollow",
+  ogUrl: () => canonical.value,
+  ogSiteName: "3d2ds Architecture",
+  ogType: "website",
+  twitterCard: "summary_large_image",
+});
 const toaster = { position: 'top-center' }
 
 useSeoMeta({
@@ -15,8 +35,8 @@ useSeoMeta({
     return title ? `${title} - 3d2ds Architecture` : '3d2ds Architecture';
   },
   description: "3d2ds.com is a Vietnam-based 3D model marketplace created for architects, interior designers, and visualization artists worldwide.",
-  ogImage: `${requestUrl.origin}/images/logo.jpg`,
-  ogImageAlt: "img",
+  ogImage: new URL("/images/logo.jpg", siteOrigin).href,
+  ogImageAlt: "3d2ds Architecture",
   ogDescription: "3d2ds.com is a Vietnam-based 3D model marketplace created for architects, interior designers, and visualization artists worldwide.",
 });
 </script>

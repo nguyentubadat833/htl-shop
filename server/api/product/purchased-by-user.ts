@@ -1,5 +1,5 @@
 import { orderPaidValues } from "~~/shared/constants/order.constants";
-import { ProductPurchased } from "~~/shared/types/product";
+import type { ProductPurchased } from "~~/shared/types/product";
 
 export default defineWrappedRequiredAuthHandler(async (event) => {
   const user = UserAuthContext.unwrapUserAuthContext(event);

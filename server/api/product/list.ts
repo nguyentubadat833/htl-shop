@@ -1,4 +1,4 @@
-import { ProductInfo, ProductItemResponse } from "#shared/types/product";
+import type { ProductInfo, ProductItemResponse } from "#shared/types/product";
 import z from "zod";
 
 const CategoriesSchema = z.array(z.string());

@@ -1,0 +1,51 @@
+
+> htl-shop@ test /home/dev/projects/htl-shop
+> tsx --tsconfig tests/tsconfig.json --test tests/*.test.ts
+
+✔ checkout rejects empty input before opening a transaction (1.84359ms)
+✔ checkout requires every selected row to belong to current unassigned cart (1.722199ms)
+✔ checkout rejects inactive products (0.764451ms)
+✔ checkout deduplicates IDs and snapshots the current server price (1.997111ms)
+✔ checkout rejects a cart row claimed by a competing checkout (0.324085ms)
+✔ removing a cart product never removes historical order items (2.907589ms)
+✔ cancellation atomically accepts only pending orders (0.313475ms)
+✔ unpaid order cannot trigger email delivery (1.197694ms)
+✔ failed mail never marks a paid order delivered (2.973995ms)
+✔ free external-link product delivery does not require a design file (0.551147ms)
+✔ design download rejects users who have not purchased (1.811028ms)
+✔ product category array can be cleared explicitly (0.834284ms)
+✔ activation validates the new plan, rather than the old one (0.202975ms)
+✔ checkout schema rejects empty selection (1.340565ms)
+✔ XML output escapes attributes and text (0.161907ms)
+✔ AdSense accepts valid client IDs and explicit enabled values only (3.381639ms)
+✔ active product edits cannot switch to PRO without a design file (0.322652ms)
+✔ owned design file is accessible after purchase (1.542267ms)
+✔ response wrapper preserves H3 404 errors (0.346879ms)
+✔ free payment requires authentication (0.211742ms)
+✔ free payment does not access another user order (0.624606ms)
+✔ free payment rejects paid-price or cancelled orders (0.291804ms)
+✔ free payment idempotently returns existing completed order (0.20583ms)
+✔ payment rejects external and non-HTTP redirects (0.235948ms)
+✔ cancel rejects another user order and allows the owner (0.477536ms)
+✔ sitemap includes active products only and safely encodes aliases (0.556787ms)
+✔ robots exposes canonical sitemap and excludes account routes (0.141188ms)
+✔ ads.txt requires a real configured publisher ID (0.155496ms)
+✔ duplicate simultaneous IPN callbacks record one payment and one delivery (1.197493ms)
+✔ IPN persistence failure returns an error instead of a success acknowledgement (0.197946ms)
+✔ declined IPN transaction never records a payment (0.155425ms)
+✔ historical order displays purchased price, even after catalogue price changes (0.191714ms)
+✔ monthly revenue counts each paid order once while counting all cart products (25.728859ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 508.8381
+
+Production build: PASS (Nuxt build complete).
+Typecheck: PASS (nuxt typecheck exit 0).
+Browser: PASS, 16 viewport/page checks, thumbnail and carousel selection, SPA navigation, canonical/OG/JSON-LD SSR and HTTP 404; no browser exceptions.
+Production Nitro smoke: PASS, robots.txt/ads.txt 200; six protected paths 401 without authentication.
+External services mocked; PostgreSQL/SMTP/MinIO/OAuth/SePay/AdSense production integration not tested.

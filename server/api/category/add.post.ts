@@ -15,7 +15,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
 
   const alias = slug(name);
 
-  const findWithAlias = await prisma.product.findUnique({
+  const findWithAlias = await prisma.category.findUnique({
     where: {
       alias: alias,
     },
@@ -35,7 +35,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
       type: type,
       active: active,
       tags: {
-        create: tags.map((tag) => ({ name: tag })),
+        create: [...new Set(tags)].map((tag) => ({ name: tag })),
       },
     },
     select: {

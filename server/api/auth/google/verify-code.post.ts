@@ -1,5 +1,5 @@
 import { VerifyCodeRequestSchema } from "#shared/schemas/auth";
-import { UserAuthClient, VarCookie } from "#shared/types/auth";
+import { type UserAuthClient, VarCookie } from "#shared/types/auth";
 import { GoogleService } from "~~/server/core/service/auth";
 import { UserService } from "~~/server/core/service/user";
 
@@ -19,6 +19,8 @@ export default defineEventHandler(async (event) => {
 
     const userService = new UserService();
     const user = await userService.registerUserProvider("GOOGLE", payload.sub, payload.email, payload.name || "", payload.picture || undefined);
+
+    if (user.status !== "ACTIVE") throw createError({ statusCode: 403 });
 
     const response: UserAuthClient = {
       email: payload.email,

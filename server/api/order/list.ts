@@ -1,4 +1,4 @@
-import { OrderItemResponse } from "#shared/types/order";
+import type { OrderItemResponse } from "#shared/types/order";
 
 export default defineWrappedRequiredAdminHandler(async (event) => {
   return await prisma.order.findMany({
@@ -19,6 +19,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
       },
       items: {
         select: {
+          price: true,
           product: {
             select: {
               alias: true,
@@ -57,7 +58,7 @@ export default defineWrappedRequiredAdminHandler(async (event) => {
               productAlias: i.product.alias,
               productPublicId: i.product.publicId,
               productName: i.product.name,
-              price: i.product.price
+              price: i.price
             }
           }),
           payments: item.payments.map(payment => {

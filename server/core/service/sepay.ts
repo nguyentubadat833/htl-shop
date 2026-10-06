@@ -42,6 +42,7 @@ export class SepayService {
 
     async createCheckoutBankTransfer(
         orderPublicIdId: string,
+        userId: number,
         currency: string,
         description: string,
         successURL: string,
@@ -55,16 +56,13 @@ export class SepayService {
             },
             select: {
                 amount: true,
-                status: true
+                status: true,
+                orderByUserId: true
             }
         })
 
-        if (order.status === 'PAID') {
-            throw createError({
-                statusCode: 409,
-                message: 'Order is paid'
-            })
-        }
+        if (order.orderByUserId !== userId) throw createError({ statusCode: 404 });
+        if (order.status !== "PENDING") throw createError({ statusCode: 409, message: "Order is not pending" });
 
         const amount = await getAmountVND(order.amount)
 
