@@ -5,10 +5,10 @@ type VerifyCodeWithPostmessage = {
   payload: TokenPayload;
 };
 
-const { google } = useRuntimeConfig();
+const { google, public: publicConfig } = useRuntimeConfig();
 
 export class GoogleService {
-  static CLIENT_ID = google.clientId
+  static CLIENT_ID = publicConfig.googleId || google.clientId
   static SECRET_ID = google.clientSecret
   constructor() {}
 

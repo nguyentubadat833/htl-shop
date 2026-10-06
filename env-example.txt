@@ -1,27 +1,37 @@
-NODE_ENV=dev
+# Copy this file to .env for local development and fill in the required values.
+# Production: inject these variables when starting the server/container.
+# The built Nuxt server does not automatically read .env.
+NODE_ENV=development
+# Use NODE_ENV=production in production.
 
 # DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
-# DB_SCHEMA="public"
 
 DATABASE_URL=
+# pg_dump backup settings: use the same database as DATABASE_URL.
 NUXT_DB_USER=
 NUXT_DB_PASS=
 NUXT_DB_HOST=
-NUXT_DB_PORT=
+NUXT_DB_PORT=5432
 NUXT_DB_NAME=
 
+# Google OAuth web Client ID, e.g. 123456789-example.apps.googleusercontent.com.
+# This ID is public; the client secret below is server-only.
 NUXT_PUBLIC_GOOGLE_ID=
 NUXT_GOOGLE_CLIENT_SECRET=
+# Currently unused: the Google popup flow exchanges codes with "postmessage".
 NUXT_GOOGLE_REDIRECT_URI=
 
+# Storage hostname only: do not include https:// or a path.
 NUXT_S3_HOST=
+# Optional: defaults to the HTTP/HTTPS port when empty.
 NUXT_S3_PORT=
 NUXT_S3_ACCESS_KEY=
 NUXT_S3_SECRET_KEY=
-NUXT_S3_BUCKET_DEFAULT=
+NUXT_S3_BUCKET_DEFAULT=htl-shop
 NUXT_S3_USE_SSL=false
 
 NUXT_MAIL_HOST=smtp.gmail.com
+# Port 587 uses STARTTLS with secure=false; port 465 uses secure=true.
 NUXT_MAIL_PORT=587
 NUXT_MAIL_SECURE=false
 NUXT_MAIL_AUTH_USER=
@@ -29,12 +39,15 @@ NUXT_MAIL_AUTH_PASS=
 
 NUXT_SEPAY_ID=
 NUXT_SEPAY_KEY=
+# Use production with your live merchant credentials for real payments.
 NUXT_SEPAY_ENV=sandbox
 
 # Canonical production origin (no trailing path)
 NUXT_PUBLIC_SITE_URL=https://3d2ds.com
+# Optional: only the content value from the Search Console verification meta tag.
 NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION=
 
 # AdSense Auto ads: paste your publisher client ID, not an HTML snippet.
+# Format: ca-pub- followed by 16 digits. Leave disabled until configured.
 NUXT_PUBLIC_ADSENSE_CLIENT_ID=
 NUXT_PUBLIC_ADSENSE_ENABLED=false

@@ -1,7 +1,7 @@
 export function usePublicVariables() {
   const runtimeConfig = useRuntimeConfig();
   return {
-    googleId: runtimeConfig.public.googleClientId,
+    googleId: runtimeConfig.public.googleId || runtimeConfig.public.googleClientId,
   };
 }
 

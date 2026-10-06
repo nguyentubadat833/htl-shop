@@ -8,7 +8,8 @@ import { CheckoutInCartSchema } from '../shared/schemas/cart';
 const config = {
   s3: { host: 'localhost', useSSL: 'false', accessKey: 'test', secretKey: 'test', bucketDefault: 'test' },
   mail: { host: 'localhost', port: '587', secure: false, auth: { user: 'test', pass: 'test' } },
-  public: { siteUrl: 'https://3d2ds.com' },
+  public: { siteUrl: 'https://3d2ds.com', googleId: 'runtime-client.apps.googleusercontent.com' },
+  google: { clientId: 'build-client.apps.googleusercontent.com', clientSecret: 'test' },
 };
 Object.assign(globalThis, { useRuntimeConfig: () => config, ServerError, createError });
 const { OrderService } = await import('../server/core/service/order');
@@ -18,6 +19,11 @@ const { S3 } = await import('../server/core/service/s3');
 const { Mail } = await import('../server/core/service/mail');
 const globals = globalThis as any;
 function setDatabase(db: any) { globals.prisma = db; }
+
+test('Google OAuth server uses the same runtime client ID as the browser', async () => {
+  const { GoogleService } = await import('../server/core/service/auth');
+  assert.equal(GoogleService.CLIENT_ID, config.public.googleId);
+});
 
 function freeDownloadDatabase(overrides: any = {}, existing: any = null) {
   const calls: any = {};

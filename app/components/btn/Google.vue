@@ -11,7 +11,7 @@
           <UNavigationMenu v-if="userAuth" orientation="vertical" :items="items" class="data-[orientation=vertical]" />
         </template>
       </UPopover>
-      <UButton v-else id="googleSigninButton" :loading="isLoading" color="neutral" variant="ghost"
+      <UButton v-else id="googleSigninButton" :loading="isLoading || sdkLoading" color="neutral" variant="ghost"
         icon="ic:baseline-log-in" size="md" @click="signInWithGoogle">
         <p class="hidden lg:block">Sign in</p>
       </UButton>
@@ -43,6 +43,37 @@ const { authSession } = session();
 const { googleId } = usePublicVariables();
 const router = useRoute()
 const googleClient = ref<any>(null);
+const sdkLoading = ref(false);
+const toast = useToast();
+let sdkTimeout: ReturnType<typeof setTimeout> | undefined;
+
+function sdkFailed() {
+  clearTimeout(sdkTimeout);
+  sdkLoading.value = false;
+  document.getElementById('google-identity-sdk')?.remove();
+  console.warn('[Google Sign-In] Failed to load Google Identity Services');
+}
+
+function loadGoogleSdk() {
+  if (!googleId || sdkLoading.value) return;
+  if ((window as any).google?.accounts?.oauth2) {
+    initGoogle();
+    return;
+  }
+  sdkLoading.value = true;
+  const script = document.createElement('script');
+  script.id = 'google-identity-sdk';
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.async = true;
+  script.onload = () => {
+    clearTimeout(sdkTimeout);
+    sdkLoading.value = false;
+    initGoogle();
+  };
+  script.onerror = sdkFailed;
+  sdkTimeout = setTimeout(sdkFailed, 15000);
+  document.head.appendChild(script);
+}
 const userAuth = ref<UserAuthClient | null>(null);
 
 const items = computed<NavigationMenuItem[][]>(() => {
@@ -127,14 +158,10 @@ onMounted(() => {
   } else {
     authSession().remove();
   }
-  if (!googleId) return;
-  const script = document.createElement("script");
-  script.src = "https://accounts.google.com/gsi/client";
-  script.async = true;
-  script.defer = true;
-  script.onload = initGoogle;
-  document.head.appendChild(script);
+  loadGoogleSdk();
 });
+
+onBeforeUnmount(() => clearTimeout(sdkTimeout));
 
 function initGoogle() {
   if (!googleId || !(window as any).google?.accounts?.oauth2) return;
@@ -175,7 +202,17 @@ function initGoogle() {
 
 function signInWithGoogle() {
   if (!googleClient.value) {
-    console.warn("Google chưa sẵn sàng");
+    loadGoogleSdk();
+    if (googleClient.value) {
+      googleClient.value.requestCode();
+      return;
+    }
+    toast.add({
+      title: 'Google sign-in unavailable',
+      description: googleId ? 'Please wait a moment and try again.' : 'Please contact support.',
+      icon: 'ic:baseline-log-in',
+      color: 'warning',
+    });
     return;
   }
   googleClient.value.requestCode();

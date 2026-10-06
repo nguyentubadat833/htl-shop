@@ -21,6 +21,7 @@ export default defineNuxtConfig({
       adsenseClientId: "",
       adsenseEnabled: false,
       googleSiteVerification: "",
+      googleId: "",
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_ID,
     },
     nodeProduction: process.env.NODE_ENV === "production",
