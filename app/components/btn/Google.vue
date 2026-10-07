@@ -118,27 +118,6 @@ const items = computed<NavigationMenuItem[][]>(() => {
   return rs;
 });
 
-onBeforeMount(() => {
-  // const isLogin = useCookie(VarCookie.G_LOGIN);
-  // if (isLogin.value) {
-  //   userAuth.value = authSession().get();
-  //   if (!userAuth.value) {
-  //     $fetch("/api/auth/google/verify-id-token", {
-  //       method: "POST",
-  //       credentials: "include",
-  //       onResponse({ response }) {
-  //         if (response.ok && response._data) {
-  //           userAuth.value = response._data;
-  //           authSession().set(userAuth.value!);
-  //         }
-  //       }
-  //     });
-  //   }
-  // } else {
-  //   authSession().remove();
-  // }
-});
-
 onMounted(() => {
   const isLogin = useCookie(VarCookie.G_LOGIN);
   if (isLogin.value) {
@@ -161,7 +140,17 @@ onMounted(() => {
   loadGoogleSdk();
 });
 
-onBeforeUnmount(() => clearTimeout(sdkTimeout));
+onBeforeUnmount(() => {
+  clearTimeout(sdkTimeout);
+  sdkLoading.value = false;
+  isLoading.value = false;
+  const script = document.getElementById('google-identity-sdk') as HTMLScriptElement | null;
+  if (script) {
+    script.onload = null;
+    script.onerror = null;
+    if (!googleClient.value) script.remove();
+  }
+});
 
 function initGoogle() {
   if (!googleId || !(window as any).google?.accounts?.oauth2) return;
@@ -169,42 +158,54 @@ function initGoogle() {
     client_id: googleId,
     scope: "openid email profile",
     ux_mode: "popup",
+    error_callback: () => {
+      isLoading.value = false;
+    },
     callback: async (response: any) => {
-      // console.log('Google OAuth Response:', response)
-
       isLoading.value = true;
-      userAuth.value = await $fetch("/api/auth/google/verify-code", {
-        method: "POST",
-        body: <VerifyCodeRequest>{
-          code: response.code,
-        },
-        // async onResponse({ response }) {
-        //   if (response.ok && response._data) {
-        //     userAuth.value = response._data;
-        //     authSession().set(userAuth.value!);
-        //     await nextTick();
-        //     cartCount();
-        //     useRouter().push(useRoute().fullPath);
-        //     // isLoading.value = false
-        //   }
-        // },
-      }).finally(() => (isLoading.value = false));
-      if (!userAuth.value) {
-        return;
+      try {
+        if (response.error || !response.code) throw new Error('Google authorization failed');
+        const user = await $fetch<UserAuthClient>("/api/auth/google/verify-code", {
+          method: "POST",
+          timeout: 15000,
+          retry: 0,
+          body: <VerifyCodeRequest>{ code: response.code },
+        });
+        if (!user) throw new Error('Missing user session');
+        userAuth.value = user;
+        authSession().set(user);
+        await nextTick();
+        void cartCount().catch(() => {});
+      } catch {
+        toast.add({
+          title: 'Sign-in failed',
+          description: 'Please try again.',
+          icon: 'ic:baseline-log-in',
+          color: 'error',
+        });
+      } finally {
+        isLoading.value = false;
       }
-      authSession().set(userAuth.value!);
-      await nextTick();
-      void cartCount();
-      await useRouter().push(useRoute().fullPath);
     },
   });
+}
+
+function requestGoogleCode() {
+  if (isLoading.value) return;
+  try {
+    // Keep loading for the bounded server request, not while the user uses the popup.
+    googleClient.value.requestCode();
+  } catch {
+    isLoading.value = false;
+    toast.add({ title: 'Google sign-in unavailable', description: 'Please try again.', color: 'warning' });
+  }
 }
 
 function signInWithGoogle() {
   if (!googleClient.value) {
     loadGoogleSdk();
     if (googleClient.value) {
-      googleClient.value.requestCode();
+      requestGoogleCode();
       return;
     }
     toast.add({
@@ -215,6 +216,6 @@ function signInWithGoogle() {
     });
     return;
   }
-  googleClient.value.requestCode();
+  requestGoogleCode();
 }
 </script>
