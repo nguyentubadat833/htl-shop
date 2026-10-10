@@ -6,17 +6,17 @@
       </UPageAside>
     </template>
     <!-- <h1 class="text-xl font-semibold">3D &amp; 2D Models for Architecture</h1> -->
-    <div class="lg:flex justify-between hidden">
-      <FilterModelTypes />
-      <FilterPlans />
+    <div class="hidden lg:flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <FilterModelTypes />
+        <FilterPlans />
+      </div>
+      <FilterSummary />
     </div>
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-5 lg:hidden">
       <div class="flex gap-3 lg:hidden">
         <FilterOptions />
-        <FilterReset />
-      </div>
-      <div class="hidden lg:block">
-        <FilterReset />
+        <FilterReset v-if="hasActiveFilters" />
       </div>
       <div class="flex flex-wrap gap-3">
         <UBadge v-for="item in filterTags" :label="item" color="neutral" variant="soft" class="rounded-full max-w-20" />
@@ -42,8 +42,9 @@
             <NuxtLink :to="`/model/${card.alias}`" class="font-medium line-clamp-1 text-sm hover:underline">
               {{ card.name }}
             </NuxtLink>
-            <div class="flex justify-between">
-              <div class="flex flex-wrap items-center gap-1 text-gray-500">
+            <div class="flex min-h-6 justify-between">
+              <p v-if="card.plan === ProductPlan.FREE" class="text-sm text-muted">Free download</p>
+              <div v-else class="flex flex-wrap items-center gap-1 text-gray-500">
                 <!-- <Icon name="ic:outline-payments" size="20" /> -->
                 <p class="font-medium">{{ priceToUSD(card.price) }}</p>
                 <p class="text-gray-500 text-sm">{{ `(≈${priceToVND(card.priceVND)})` }}</p>
@@ -75,12 +76,12 @@ useSeoMeta({
 });
 
 const pageUI = {
-  center: "min-w-0 py-5 flex flex-col gap-10",
+  center: "min-w-0 py-5 flex flex-col gap-10 lg:gap-5",
   left: "px-4! py-1!",
 };
 
 const cardUI = {
-  root: "min-w-0 max-w-full shadow-md dark:ring-1 light:ring-0 rounded hover:shadow-2xl hover:scale-102",
+  root: "min-w-0 max-w-full rounded-lg ring-1 ring-default shadow-none transition-shadow hover:shadow-sm",
   leading: "w-full",
   wrapper: "min-w-0 w-full",
   body: "w-full min-w-0",
@@ -93,6 +94,15 @@ const cardUI = {
 
 const { addProduct, buyNow, downloadFree } = useCart();
 const { filterState, filterStatus, filterTags } = useFilter();
+const hasActiveFilters = computed(() => {
+  const state = filterState.value;
+  return Boolean(state.keyWork?.trim())
+    || Boolean(state.categoryPublicIds?.length)
+    || state.plans.length !== 2
+    || ![ProductPlan.FREE, ProductPlan.PRO].every(plan => state.plans.includes(plan))
+    || state.categoryTypes.length !== 2
+    || ![CategoryType.TWO_D, CategoryType.THREE_D].every(type => state.categoryTypes.includes(type));
+});
 
 const { data: productList, pending } = await useAsyncData(
   () =>

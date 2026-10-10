@@ -21,7 +21,7 @@ export default defineNuxtConfig({
     'pages:extend'(pages) {
       const allowed = new Set(['/', '/model/:alias()', '/about', '/cart', '/payment']);
       for (let index = pages.length - 1; index >= 0; index--) {
-        if (!allowed.has(pages[index]!.path)) pages.splice(index, 1);
+        if (!allowed.has(pages[index]!.path) && !pages[index]!.path.startsWith('/policies/')) pages.splice(index, 1);
       }
     },
   },

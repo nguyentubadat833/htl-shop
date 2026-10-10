@@ -1,5 +1,6 @@
 <template>
-  <UNavigationMenu orientation="vertical" :items="items" class="data-[orientation=vertical]">
+  <UNavigationMenu orientation="vertical" :items="items" class="min-w-0 data-[orientation=vertical]"
+    :ui="{ linkLabel: 'lg:min-w-0 lg:flex-1', linkTrailingBadge: 'shrink-0' }">
     <!-- <template #item-leading="{ item }">
       <ClientOnly>
         <UCheckbox v-if="item.isMenuItem" :model-value="selectedCategoryPublicId?.includes(item.publicId)"
@@ -8,16 +9,17 @@
     </template> -->
 
     <template #item-label="{ item }">
-      <label>
-        <div class="flex gap-2">
+      <label class="lg:block lg:min-w-0 lg:w-full" :title="item.label">
+        <div class="flex gap-2 lg:min-w-0 lg:items-center">
           <ClientOnly>
             <UCheckbox
               v-if="item.isMenuItem"
+              class="shrink-0"
               :model-value="selectedCategoryPublicId?.includes(item.publicId)"
               @update:model-value="(value) => onCheckboxChange(value, item.publicId, item.label)"
             />
           </ClientOnly>
-          {{ item.label }}
+          <span class="lg:min-w-0 lg:truncate">{{ item.label }}</span>
         </div>
       </label>
     </template>

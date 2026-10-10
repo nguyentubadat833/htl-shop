@@ -2,7 +2,7 @@
   <UFooter :ui="footerUI">
     <template #top>
       <UContainer>
-        <UFooterColumns :columns="columns">
+        <UFooterColumns :columns="columns" :ui="{ link: '[&:not([href])]:opacity-60 [&:not([href])]:cursor-default' }">
           <template #right>
             <!-- <UFormField name="email" label="Subscribe to our newsletter" size="lg">
               <UInput type="email" class="w-full">
@@ -49,7 +49,7 @@ const footerUI = {
 const columns: FooterColumn[] = [
   {
     label: "About Us",
-    children: [{ label: "About 2D3DS" }, { label: "Our Team" }, { label: "Contact" }, { label: "Careers" }, { label: "Blog / News" }],
+    children: [{ label: "About 3D2DS" }, { label: "Our Team" }, { label: "Contact" }, { label: "Careers" }, { label: "Blog / News" }],
   },
   {
     label: "Solutions",
@@ -58,12 +58,13 @@ const columns: FooterColumn[] = [
   {
     label: "Support",
     children: [
-      { label: "How to Order" },
-      { label: "Payment Methods" },
-      { label: "Refund Policy" },
-      { label: "Privacy Policy" },
-      { label: "Terms of Service" },
-      { label: "FAQ" },
+      // { label: "How to Order" },
+      // { label: "Payment Methods" },
+      { label: "Delivery Policy", to: "/policies/delivery-policy" },
+      { label: "Refund Policy", to: "/policies/refund-policy" },
+      { label: "Privacy Policy", to: "/policies/privacy-policy" },
+      { label: "Terms of Service", to: "/policies/terms-of-service" },
+      // { label: "FAQ" },
     ],
   },
   {

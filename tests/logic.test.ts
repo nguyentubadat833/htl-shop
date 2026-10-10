@@ -269,6 +269,11 @@ test('sitemap includes active products only and safely encodes aliases', async (
   assert.equal(args.where.status, 'ACTIVE');
   assert.match(xml, /https:\/\/3d2ds.com\/model\/chair%26sofa/);
   assert.match(xml, /<lastmod>2026-10-06T00:00:00.000Z<\/lastmod>/);
+  for (const slug of ['terms-of-service', 'privacy-policy', 'delivery-policy', 'refund-policy']) {
+    assert.ok(xml.includes(`<loc>https://3d2ds.com/policies/${slug}</loc>`));
+    assert.ok(xml.includes(`<loc>https://3d2ds.com/policies/vi/${slug}</loc>`));
+  }
+  assert.equal(args.take, 49990);
   assert.equal(request.headers['Content-Type'], 'application/xml; charset=utf-8');
 });
 test('robots exposes canonical sitemap and excludes account routes', async () => {

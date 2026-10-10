@@ -7,11 +7,12 @@
   </UApp>
 </template>
 <script setup lang="ts">
+import { policyPaths } from '#shared/utils/policies';
 const requestUrl = useRequestURL();
 const route = useRoute();
 const config = useRuntimeConfig().public;
 const siteOrigin = config.siteUrl || requestUrl.origin;
-const publicPage = computed(() => route.path === "/" || route.path === "/about" || route.path.startsWith("/model/"));
+const publicPage = computed(() => route.path === "/" || route.path === "/about" || route.path.startsWith("/model/") || policyPaths.includes(route.path));
 const canonical = computed(() => new URL(route.path, siteOrigin).href);
 useHead(() => ({
   link: publicPage.value ? [{ rel: "canonical", href: canonical.value }] : [],
